@@ -30,32 +30,57 @@ public class SFTP implements Closeable
 	public SFTP() {
 	}
 
+	private JSch jsch;
+	
 	protected void init(Uri uri, String password) throws ConnectException {
 		Log.d(SFTPProvider.TAG,String.format("Created new connection for %s",uri.getAuthority()));
 		checkArguments(uri,password);
 		this.uri=uri;
 		this.password=password;
-		JSch jsch=new JSch();
+		jsch=new JSch();
 		directory.put(new File("/"),true);
 		lastModified.put(new File("/"),0l);
 		try
 		{
-			session=jsch.getSession(uri.getUserInfo(),uri.getHost(),uri.getPort());
-			session.setPassword(password);
-			Properties config=new Properties();
-			config.put("StrictHostKeyChecking","no");
-			session.setConfig(config);
-			session.setTimeout(TIMEOUT);
-			session.setConfig("PreferredAuthentications","password");
-			session.connect();
-			channel=(ChannelSftp)session.openChannel("sftp");
-			channel.connect();
+			makeSession();
 		}
 		catch(JSchException e)
 		{
 			ConnectException exception=new ConnectException(String.format("Can't connect to %s",uri));
 			exception.initCause(e);
 			throw exception;
+		}
+	}
+
+	private void makeSession() throws JSchException {
+		session=jsch.getSession(uri.getUserInfo(),uri.getHost(),uri.getPort());
+		session.setPassword(password);
+		Properties config=new Properties();
+		config.put("StrictHostKeyChecking","no");
+		session.setConfig(config);
+		session.setTimeout(TIMEOUT);
+		session.setConfig("PreferredAuthentications","password");
+		session.connect();
+		channel=(ChannelSftp)session.openChannel("sftp");
+		channel.connect();
+	}
+	
+	private synchronized void reconnectIfNeeded() throws JSchException {
+		if(!session.isConnected()) {
+			try {
+				Log.d(SFTPProvider.TAG,"Reconnecting session");
+				session.connect();
+			} catch(JSchException e) {
+				// if it fails, just re-create the session from scratch
+				// https://stackoverflow.com/questions/16127200/jsch-how-to-keep-the-session-alive-and-up
+				Log.d(SFTPProvider.TAG,
+				      "Session unusable, create a new one");
+				makeSession();
+			}
+		}
+		if(!channel.isConnected()) {
+			Log.d(SFTPProvider.TAG,"Reconnecting channel");
+			channel.connect();
 		}
 	}
 
@@ -97,6 +122,7 @@ public class SFTP implements Closeable
 		checkArguments(file);
 		try
 		{
+			reconnectIfNeeded();
 			Vector vector=channel.ls(file.getPath());
 			List<File>files=new ArrayList<>(vector.size()-2);
 			for(Object obj:vector)
@@ -112,6 +138,10 @@ public class SFTP implements Closeable
 			}
 			return files.toArray(new File[0]);
 		}
+		catch(JSchException e)
+		{
+			throw getException(e);
+		}
 		catch(SftpException e)
 		{
 			throw getException(e);
@@ -122,7 +152,12 @@ public class SFTP implements Closeable
 		checkArguments(file);
 		try
 		{
+			reconnectIfNeeded();
 			channel.put(file.getPath()).close();
+		}
+		catch(JSchException e)
+		{
+			throw getException(e);
 		}
 		catch(SftpException e)
 		{
@@ -134,12 +169,17 @@ public class SFTP implements Closeable
 		checkArguments(file);
 		try
 		{
+			reconnectIfNeeded();
 			if(isDirectory(file))
 			{
 				for(File child:listFiles(file))delete(child);
 				channel.rmdir(file.getPath());
 			}
 			else channel.rm(file.getPath());
+		}
+		catch(JSchException e)
+		{
+			throw getException(e);
 		}
 		catch(SftpException e)
 		{
@@ -151,7 +191,12 @@ public class SFTP implements Closeable
 		checkArguments(file);
 		try
 		{
+			reconnectIfNeeded();
 			return new BufferedInputStream(channel.get(file.getPath()));
+		}
+		catch(JSchException e)
+		{
+			throw getException(e);
 		}
 		catch(SftpException e)
 		{
@@ -163,7 +208,12 @@ public class SFTP implements Closeable
 		checkArguments(file);
 		try
 		{
+			reconnectIfNeeded();
 			channel.mkdir(file.getPath());
+		}
+		catch(JSchException e)
+		{
+			throw getException(e);
 		}
 		catch(SftpException e)
 		{
@@ -188,7 +238,12 @@ public class SFTP implements Closeable
 		checkArguments(oldPath,newPath);
 		try
 		{
+			reconnectIfNeeded();
 			channel.rename(oldPath.getPath(),newPath.getPath());
+		}
+		catch(JSchException e)
+		{
+			throw getException(e);
 		}
 		catch(SftpException e)
 		{
@@ -200,7 +255,12 @@ public class SFTP implements Closeable
 		checkArguments(file);
 		try
 		{
+			reconnectIfNeeded();
 			return channel.put(file.getPath());
+		}
+		catch(JSchException e)
+		{
+			throw getException(e);
 		}
 		catch(SftpException e)
 		{
@@ -223,9 +283,14 @@ public class SFTP implements Closeable
 		try
 		{
 			Log.d(SFTPProvider.TAG, String.format("Get server file %s to %s", from.getAbsolutePath(), to.getAbsolutePath()));
+			reconnectIfNeeded();
 			channel.get(from.getPath(),to.getPath());
 			long lastModified = lastModified(from);
 			to.setLastModified(lastModified);
+		}
+		catch(JSchException e)
+		{
+			throw getException(e);
 		}
 		catch(SftpException e)
 		{
@@ -237,12 +302,17 @@ public class SFTP implements Closeable
 		checkArguments(from,to);
 		try
 		{
+			reconnectIfNeeded();
 			InputStream input=new BufferedInputStream(channel.get(from.getPath()));
 			OutputStream output=new BufferedOutputStream(channel.put(to.getPath()));
 			byte[]buffer=new byte[BUFFER];
 			while(true)if(write(input,output,buffer)==-1)break;
 			input.close();
 			output.close();
+		}
+		catch(JSchException e)
+		{
+			throw getException(e);
 		}
 		catch(SftpException e)
 		{
@@ -302,7 +372,7 @@ public class SFTP implements Closeable
 	{
 		writeAll(input,output,null);
 	}
-	private IOException getException(SftpException cause)
+	private IOException getException(Exception cause)
 	{
 		assert cause!=null;
 		if(cause.getCause()!=null)
