@@ -2,11 +2,11 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 29
-    buildToolsVersion "29.0.0"
+    namespace 'com.island.androidsftpdocumentsprovider'
     defaultConfig {
         applicationId "com.island.androidsftpdocumentsprovider"
         minSdkVersion 19
-        targetSdkVersion 29
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -23,5 +23,5 @@ dependencies {
     // https://mvnrepository.com/artifact/commons-net/commons-net
     //compile 'commons-net:commons-net:+'
 	// https://mvnrepository.com/artifact/it.sauronsoftware/ftp4j
-	compile 'com.jcraft:jsch:0.1.55'
+	implementation 'com.jcraft:jsch:0.1.55'
 }

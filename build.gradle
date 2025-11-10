@@ -2,11 +2,11 @@
 
 buildscript {
     ext {
-        var = '3.5.2'
+        var = '8.13.0'
     }
     repositories {
         google()
-        jcenter()
+        mavenCentral()
         
     }
     dependencies {
@@ -20,7 +20,7 @@ buildscript {
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
         
     }
 }

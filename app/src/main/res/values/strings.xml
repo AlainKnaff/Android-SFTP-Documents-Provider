@@ -11,5 +11,5 @@
 	<string name="anonymous">Anonymous</string>
 	<string name="include_hidden_folders">Include hidden folders</string>
 	<string name="foreground">Foreground</string>
-	<string name="notification_description">Uploading: %s %%</string>
+	<string name="notification_description">Uploading: %d %%</string>
 </resources>
