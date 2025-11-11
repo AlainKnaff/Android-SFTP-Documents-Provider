@@ -427,7 +427,7 @@ public class SFTPProvider extends DocumentsProvider
 	}
 
 	private SFTP createSftp(Uri documentId) throws IOException {
-		return new MtSFTP(documentId,getToken(getContext(),documentId));
+		return new SFTP(documentId,getToken(getContext(),documentId));
 	}
 
 	private void putFileInfo(MatrixCursor.RowBuilder row,Uri uri)throws IOException
