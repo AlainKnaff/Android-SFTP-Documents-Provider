@@ -111,13 +111,13 @@ public class SFTP implements Closeable
 		return getValue(directory,file);
 	}
 	@Override
-	public void close() throws IOException
+	public synchronized void close() throws IOException
 	{
 		session.disconnect();
 		channel.quit();
 		disconnected=true;
 	}
-	public File[]listFiles(File file)throws IOException
+	public synchronized File[]listFiles(File file)throws IOException
 	{
 		checkArguments(file);
 		try
@@ -147,7 +147,7 @@ public class SFTP implements Closeable
 			throw getException(e);
 		}
 	}
-	public void newFile(File file)throws IOException
+	public synchronized void newFile(File file)throws IOException
 	{
 		checkArguments(file);
 		try
@@ -164,7 +164,7 @@ public class SFTP implements Closeable
 			throw getException(e);
 		}
 	}
-	public void delete(File file)throws IOException
+	public synchronized void delete(File file)throws IOException
 	{
 		checkArguments(file);
 		try
@@ -186,7 +186,7 @@ public class SFTP implements Closeable
 			throw getException(e);
 		}
 	}
-	public InputStream read(File file)throws IOException
+	public synchronized InputStream read(File file)throws IOException
 	{
 		checkArguments(file);
 		try
@@ -203,7 +203,7 @@ public class SFTP implements Closeable
 			throw getException(e);
 		}
 	}
-	public void mkdirs(File file)throws IOException
+	public synchronized void mkdirs(File file)throws IOException
 	{
 		checkArguments(file);
 		try
@@ -233,7 +233,7 @@ public class SFTP implements Closeable
 			return false;
 		}
 	}
-	public void renameTo(File oldPath,File newPath)throws IOException
+	public synchronized void renameTo(File oldPath,File newPath)throws IOException
 	{
 		checkArguments(oldPath,newPath);
 		try
@@ -250,7 +250,7 @@ public class SFTP implements Closeable
 			throw getException(e);
 		}
 	}
-	public OutputStream write(File file)throws IOException
+	public synchronized OutputStream write(File file)throws IOException
 	{
 		checkArguments(file);
 		try
@@ -277,7 +277,7 @@ public class SFTP implements Closeable
 		Objects.requireNonNull(file);
 		return Uri.parse(SCHEME+uri.getAuthority()+file.getPath());
 	}
-	public void get(File from,File to)throws IOException
+	public synchronized void get(File from,File to)throws IOException
 	{
 		checkArguments(from,to);
 		try
@@ -297,7 +297,7 @@ public class SFTP implements Closeable
 			throw getException(e);
 		}
 	}
-	public void copy(File from,File to)throws IOException
+	public synchronized void copy(File from,File to)throws IOException
 	{
 		checkArguments(from,to);
 		try
