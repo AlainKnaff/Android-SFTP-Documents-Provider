@@ -1,4 +1,5 @@
 package com.island.androidsftpdocumentsprovider.account;
+import android.app.Activity;
 import android.accounts.*;
 import android.content.*;
 import android.net.*;
@@ -9,7 +10,7 @@ import android.view.*;
 import android.widget.*;
 import com.island.androidsftpdocumentsprovider.*;
 import com.island.androidsftpdocumentsprovider.provider.*;
-public class AuthenticationActivity extends AccountAuthenticatorActivity
+public class AuthenticationActivity extends Activity
 {
 	public static final String ACCOUNT_TYPE="com.island.sftp.account";
 	public static final String TOKEN_TYPE="login";

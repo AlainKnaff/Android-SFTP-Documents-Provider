@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
-    namespace 'com.island.androidsftpdocumentsprovider'
+    compileSdkVersion 36
+    namespace='com.island.androidsftpdocumentsprovider'
     defaultConfig {
         applicationId "com.island.androidsftpdocumentsprovider"
         minSdkVersion 19
