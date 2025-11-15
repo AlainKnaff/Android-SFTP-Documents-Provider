@@ -81,9 +81,7 @@ public class SFTP implements Closeable
 		// then waiting for that thread, blocking anyways
 		StrictMode.ThreadPolicy gfgPolicy = 
 			new StrictMode.ThreadPolicy.Builder()
-			.detectAll()
-			.permitDiskReads()
-			.penaltyLog()
+			.permitAll()
 			.build();
 		StrictMode.setThreadPolicy(gfgPolicy);
 	}
@@ -414,6 +412,7 @@ public class SFTP implements Closeable
 	}
 	private void checkArguments(Object...arguments)
 	{
+		cancelStrictMode();
 		assert arguments!=null;
 		for(Object argument:arguments)Objects.requireNonNull(argument,Arrays.toString(arguments));
 		if(disconnected)throw new IllegalStateException("Connection already closed");
