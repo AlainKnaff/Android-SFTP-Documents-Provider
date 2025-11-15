@@ -1,21 +1,38 @@
 package com.island.androidsftpdocumentsprovider.provider;
-import android.accounts.*;
-import android.content.*;
-import android.database.*;
-import android.net.*;
-import android.os.*;
-import android.provider.*;
-import android.provider.DocumentsContract.*;
-import android.util.*;
+import android.accounts.AccountManager;
+import android.accounts.Account;
+import android.accounts.AuthenticatorException;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.BroadcastReceiver;
+import android.database.Cursor;
+import android.database.MatrixCursor;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+import android.os.ParcelFileDescriptor;
+import android.os.Looper;
+import android.os.Handler;
+import android.os.Build;
+import android.os.CancellationSignal;
+import android.provider.DocumentsProvider;
+import android.provider.DocumentsContract.Root;
+import android.provider.DocumentsContract.Document;
+import android.util.Log;
 
-import com.island.androidsftpdocumentsprovider.*;
-import com.island.androidsftpdocumentsprovider.account.*;
-import com.island.sftp.*;
-import java.io.*;
-import java.util.*;
-
+import com.island.androidsftpdocumentsprovider.R;
+import com.island.androidsftpdocumentsprovider.account.AuthenticationActivity;
+import com.island.sftp.SFTP;
+import java.io.File;
+import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.util.Objects;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
 import android.accounts.OperationCanceledException;
-import java.net.*;
+import java.net.SocketException;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class SFTPProvider extends DocumentsProvider
