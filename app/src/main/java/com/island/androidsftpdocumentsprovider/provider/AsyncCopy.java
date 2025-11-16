@@ -78,6 +78,7 @@ public class AsyncCopy extends AsyncTask<File,Long,Void>implements Observer
 		Intent intent=new Intent(context,UploaderService.class);
 		context.stopService(intent);
 		Intent intentBroadcast = new Intent(SFTPProvider.SFTP_UPLOAD_POST);
+		intentBroadcast.setPackage(context.getPackageName());
 		intentBroadcast.putExtra("uri", uri.toString());
 		context.sendBroadcast(intentBroadcast);
 	}
