@@ -1,4 +1,7 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
 
 android {
     compileSdkVersion 36
@@ -17,11 +20,22 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_17
+    }
 }
 
 dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     // https://mvnrepository.com/artifact/commons-net/commons-net
     //compile 'commons-net:commons-net:+'
 	// https://mvnrepository.com/artifact/it.sauronsoftware/ftp4j
 	implementation 'com.github.mwiede:jsch:2.27.6'
+
+	implementation 'com.google.android.material:material:1.2.1'
+	implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 }
