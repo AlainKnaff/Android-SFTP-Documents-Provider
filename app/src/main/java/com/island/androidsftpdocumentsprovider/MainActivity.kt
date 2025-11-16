@@ -15,6 +15,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CompoundButton
 import android.widget.TextView
+import android.annotation.SuppressLint
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -72,6 +73,7 @@ class MainActivity : Activity()
             val account=accounts[position]
             holder.text.text=account.name
             holder.button.setOnClickListener()
+	    @SuppressLint("ImplicitSamInstance")
             @Suppress("deprecation")
             {
                 accountManager.removeAccount(account, {updateData()},null)

@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity"
-    android:layout_marginLeft="@dimen/activity_small_horizontal_margin"
+    android:layout_marginStart="@dimen/activity_small_horizontal_margin"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 

@@ -21,10 +21,12 @@
 		android:gravity="center">
 
 		<EditText
+			android:inputType="text"
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
 			android:ems="10"
-			android:hint="192.168.1.1"
+			android:hint="@string/hostExample"
+			android:autofillHints="host"
 			android:id="@+id/host"
 			android:gravity="center"/>
 
@@ -45,9 +47,11 @@
 		android:gravity="center">
 
 		<EditText
+			android:inputType="text"
 			android:layout_width="wrap_content"
 			android:ems="10"
 			android:layout_height="wrap_content"
+			android:autofillHints="username"
 			android:id="@+id/user"
 			android:gravity="center"/>
 
@@ -72,6 +76,7 @@
 			android:layout_width="wrap_content"
 			android:ems="10"
 			android:layout_height="wrap_content"
+			android:autofillHints="password"
 			android:id="@+id/password"
 			android:gravity="center"/>
 
@@ -92,12 +97,14 @@
 		android:gravity="center">
 
 		<EditText
+			android:inputType="number"
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
 			android:ems="10"
+			android:autofillHints="port"
 			android:id="@+id/port"
 			android:gravity="center"
-			android:text="22"/>
+			android:text="@string/portExample"/>
 
 	</RelativeLayout>
 

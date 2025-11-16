@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lint>
+    <issue id="LogConditional" severity="ignore" />
+    <issue id="StringFormatTrivial" severity="ignore" />
+    <issue id="SyntheticAccessor" severity="ignore" />
+</lint>
