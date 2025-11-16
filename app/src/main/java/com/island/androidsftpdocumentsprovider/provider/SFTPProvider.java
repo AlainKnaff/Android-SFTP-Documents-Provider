@@ -57,7 +57,7 @@ public class SFTPProvider extends DocumentsProvider
                 Log.i(TAG, String.format("Current uploading files: %s, remove %s", uploadingFiles, uri));
                 uploadingFiles.remove(uri);
             }
-        }, new IntentFilter(SFTP_UPLOAD_POST));
+	 }, new IntentFilter(SFTP_UPLOAD_POST), Context.RECEIVER_NOT_EXPORTED);
 		return true;
 	}
 	@Override
