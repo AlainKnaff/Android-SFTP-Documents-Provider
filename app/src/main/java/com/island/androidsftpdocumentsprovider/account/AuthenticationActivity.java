@@ -1,15 +1,17 @@
 package com.island.androidsftpdocumentsprovider.account;
 import android.app.Activity;
-import android.accounts.*;
-import android.content.*;
-import android.net.*;
-import android.os.*;
-import android.provider.*;
-import android.util.*;
-import android.view.*;
-import android.widget.*;
-import com.island.androidsftpdocumentsprovider.*;
-import com.island.androidsftpdocumentsprovider.provider.*;
+import android.accounts.AccountManager;
+import android.accounts.Account;
+import android.content.ContentResolver;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.DocumentsContract;
+import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
+import com.island.androidsftpdocumentsprovider.R;
+import com.island.androidsftpdocumentsprovider.provider.SFTPProvider;
 public class AuthenticationActivity extends Activity
 {
 	public static final String ACCOUNT_TYPE="com.island.sftp.account";
