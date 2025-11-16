@@ -4,7 +4,7 @@
 	<string name="account_name">SSH File Transfer Protocol</string>
 	<string name="sftp">SFTP</string>
 	<string name="sftp_authority" translatable="false">com.island.sftp</string>
-	<string name="ip">Ip</string>
+	<string name="host">Host</string>
 	<string name="port">Port</string>
 	<string name="username">Username</string>
 	<string name="password">Password</string>

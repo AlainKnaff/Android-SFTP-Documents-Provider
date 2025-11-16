@@ -31,10 +31,10 @@ public class AuthenticationActivity extends Activity
 		Uri uri=getIntent().getData();
 		if(uri!=null)
 		{
-			EditText ip=findViewById(R.id.ip);
+			EditText host=findViewById(R.id.host);
 			EditText port=findViewById(R.id.port);
 			EditText user=findViewById(R.id.user);
-			ip.setText(uri.getHost());
+			host.setText(uri.getHost());
 			user.setText(uri.getUserInfo());
 			port.setText(String.valueOf(uri.getPort()));
 		}
@@ -42,13 +42,13 @@ public class AuthenticationActivity extends Activity
 	public void confirm(View view)
 	{
 		Log.i(SFTPProvider.TAG,String.format("AuthenticationActivity confirm %s",view));
-		String ip=((EditText)findViewById(R.id.ip)).getText().toString();
+		String host=((EditText)findViewById(R.id.host)).getText().toString();
 		String port=((EditText)findViewById(R.id.port)).getText().toString();
 		String user=((EditText)findViewById(R.id.user)).getText().toString();
 		String password=((EditText)findViewById(R.id.password)).getText().toString();
-		if(ip.isEmpty()||port.isEmpty()||user.isEmpty()||password.isEmpty())return;
+		if(host.isEmpty()||port.isEmpty()||user.isEmpty()||password.isEmpty())return;
 		String accountType=getIntent().getStringExtra(AccountManager.KEY_ACCOUNT_TYPE);
-		String username=user+"@"+ip+":"+port;
+		String username=user+"@"+host+":"+port;
 		Account account=new Account(username,accountType);
 		AccountManager accountManager=AccountManager.get(this);
 		Bundle userdata=new Bundle();

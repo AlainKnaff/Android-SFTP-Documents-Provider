@@ -10,7 +10,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:textAppearance="?android:attr/textAppearanceLarge"
-		android:text="@string/ip"
+		android:text="@string/host"
 		android:layout_weight="1.0"
 		android:gravity="center"/>
 
@@ -25,7 +25,7 @@
 			android:layout_width="wrap_content"
 			android:ems="10"
 			android:hint="192.168.1.1"
-			android:id="@+id/ip"
+			android:id="@+id/host"
 			android:gravity="center"/>
 
 	</RelativeLayout>
