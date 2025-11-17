@@ -3,6 +3,7 @@ package com.island.androidsftpdocumentsprovider
 import java.util.List
 
 import android.app.Activity
+import android.content.ContentResolver;
 import android.content.Intent
 import android.graphics.drawable.Icon
 import android.net.Uri
@@ -103,9 +104,13 @@ class MainActivity : Activity()
 	    holder.account=account
             holder.button.setOnClickListener()
 	    @SuppressLint("ImplicitSamInstance")
-            @Suppress("deprecation")
+	    @Suppress("deprecation")
             {
-                dbHandler!!.removeAccount(account!!.id)
+		val oldName=account!!.name
+		dbHandler!!.removeAccount(account!!.id)
+		AuthenticationActivity
+		    .notifyChange(this@MainActivity,
+				  ContentResolver.NOTIFY_DELETE)
 		updateData()
             }
         }

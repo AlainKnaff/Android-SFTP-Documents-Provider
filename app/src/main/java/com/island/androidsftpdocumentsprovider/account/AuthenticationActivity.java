@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.database.ContentObserver;
 
 import com.island.sftp.SFTP;
 import com.island.androidsftpdocumentsprovider.R;
@@ -89,17 +91,30 @@ public class AuthenticationActivity extends Activity
 				return;
 			dbHandler.addNewAccount(name, hostName, port,
 						userName, password);
+			notifyChange(this, ContentResolver.NOTIFY_INSERT);
 		} else {
+			String oldName = account.getName();
 			// update existing account
 			if(password.isEmpty())
 				password=account.getPassword();
 			dbHandler.updateAccount(account.getId(),
 						name, hostName, port,
 						userName, password);
+			if(!oldName.equals(name)) {
+				notifyChange(this,
+					     ContentResolver.NOTIFY_UPDATE);
+			}
 		}
 
 		Intent result=new Intent();
 		setResult(RESULT_OK,result);
 		finish();
+	}
+
+	public static void notifyChange(Context context, int mode) {
+		Uri uri = DocumentsContract.buildRootsUri(AUTHORITY);
+		context
+			.getContentResolver()
+			.notifyChange(uri, null, mode);
 	}
 }
