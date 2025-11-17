@@ -1,6 +1,7 @@
 package com.island.androidsftpdocumentsprovider
 
-import android.accounts.AccountManager
+import java.util.List
+
 import android.app.Activity
 import android.content.Intent
 import android.graphics.drawable.Icon
@@ -21,14 +22,22 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
+import com.island.androidsftpdocumentsprovider.account.Account
+import com.island.androidsftpdocumentsprovider.account.DBHandler
+import com.island.androidsftpdocumentsprovider.account.AuthenticationActivity
+
 class MainActivity : Activity()
 {
     private val TAG="MainActivity"
+
+    private var dbHandler:DBHandler? = null
+
     override fun onCreate(savedInstanceState: Bundle?)
     {
         Log.i(TAG,"OnCreate $savedInstanceState")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main)
+        dbHandler = DBHandler(this)
 
         val recyclerView=findViewById<RecyclerView>(R.id.sftp_accounts)
         recyclerView.adapter=SFTPAdapter(this)
@@ -38,8 +47,16 @@ class MainActivity : Activity()
     fun addSftpAccount(view:View)
     {
         Log.i(TAG,"AddSftpAccount $view")
-        val accountManager:AccountManager= AccountManager.get(this)
-        accountManager.addAccount(getString(R.string.account_type),null,null,null,this, null,null)
+	val intent:Intent = Intent(this, AuthenticationActivity::class.java)
+	startActivity(intent)
+    }
+
+    fun editSftpAccount(view:View, account:Account?)
+    {
+        Log.i(TAG,"EditSftpAccount $view $account.id")
+	val intent:Intent = Intent(this, AuthenticationActivity::class.java)
+	intent.putExtra(DBHandler.ID_COL, account!!.id)
+	startActivity(intent)
     }
 
     override fun onResume()
@@ -49,15 +66,26 @@ class MainActivity : Activity()
         (findViewById<RecyclerView>(R.id.sftp_accounts).adapter as SFTPAdapter).updateData()
     }
 
-    class SFTPAdapter(private val activity:Activity):RecyclerView.Adapter<SFTPAdapter.ViewHolder>()
+    inner class SFTPAdapter(private val activity:Activity):RecyclerView.Adapter<SFTPAdapter.ViewHolder>()
     {
         private val TAG="SFTPAdapter"
-        private val accountManager:AccountManager= AccountManager.get(activity)
-        private var accounts=accountManager.getAccountsByType(activity.getString(R.string.account_type))
-        class ViewHolder(view:View):RecyclerView.ViewHolder(view)
+        private var accounts =dbHandler!!.readAccounts()
+        inner class ViewHolder(view:View):RecyclerView.ViewHolder(view),
+				    View.OnClickListener
         {
+	    private val TAG="SFTPAdapter.ViewHolder"
             val text:TextView = view.findViewById(R.id.text)
             val button:Button = view.findViewById(R.id.button)
+	    var account:Account? = null
+	    
+	    init {
+		view.setOnClickListener(this)
+	    }
+
+	    override fun onClick(view: View)
+	    {
+		editSftpAccount(view,account)
+	    }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder
@@ -72,11 +100,13 @@ class MainActivity : Activity()
             Log.i(TAG,"OnBindViewHolder $holder $position")
             val account=accounts[position]
             holder.text.text=account.name
+	    holder.account=account
             holder.button.setOnClickListener()
 	    @SuppressLint("ImplicitSamInstance")
             @Suppress("deprecation")
             {
-                accountManager.removeAccount(account, {updateData()},null)
+                dbHandler!!.removeAccount(account!!.id)
+		updateData()
             }
         }
 
@@ -89,7 +119,7 @@ class MainActivity : Activity()
         fun updateData()
         {
             Log.i(TAG,"updateData")
-            accounts=accountManager.getAccountsByType(activity.getString(R.string.account_type))
+            accounts=dbHandler!!.readAccounts()
             notifyDataSetChanged()
         }
     }

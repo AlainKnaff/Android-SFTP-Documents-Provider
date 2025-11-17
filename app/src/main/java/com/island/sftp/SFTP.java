@@ -5,6 +5,7 @@ import android.util.*;
 import android.webkit.*;
 import android.os.StrictMode;
 import com.island.androidsftpdocumentsprovider.provider.*;
+import com.island.sftp.SFTP;
 import com.jcraft.jsch.*;
 import com.jcraft.jsch.ChannelSftp.*;
 import java.io.*;
@@ -23,6 +24,11 @@ public class SFTP implements Closeable
 	private final HashMap<File,Long>size=new HashMap<>();
 	private final HashMap<File,Boolean>directory=new HashMap<>();
 	private boolean disconnected;
+
+	public static Uri parseUri(String name) {
+		return Uri.parse(SFTP.SCHEME+name);
+	}
+
 	public SFTP(Uri uri,String password)throws ConnectException
 	{
 		init(uri, password);

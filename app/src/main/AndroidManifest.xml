@@ -44,15 +44,6 @@
                 <action android:name="android.content.action.DOCUMENTS_PROVIDER"/>
             </intent-filter>
         </provider>
-		<service
-            android:name="com.island.androidsftpdocumentsprovider.account.AccountService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator"/>
-            </intent-filter>
-            <meta-data android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator"/>
-        </service>
-		<service android:name=".provider.UploaderService"/>
+	<service android:name=".provider.UploaderService"/>
     </application>
 </manifest>

@@ -1,7 +1,5 @@
 package com.island.androidsftpdocumentsprovider.provider;
-import android.accounts.AccountManager;
-import android.accounts.Account;
-import android.accounts.AuthenticatorException;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -22,6 +20,8 @@ import android.util.Log;
 
 import com.island.androidsftpdocumentsprovider.R;
 import com.island.androidsftpdocumentsprovider.account.AuthenticationActivity;
+import com.island.androidsftpdocumentsprovider.account.DBHandler;
+import com.island.androidsftpdocumentsprovider.account.Account;
 import com.island.sftp.SFTP;
 import java.io.File;
 import java.io.IOException;
@@ -47,9 +47,13 @@ public class SFTPProvider extends DocumentsProvider
 
 
     private final static Set<String> uploadingFiles = new CopyOnWriteArraySet<>();
+	private DBHandler dbHandler;
+
 	@Override
 	public boolean onCreate()
 	{
+	    dbHandler = new DBHandler(getContext());
+		
 	    getContext().registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -67,14 +71,19 @@ public class SFTPProvider extends DocumentsProvider
 		try
 		{
 			MatrixCursor result=new MatrixCursor(resolveRootProjection(projection));
-			AccountManager accountManager=AccountManager.get(getContext());
-			Account[]accounts=accountManager.getAccountsByType(AuthenticationActivity.ACCOUNT_TYPE);
-			for(Account account:accounts)
-			{
-				Uri uri=Uri.parse(SFTP.SCHEME+account.name);
+			List<Account> accounts=dbHandler.readAccounts();
+			for(Account account:accounts) {
+				Log.i(SFTPProvider.TAG, "Account name \""+
+				      account.getName()+
+				      "\"");
+				Uri uri=SFTP.parseUri(account.getName());
+				Log.i(SFTPProvider.TAG, "Uri=\""+
+				      uri+"\"");
 				MatrixCursor.RowBuilder row=result.newRow();
 				row.add(Root.COLUMN_ROOT_ID,uri.toString());
 				String documentId=uri.toString()+"/";
+				Log.i(SFTPProvider.TAG, "Root \""+documentId+
+				      "\"");
 				row.add(Root.COLUMN_DOCUMENT_ID,documentId);
 				int icon=R.drawable.ic_launcher;
 				row.add(Root.COLUMN_ICON,icon);
@@ -411,17 +420,15 @@ public class SFTPProvider extends DocumentsProvider
 	{
 		Objects.requireNonNull(context);
 		Objects.requireNonNull(documentId);
-		AccountManager accountManager=AccountManager.get(context);
-		Account account=null;
-		for(Account acc:accountManager.getAccountsByType(AuthenticationActivity.ACCOUNT_TYPE))if(acc.name.equals(documentId.getAuthority()))account=acc;
-		try
-		{
-			return accountManager.getAuthToken(account,AuthenticationActivity.TOKEN_TYPE,null,false,null,null).getResult().getString(AccountManager.KEY_AUTHTOKEN);
+		DBHandler dbHandler = new DBHandler(context);
+		Log.i("[AK]", "getToken: uri="+documentId);
+		Log.i("[AK]", "getToken: authority="+documentId.getAuthority());
+		String accountName=documentId.getAuthority();
+		Account account = dbHandler.readAccountByName(accountName);
+		if(account == null) {
+			throw new FileNotFoundException(documentId.toString());
 		}
-		catch(AuthenticatorException|OperationCanceledException e)
-		{
-			throw new IOException(e);
-		}
+		return account.getPassword();
 	}
 	private SFTP getSFTP(Uri documentId)throws IOException
 	{

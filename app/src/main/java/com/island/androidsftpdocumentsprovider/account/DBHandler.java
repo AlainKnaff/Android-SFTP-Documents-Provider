@@ -1,0 +1,206 @@
+package com.island.androidsftpdocumentsprovider.account;
+
+import java.util.List;
+import java.util.ArrayList;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+public class DBHandler extends SQLiteOpenHelper {
+
+    // creating a constant variables for our database.
+    // below variable is for our database name.
+    private static final String DB_NAME = "roots";
+    
+    // below int is our database version
+    private static final int DB_VERSION = 1;
+    
+    // below variable is for our table name.
+    private static final String TABLE_NAME = "roots";
+    
+    // below variable is for our id column.
+    public static final String ID_COL = "id";
+    
+    // below variable is for name column
+    public static final String NAME_COL = "name";
+    
+    // below variable is for the host name column.
+    public static final String HOST_NAME_COL = "host_name";
+   
+    // below variable is for the port column.
+    public static final String PORT_COL = "port";
+
+    // below variable is for the user name column.
+    public static final String USER_NAME_COL = "user_name";
+
+    // below variable is for the password column.
+    public static final String PASSWORD_COL = "password";
+
+    // creating a constructor for our database handler.
+    public DBHandler(Context context) {
+        super(context, DB_NAME, null, DB_VERSION);
+    }
+
+    // below method is for creating a database by running a sqlite query
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        // on below line we are creating 
+        // an sqlite query and we are 
+        // setting our column names
+        // along with their data types.
+        String query = "CREATE TABLE " + TABLE_NAME + " ("
+                + ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + NAME_COL + " TEXT,"
+                + HOST_NAME_COL + " TEXT,"
+                + PORT_COL + " INTEGER NOT NULL,"
+                + USER_NAME_COL + " TEXT,"
+		+ PASSWORD_COL + " TEXT)";
+
+        // at last we are calling a exec sql 
+        // method to execute above sql query
+        db.execSQL(query);
+    }
+
+    // this method is use to add new course to our sqlite database.
+    public void addNewAccount(String name, String hostName, int port,
+			      String userName, String password) {
+        
+        // on below line we are creating a variable for 
+        // our sqlite database and calling writable method 
+        // as we are writing data in our database.
+        SQLiteDatabase db = this.getWritableDatabase();
+        
+        // on below line we are creating a 
+        // variable for content values.
+        ContentValues values = new ContentValues();
+        
+        // on below line we are passing all values 
+        // along with its key and value pair.
+        values.put(NAME_COL, name);
+        values.put(HOST_NAME_COL, hostName);
+        values.put(PORT_COL, port);
+        values.put(USER_NAME_COL, userName);
+        values.put(PASSWORD_COL, password);
+        
+        // after adding all values we are passing
+        // content values to our table.
+        db.insert(TABLE_NAME, null, values);
+        
+        // at last we are closing our
+        // database after adding database.
+        db.close();
+    }
+
+    // below is the method for updating our account
+    public void updateAccount(int id,
+			      String name, String hostName, int port,
+			      String userName, String password) {
+        
+        // calling a method to get writable database.
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        
+        // on below line we are passing all values
+        // along with its key and value pair.
+        values.put(NAME_COL, name);
+        values.put(HOST_NAME_COL, hostName);
+        values.put(PORT_COL, port);
+        values.put(USER_NAME_COL, userName);
+        values.put(PASSWORD_COL, password);
+        
+        // on below line we are calling a update method to update our
+        // database and passing our values. and we are comparing it
+        // with name of our account which is stored in id variable.
+        db.update(TABLE_NAME, values, ID_COL+"=?",
+		  new String[]{String.valueOf(id)});
+        db.close();
+    }
+
+    // below is the method for deleting our account.
+    public void removeAccount(int id) {
+  
+        // on below line we are creating
+        // a variable to write our database.
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // on below line we are calling a method to delete our
+        // account and we are comparing it with our account id.
+        db.delete(TABLE_NAME, ID_COL+"=?", new String[]{String.valueOf(id)});
+        db.close();
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // this method is called to perform any schema changes due to upgrade
+	// for the moment, nothing
+    }
+
+    // we have created a new method for reading all the courses.
+    private List<Account> readAccounts(String whereClause,
+				       String[] params)
+    {
+	// on below line we are creating a
+	// database for reading our database.
+	SQLiteDatabase db = this.getReadableDatabase();
+
+	// on below line we are creating a cursor with query to
+	// read data from database.
+	Cursor cursor
+	    = db.rawQuery("SELECT "+ID_COL+","+
+			  NAME_COL+","+
+			  HOST_NAME_COL+","+
+			  PORT_COL+","+
+			  USER_NAME_COL+","+
+			  PASSWORD_COL+
+			  " FROM " + TABLE_NAME + " "  + whereClause,
+			  params);
+
+	// on below line we are creating a new array list.
+	ArrayList<Account> accountArrayList  = new ArrayList<>();
+
+	// moving our cursor to first position.
+	if (cursor.moveToFirst()) {
+	    do {
+		// on below line we are adding the data from		
+		// cursor to our array list.
+		accountArrayList.add(new Account(cursor.getInt(0),
+						 cursor.getString(1),
+						 cursor.getString(2),
+						 cursor.getInt(3),
+						 cursor.getString(4),
+						 cursor.getString(5)
+						 ));
+	    } while (cursor.moveToNext());
+	    // moving our cursor to next.
+	}
+	// at last closing our cursor
+	// and returning our array list.
+	cursor.close();
+	return accountArrayList;
+    }
+
+    public Account readAccountById(int id) {
+	List<Account> accounts = readAccounts("WHERE "+ID_COL+" = ?",
+					      new String[] { String.valueOf(id) });
+	if(accounts.size() > 0)
+	    return accounts.get(0);
+	else
+	    return null;
+    }
+
+    public Account readAccountByName(String name) {
+	List<Account> accounts = readAccounts("WHERE "+NAME_COL+" = ?",
+					      new String[] { name });
+	if(accounts.size() > 0)
+	    return accounts.get(0);
+	else
+	    return null;
+    }
+
+    public List<Account> readAccounts() {
+	return readAccounts("", null);
+    }
+}
