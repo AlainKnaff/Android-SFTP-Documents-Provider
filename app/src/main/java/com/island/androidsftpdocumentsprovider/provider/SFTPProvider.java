@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-import android.os.ParcelFileDescriptor;
 import android.os.Looper;
 import android.os.Handler;
 import android.os.Build;
@@ -19,7 +18,6 @@ import android.provider.DocumentsContract.Document;
 import android.util.Log;
 
 import com.island.androidsftpdocumentsprovider.R;
-import com.island.androidsftpdocumentsprovider.account.AuthenticationActivity;
 import com.island.androidsftpdocumentsprovider.account.DBHandler;
 import com.island.androidsftpdocumentsprovider.account.Account;
 import com.island.sftp.SFTP;
@@ -31,7 +29,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
-import android.accounts.OperationCanceledException;
 import java.net.SocketException;
 import java.util.concurrent.CopyOnWriteArraySet;
 

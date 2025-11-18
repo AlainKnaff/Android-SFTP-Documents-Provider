@@ -1,7 +1,5 @@
 package com.island.androidsftpdocumentsprovider.account;
 
-import java.io.IOException;
-
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -12,9 +10,7 @@ import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.database.ContentObserver;
 
-import com.island.sftp.SFTP;
 import com.island.androidsftpdocumentsprovider.R;
 import com.island.androidsftpdocumentsprovider.provider.SFTPProvider;
 
