@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SFTP Documents Provider</string>
+	<string name="app_name">SFTP Documents Provider</string>
 	<string name="account_type" translatable="false">com.island.sftp.account</string>
 	<string name="account_name">SSH File Transfer Protocol</string>
 	<string name="sftp">SFTP</string>
@@ -15,5 +15,4 @@
 	<string name="notification_description">Uploading: %d %%</string>
 	<string name="add">Add</string>
 	<string name="remove">Remove</string>
-ng>
 </resources>
