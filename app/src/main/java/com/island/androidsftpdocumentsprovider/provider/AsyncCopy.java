@@ -1,13 +1,25 @@
 package com.island.androidsftpdocumentsprovider.provider;
-import android.app.*;
-import android.content.*;
-import android.net.*;
-import android.os.*;
-import android.util.*;
-import com.island.sftp.*;
-import java.io.*;
-import java.lang.ref.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.File;
+import java.io.FileInputStream;
+
+import java.lang.ref.WeakReference;
+
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Observer;
+import java.util.Observable;
+
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Intent;
+import android.content.Context;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.util.Log;
+
+import com.island.sftp.SFTP;
+
 public class AsyncCopy extends AsyncTask<File,Long,Void>implements Observer
 {
 	private final Uri uri;

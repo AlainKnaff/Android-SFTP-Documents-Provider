@@ -1,16 +1,41 @@
 package com.island.sftp;
-import android.net.*;
-import android.provider.*;
-import android.util.*;
-import android.webkit.*;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Observer;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Vector;
+import java.util.Properties;
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.net.SocketException;
+import java.net.ProtocolException;
+import java.net.ConnectException;
+
+import android.net.Uri;
+import android.util.Log;
+import android.provider.DocumentsContract;
+import android.webkit.MimeTypeMap;
 import android.os.StrictMode;
-import com.island.androidsftpdocumentsprovider.provider.*;
-import com.island.sftp.SFTP;
-import com.jcraft.jsch.*;
-import com.jcraft.jsch.ChannelSftp.*;
-import java.io.*;
-import java.net.*;
-import java.util.*;
+
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.SftpATTRS;
+import com.jcraft.jsch.SftpException;
+
+import com.island.androidsftpdocumentsprovider.provider.SFTPProvider;
+
 public class SFTP implements Closeable
 {
 	private static final int TIMEOUT=20000;
@@ -155,7 +180,8 @@ public class SFTP implements Closeable
 			List<File>files=new ArrayList<>(vector.size()-2);
 			for(Object obj:vector)
 			{
-				LsEntry entry=(LsEntry)obj;
+				ChannelSftp.LsEntry entry=
+				    (ChannelSftp.LsEntry) obj;
 				if(entry.getFilename().equals(".")||entry.getFilename().equals(".."))continue;
 				File newFile=new File(file,entry.getFilename());
 				SftpATTRS attributes=entry.getAttrs();

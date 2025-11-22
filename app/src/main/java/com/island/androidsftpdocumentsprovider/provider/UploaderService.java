@@ -1,12 +1,20 @@
 package com.island.androidsftpdocumentsprovider.provider;
-import android.app.*;
-import android.content.*;
-import android.os.*;
-import android.util.*;
-import com.island.androidsftpdocumentsprovider.*;
-import com.island.sftp.*;
-import java.io.*;
-import java.util.*;
+
+import java.io.File;
+import java.util.Objects;
+
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.NotificationChannel;
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+import android.os.IBinder;
+import android.util.Log;
+
+import com.island.androidsftpdocumentsprovider.R;
+import com.island.sftp.SFTP;
 
 public class UploaderService extends Service
 {
