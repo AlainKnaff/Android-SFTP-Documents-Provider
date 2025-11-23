@@ -73,12 +73,9 @@ public class SFTP implements Closeable
 		jsch=new JSch();
 		directory.put(new File("/"),true);
 		lastModified.put(new File("/"),0l);
-		try
-		{
+		try {
 			makeSession();
-		}
-		catch(JSchException e)
-		{
+		} catch(JSchException e) {
 			ConnectException exception=new ConnectException(String.format("Can't connect to %s",uri));
 			exception.initCause(e);
 			throw exception;
@@ -140,8 +137,7 @@ public class SFTP implements Closeable
 	private<T>T getValue(Map<File,T>map,File file)throws IOException
 	{
 		checkArguments(map,file);
-		if(!map.containsKey(file))
-		{
+		if(!map.containsKey(file)) {
 			Log.d(SFTPProvider.TAG,"Requested file attributes are unknown");
 			listFiles(file.getParentFile());
 		}
@@ -173,15 +169,13 @@ public class SFTP implements Closeable
 	public synchronized File[]listFiles(File file)throws IOException
 	{
 		checkArguments(file);
-		try
-		{
+		try {
 			reconnectIfNeeded();
 			Vector vector=channel.ls(file.getPath());
 			List<File>files=new ArrayList<>(vector.size()-2);
-			for(Object obj:vector)
-			{
+			for(Object obj:vector) {
 				ChannelSftp.LsEntry entry=
-				    (ChannelSftp.LsEntry) obj;
+					(ChannelSftp.LsEntry) obj;
 				if(entry.getFilename().equals(".")||entry.getFilename().equals(".."))continue;
 				File newFile=new File(file,entry.getFilename());
 				SftpATTRS attributes=entry.getAttrs();
@@ -191,133 +185,95 @@ public class SFTP implements Closeable
 				directory.put(newFile,attributes.isDir());
 			}
 			return files.toArray(new File[0]);
-		}
-		catch(JSchException e)
-		{
+		} catch(JSchException e) {
 			throw getException(e);
-		}
-		catch(SftpException e)
-		{
+		} catch(SftpException e) {
 			throw getException(e);
 		}
 	}
 	public synchronized void newFile(File file)throws IOException
 	{
 		checkArguments(file);
-		try
-		{
+		try {
 			reconnectIfNeeded();
 			channel.put(file.getPath()).close();
-		}
-		catch(JSchException e)
-		{
+		} catch(JSchException e) {
 			throw getException(e);
-		}
-		catch(SftpException e)
-		{
+		} catch(SftpException e) {
 			throw getException(e);
 		}
 	}
 	public synchronized void delete(File file)throws IOException
 	{
 		checkArguments(file);
-		try
-		{
+		try {
 			reconnectIfNeeded();
-			if(isDirectory(file))
-			{
+			if(isDirectory(file)) {
 				for(File child:listFiles(file))delete(child);
 				channel.rmdir(file.getPath());
-			}
-			else channel.rm(file.getPath());
-		}
-		catch(JSchException e)
-		{
+			} else
+				channel.rm(file.getPath());
+		} catch(JSchException e) {
 			throw getException(e);
-		}
-		catch(SftpException e)
-		{
+		} catch(SftpException e) {
 			throw getException(e);
 		}
 	}
 	public synchronized InputStream read(File file)throws IOException
 	{
 		checkArguments(file);
-		try
-		{
+		try {
 			reconnectIfNeeded();
 			return new BufferedInputStream(channel.get(file.getPath()));
-		}
-		catch(JSchException e)
-		{
+		} catch(JSchException e) {
 			throw getException(e);
-		}
-		catch(SftpException e)
-		{
+		} catch(SftpException e) {
 			throw getException(e);
 		}
 	}
 	public synchronized void mkdirs(File file)throws IOException
 	{
 		checkArguments(file);
-		try
-		{
+		try {
 			reconnectIfNeeded();
 			channel.mkdir(file.getPath());
-		}
-		catch(JSchException e)
-		{
+		} catch(JSchException e) {
 			throw getException(e);
-		}
-		catch(SftpException e)
-		{
+		} catch(SftpException e) {
 			throw getException(e);
 		}
 	}
 	public boolean exists(File file)throws IOException
 	{
 		checkArguments(file);
-		try
-		{
+		try {
 			getValue(directory,file);
 			return true;
-		}
-		catch(FileNotFoundException e)
-		{
+		} catch(FileNotFoundException e) {
 			return false;
 		}
 	}
 	public synchronized void renameTo(File oldPath,File newPath)throws IOException
 	{
 		checkArguments(oldPath,newPath);
-		try
-		{
+		try {
 			reconnectIfNeeded();
 			channel.rename(oldPath.getPath(),newPath.getPath());
-		}
-		catch(JSchException e)
-		{
+		} catch(JSchException e) {
 			throw getException(e);
-		}
-		catch(SftpException e)
-		{
+		} catch(SftpException e) {
 			throw getException(e);
 		}
 	}
 	public synchronized OutputStream write(File file)throws IOException
 	{
 		checkArguments(file);
-		try
-		{
+		try {
 			reconnectIfNeeded();
 			return channel.put(file.getPath());
-		}
-		catch(JSchException e)
-		{
+		} catch(JSchException e) {
 			throw getException(e);
-		}
-		catch(SftpException e)
-		{
+		} catch(SftpException e) {
 			throw getException(e);
 		}
 	}
@@ -334,28 +290,22 @@ public class SFTP implements Closeable
 	public synchronized void get(File from,File to)throws IOException
 	{
 		checkArguments(from,to);
-		try
-		{
+		try {
 			Log.d(SFTPProvider.TAG, String.format("Get server file %s to %s", from.getAbsolutePath(), to.getAbsolutePath()));
 			reconnectIfNeeded();
 			channel.get(from.getPath(),to.getPath());
 			long lastModified = lastModified(from);
 			to.setLastModified(lastModified);
-		}
-		catch(JSchException e)
-		{
+		} catch(JSchException e) {
 			throw getException(e);
-		}
-		catch(SftpException e)
-		{
+		} catch(SftpException e) {
 			throw getException(e);
 		}
 	}
 	public synchronized void copy(File from,File to)throws IOException
 	{
 		checkArguments(from,to);
-		try
-		{
+		try {
 			reconnectIfNeeded();
 			InputStream input=new BufferedInputStream(channel.get(from.getPath()));
 			OutputStream output=new BufferedOutputStream(channel.put(to.getPath()));
@@ -363,44 +313,35 @@ public class SFTP implements Closeable
 			while(true)if(write(input,output,buffer)==-1)break;
 			input.close();
 			output.close();
-		}
-		catch(JSchException e)
-		{
+		} catch(JSchException e) {
 			throw getException(e);
-		}
-		catch(SftpException e)
-		{
+		} catch(SftpException e) {
 			throw getException(e);
 		}
 	}
 	public String getMimeType(File file)throws IOException
 	{
 		Objects.requireNonNull(file);
-        if(isDirectory(file))
-		{
+		if(isDirectory(file)) {
 			return DocumentsContract.Document.MIME_TYPE_DIR;
-		}
-		else
-		{
+		} else {
 			String name=file.getName();
 			int lastDot=name.lastIndexOf('.');
-			if(lastDot>=0)
-			{
+			if(lastDot>=0) {
 				String extension=name.substring(lastDot+1);
 				String mime=MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
 				if(mime!=null)return mime;
 			}
 			return"application/octet-stream";
 		}
-    }
+	}
 	private static int write(InputStream input,OutputStream output,byte[]buffer)throws IOException
 	{
 		assert input!=null;
 		assert output!=null;
 		assert buffer!=null;
 		int bytesRead=input.read(buffer);
-		if(bytesRead!=-1)
-		{   
+		if(bytesRead!=-1) {   
 			output.write(buffer,0,bytesRead);
 		}
 		return bytesRead;
@@ -414,8 +355,7 @@ public class SFTP implements Closeable
 		byte[]buffer=new byte[SFTP.BUFFER];
 		int bytesRead=0;
 		long wrote=0;
-		while((bytesRead=SFTP.write(input,output,buffer))!=-1)
-		{
+		while((bytesRead=SFTP.write(input,output,buffer))!=-1) {
 			wrote+=bytesRead;
 			observer.update(null,wrote);
 		}
@@ -429,14 +369,11 @@ public class SFTP implements Closeable
 	private IOException getException(Exception cause)
 	{
 		assert cause!=null;
-		if(cause.getCause()!=null)
-		{
+		if(cause.getCause()!=null) {
 			SocketException exception=new SocketException("Connection closed");
 			exception.initCause(cause);
 			return exception;
-		}
-		else
-		{
+		} else {
 			ProtocolException exception=new ProtocolException(uri.getScheme());
 			exception.initCause(cause);
 			return exception;
