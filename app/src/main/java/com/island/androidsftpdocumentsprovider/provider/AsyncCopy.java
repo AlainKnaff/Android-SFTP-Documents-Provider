@@ -1,7 +1,4 @@
 package com.island.androidsftpdocumentsprovider.provider;
-import java.io.IOException;
-import java.io.File;
-import java.io.FileInputStream;
 
 import java.lang.ref.WeakReference;
 
@@ -9,6 +6,10 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Observer;
 import java.util.Observable;
+
+import java.io.IOException;
+import java.io.File;
+import java.io.FileInputStream;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -43,7 +44,7 @@ public class AsyncCopy extends AsyncTask<File,Long,Void>implements Observer
 		Objects.requireNonNull(files);
 		try
 		{
-			try(SFTP sftp=new SFTP(uri,SFTPProvider.getToken(getContext(),uri)))
+			try(SFTP sftp=new SFTP(getContext(),uri,SFTPProvider.getToken(getContext(),uri)))
 			{
 				total=0;
 				for(File file:files)

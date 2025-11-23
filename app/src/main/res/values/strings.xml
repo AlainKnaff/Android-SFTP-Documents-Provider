@@ -15,4 +15,7 @@
 	<string name="notification_description">Uploading: %d %%</string>
 	<string name="add">Add</string>
 	<string name="remove">Remove</string>
+	<string name="generate_key">Generate key</string>
+	<string name="share_public_key">Share public key</string>
+	<string name="pubkey_subject">SFTP client public ssh key</string>
 </resources>

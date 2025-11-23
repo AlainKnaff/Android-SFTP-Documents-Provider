@@ -1,5 +1,16 @@
 package com.island.androidsftpdocumentsprovider.provider;
 
+import java.util.Objects;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.io.File;
+import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.net.SocketException;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -21,16 +32,6 @@ import com.island.androidsftpdocumentsprovider.R;
 import com.island.androidsftpdocumentsprovider.account.DBHandler;
 import com.island.androidsftpdocumentsprovider.account.Account;
 import com.island.sftp.SFTP;
-import java.io.File;
-import java.io.IOException;
-import java.io.FileNotFoundException;
-import java.util.Objects;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
-import java.net.SocketException;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 public class SFTPProvider extends DocumentsProvider
 {
@@ -418,8 +419,6 @@ public class SFTPProvider extends DocumentsProvider
 		Objects.requireNonNull(context);
 		Objects.requireNonNull(documentId);
 		DBHandler dbHandler = new DBHandler(context);
-		Log.i("[AK]", "getToken: uri="+documentId);
-		Log.i("[AK]", "getToken: authority="+documentId.getAuthority());
 		String accountName=documentId.getAuthority();
 		Account account = dbHandler.readAccountByName(accountName);
 		if(account == null) {
@@ -448,7 +447,7 @@ public class SFTPProvider extends DocumentsProvider
 	}
 
 	private SFTP createSftp(Uri documentId) throws IOException {
-		return new SFTP(documentId,getToken(getContext(),documentId));
+		return new SFTP(getContext(), documentId,getToken(getContext(),documentId));
 	}
 
 	private void putFileInfo(MatrixCursor.RowBuilder row,Uri uri)throws IOException

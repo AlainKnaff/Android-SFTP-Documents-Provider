@@ -27,6 +27,8 @@ import com.island.androidsftpdocumentsprovider.account.Account
 import com.island.androidsftpdocumentsprovider.account.DBHandler
 import com.island.androidsftpdocumentsprovider.account.AuthenticationActivity
 
+import com.island.sftp.Keygen
+
 class MainActivity : Activity()
 {
     private val TAG="MainActivity"
@@ -60,6 +62,14 @@ class MainActivity : Activity()
 	startActivity(intent)
     }
 
+    fun generateKey(view: View) {
+	Keygen.genKey(this);
+    }
+
+    fun sharePublicKey(view: View) {
+	Keygen.shareKey(this);
+    }
+    
     override fun onResume()
     {
         super.onResume()

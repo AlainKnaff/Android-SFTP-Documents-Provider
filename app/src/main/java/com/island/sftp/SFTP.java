@@ -21,6 +21,7 @@ import java.net.SocketException;
 import java.net.ProtocolException;
 import java.net.ConnectException;
 
+import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 import android.provider.DocumentsContract;
@@ -54,9 +55,9 @@ public class SFTP implements Closeable
 		return Uri.parse(SFTP.SCHEME+name);
 	}
 
-	public SFTP(Uri uri,String password)throws ConnectException
+	public SFTP(Context ctx, Uri uri, String password)throws ConnectException
 	{
-		init(uri, password);
+		init(ctx, uri, password);
 	}
 
 	public SFTP() {
@@ -64,18 +65,22 @@ public class SFTP implements Closeable
 
 	private JSch jsch;
 	
-	protected void init(Uri uri, String password) throws ConnectException {
+	protected void init(Context ctx, Uri uri, String password) throws ConnectException {
 		Log.d(SFTPProvider.TAG,String.format("Created new connection for %s",uri.getAuthority()));
 		checkArguments(uri,password);
 		cancelStrictMode();
 		this.uri=uri;
 		this.password=password;
+		String privKey = Keygen.readPrivateKey(ctx);
 		jsch=new JSch();
 		directory.put(new File("/"),true);
 		lastModified.put(new File("/"),0l);
 		try {
+			if(privKey != null)
+				jsch.addIdentity(privKey);
 			makeSession();
 		} catch(JSchException e) {
+			Log.d(SFTPProvider.TAG, "JschException during init", e);
 			ConnectException exception=new ConnectException(String.format("Can't connect to %s",uri));
 			exception.initCause(e);
 			throw exception;
@@ -84,12 +89,17 @@ public class SFTP implements Closeable
 
 	private void makeSession() throws JSchException {
 		session=jsch.getSession(uri.getUserInfo(),uri.getHost(),uri.getPort());
-		session.setPassword(password);
 		Properties config=new Properties();
 		config.put("StrictHostKeyChecking","no");
 		session.setConfig(config);
+
+		if(password != null && !password.isEmpty()) {
+			session.setConfig("PreferredAuthentications","password");
+			session.setPassword(password);
+		}
+
+
 		session.setTimeout(TIMEOUT);
-		session.setConfig("PreferredAuthentications","password");
 		session.connect();
 		channel=(ChannelSftp)session.openChannel("sftp");
 		channel.connect();

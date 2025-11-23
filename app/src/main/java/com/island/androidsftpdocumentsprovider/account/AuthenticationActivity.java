@@ -82,9 +82,6 @@ public class AuthenticationActivity extends Activity
 
 		String name = userName+"@"+hostName+":"+port;
 		if(account == null) {
-			// new account creation
-			if(password.isEmpty())
-				return;
 			dbHandler.addNewAccount(name, hostName, port,
 						userName, password);
 			notifyChange(this, ContentResolver.NOTIFY_INSERT);
