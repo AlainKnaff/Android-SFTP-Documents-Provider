@@ -1,7 +1,5 @@
 <resources>
 	<string name="app_name">SFTP Documents Provider</string>
-	<string name="account_type" translatable="false">com.island.sftp.account</string>
-	<string name="account_name">SSH File Transfer Protocol</string>
 	<string name="sftp">SFTP</string>
 	<string name="host">Host</string>
 	<string name="hostExample">myserver.home.com</string>
