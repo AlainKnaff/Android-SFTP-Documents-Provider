@@ -51,15 +51,17 @@ public class SFTPProvider extends DocumentsProvider
 	public boolean onCreate()
 	{
 	    dbHandler = new DBHandler(getContext());
-
+	    int flags=0;
+	    if(Build.VERSION.SDK_INT>=33)
+		flags |= Context.RECEIVER_NOT_EXPORTED; 
 	    getContext().registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-				String uri = intent.getStringExtra("uri");
-                Log.i(TAG, String.format("Current uploading files: %s, remove %s", uploadingFiles, uri));
-                uploadingFiles.remove(uri);
-            }
-	}, new IntentFilter(SFTP_UPLOAD_POST), Context.RECEIVER_NOT_EXPORTED);
+		    @Override
+		    public void onReceive(Context context, Intent intent) {
+			String uri = intent.getStringExtra("uri");
+			Log.i(TAG, String.format("Current uploading files: %s, remove %s", uploadingFiles, uri));
+			uploadingFiles.remove(uri);
+		    }
+		}, new IntentFilter(SFTP_UPLOAD_POST), flags);
 	    return true;
 	}
 	@Override

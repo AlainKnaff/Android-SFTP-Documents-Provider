@@ -5,6 +5,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.util.Log;
@@ -95,7 +96,10 @@ public class AuthenticationActivity extends Activity
 		if(account == null) {
 			dbHandler.addNewAccount(name, hostName, port,
 						userName, password, directory);
-			notifyChange(this, ContentResolver.NOTIFY_INSERT);
+			int flags=0;
+			if(Build.VERSION.SDK_INT>=30)
+			    flags |= ContentResolver.NOTIFY_INSERT;
+			notifyChange(this, flags);
 		} else {
 			String oldName = account.getName();
 			// update existing account
@@ -105,10 +109,10 @@ public class AuthenticationActivity extends Activity
 						name, hostName, port,
 						userName, password,
 						directory);
-			// if(!oldName.equals(name)) {
-				notifyChange(this,
-					     ContentResolver.NOTIFY_UPDATE);
-			// }
+			int flags=0;
+			if(Build.VERSION.SDK_INT>=30)
+			    flags |= ContentResolver.NOTIFY_UPDATE;
+			notifyChange(this, flags);
 		}
 
 		Intent result=new Intent();

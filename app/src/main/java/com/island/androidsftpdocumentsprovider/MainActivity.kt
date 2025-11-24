@@ -119,9 +119,11 @@ class MainActivity : Activity()
             {
 		val oldName=account!!.name
 		dbHandler!!.removeAccount(account!!.id)
+		var flags=0
+		if(Build.VERSION.SDK_INT>=30)
+		    flags = flags or ContentResolver.NOTIFY_DELETE
 		AuthenticationActivity
-		    .notifyChange(this@MainActivity,
-				  ContentResolver.NOTIFY_DELETE)
+		    .notifyChange(this@MainActivity, flags)
 		updateData()
             }
         }
