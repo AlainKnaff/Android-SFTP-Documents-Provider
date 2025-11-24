@@ -51,7 +51,7 @@ public class SFTPProvider extends DocumentsProvider
 	public boolean onCreate()
 	{
 	    dbHandler = new DBHandler(getContext());
-		
+
 	    getContext().registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -71,17 +71,14 @@ public class SFTPProvider extends DocumentsProvider
 			MatrixCursor result=new MatrixCursor(resolveRootProjection(projection));
 			List<Account> accounts=dbHandler.readAccounts();
 			for(Account account:accounts) {
-				Log.i(SFTPProvider.TAG, "Account name \""+
-				      account.getName()+
-				      "\"");
 				Uri uri=SFTP.parseUri(account.getName());
-				Log.i(SFTPProvider.TAG, "Uri=\""+
-				      uri+"\"");
 				MatrixCursor.RowBuilder row=result.newRow();
 				row.add(Root.COLUMN_ROOT_ID,uri.toString());
-				String documentId=uri.toString()+"/";
-				Log.i(SFTPProvider.TAG, "Root \""+documentId+
-				      "\"");
+				String documentId=uri.toString();
+				String directory = account.getDirectory();
+				if(directory == null || directory.isEmpty())
+					directory="/";
+				documentId+=directory;
 				row.add(Root.COLUMN_DOCUMENT_ID,documentId);
 				int icon=R.drawable.ic_launcher;
 				row.add(Root.COLUMN_ICON,icon);

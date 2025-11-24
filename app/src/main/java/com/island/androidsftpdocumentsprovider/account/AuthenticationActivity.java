@@ -37,9 +37,11 @@ public class AuthenticationActivity extends Activity
 			EditText host=findViewById(R.id.host);
 			EditText port=findViewById(R.id.port);
 			EditText user=findViewById(R.id.user);
+			EditText directory=findViewById(R.id.start_directory);
 			host.setText(account.getHostName());
 			user.setText(account.getUserName());
 			port.setText(String.valueOf(account.getPort()));
+			directory.setText(String.valueOf(account.getDirectory()));
 		}
 	}
 
@@ -62,6 +64,8 @@ public class AuthenticationActivity extends Activity
 
 		String password=((EditText)findViewById(R.id.password))
 			.getText().toString();
+		String directory=((EditText)findViewById(R.id.start_directory))
+			.getText().toString();
 
 		if(hostName.isEmpty()||portString.isEmpty()||userName.isEmpty())
 			return;
@@ -73,7 +77,8 @@ public class AuthenticationActivity extends Activity
 			if(hostName.equals(account.getHostName()) &&
 			   userName.equals(account.getUserName()) &&
 			   port == account.getPort() &&
-			   password.isEmpty()) {
+			   password.isEmpty() &&
+			   directory.equals(account.getDirectory())) {
 				Log.i(SFTPProvider.TAG,"Nothing changed");
 				cancel();
 				return;
@@ -83,7 +88,7 @@ public class AuthenticationActivity extends Activity
 		String name = userName+"@"+hostName+":"+port;
 		if(account == null) {
 			dbHandler.addNewAccount(name, hostName, port,
-						userName, password);
+						userName, password, directory);
 			notifyChange(this, ContentResolver.NOTIFY_INSERT);
 		} else {
 			String oldName = account.getName();
@@ -92,11 +97,12 @@ public class AuthenticationActivity extends Activity
 				password=account.getPassword();
 			dbHandler.updateAccount(account.getId(),
 						name, hostName, port,
-						userName, password);
-			if(!oldName.equals(name)) {
+						userName, password,
+						directory);
+			// if(!oldName.equals(name)) {
 				notifyChange(this,
 					     ContentResolver.NOTIFY_UPDATE);
-			}
+			// }
 		}
 
 		Intent result=new Intent();

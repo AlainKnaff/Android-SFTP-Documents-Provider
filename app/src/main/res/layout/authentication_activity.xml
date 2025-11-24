@@ -54,7 +54,6 @@
 			android:autofillHints="username"
 			android:id="@+id/user"
 			android:gravity="center"/>
-
 	</RelativeLayout>
 
 	<TextView
@@ -108,6 +107,32 @@
 
 	</RelativeLayout>
 
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:textAppearance="?android:attr/textAppearanceLarge"
+		android:text="@string/start_directory"
+		android:layout_weight="1.0"
+		android:gravity="center"/>
+
+	<RelativeLayout
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:layout_weight="1.0"
+		android:gravity="center">
+
+		<EditText
+			android:inputType="text"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:ems="10"
+			android:autofillHints="Start directory"
+			android:id="@+id/start_directory"
+			android:gravity="center"
+			android:text="/home/user"/>
+
+	</RelativeLayout>
+	
 	<RelativeLayout
 		android:layout_height="wrap_content"
 		android:layout_width="wrap_content"

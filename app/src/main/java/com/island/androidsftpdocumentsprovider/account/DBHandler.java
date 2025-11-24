@@ -14,22 +14,22 @@ public class DBHandler extends SQLiteOpenHelper {
     // creating a constant variables for our database.
     // below variable is for our database name.
     private static final String DB_NAME = "roots";
-    
+
     // below int is our database version
-    private static final int DB_VERSION = 1;
-    
+    private static final int DB_VERSION = 2;
+
     // below variable is for our table name.
     private static final String TABLE_NAME = "roots";
-    
+
     // below variable is for our id column.
     public static final String ID_COL = "id";
-    
+
     // below variable is for name column
     public static final String NAME_COL = "name";
-    
+
     // below variable is for the host name column.
     public static final String HOST_NAME_COL = "host_name";
-   
+
     // below variable is for the port column.
     public static final String PORT_COL = "port";
 
@@ -39,6 +39,9 @@ public class DBHandler extends SQLiteOpenHelper {
     // below variable is for the password column.
     public static final String PASSWORD_COL = "password";
 
+    // below variable is for the directory column.
+    public static final String DIRECTORY_COL = "directory";
+
     // creating a constructor for our database handler.
     public DBHandler(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -47,48 +50,59 @@ public class DBHandler extends SQLiteOpenHelper {
     // below method is for creating a database by running a sqlite query
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // on below line we are creating 
-        // an sqlite query and we are 
+        // on below line we are creating
+        // an sqlite query and we are
         // setting our column names
         // along with their data types.
         String query = "CREATE TABLE " + TABLE_NAME + " ("
-                + ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + NAME_COL + " TEXT,"
-                + HOST_NAME_COL + " TEXT,"
-                + PORT_COL + " INTEGER NOT NULL,"
-                + USER_NAME_COL + " TEXT,"
-		+ PASSWORD_COL + " TEXT)";
+                +        ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT "
+                + ", " + NAME_COL + " TEXT"
+                + ", " + HOST_NAME_COL + " TEXT NOT NULL"
+                + ", " + PORT_COL + " INTEGER NOT NULL"
+                + ", " + USER_NAME_COL + " TEXT"
+		+ ", " + PASSWORD_COL + " TEXT"
+		+ ", " + DIRECTORY_COL + " TEXT NOT NULL DEFAULT ''"
+	    	+ " )";
 
-        // at last we are calling a exec sql 
+        // at last we are calling a exec sql
         // method to execute above sql query
         db.execSQL(query);
     }
 
-    // this method is use to add new course to our sqlite database.
-    public void addNewAccount(String name, String hostName, int port,
-			      String userName, String password) {
-        
-        // on below line we are creating a variable for 
-        // our sqlite database and calling writable method 
-        // as we are writing data in our database.
-        SQLiteDatabase db = this.getWritableDatabase();
-        
-        // on below line we are creating a 
-        // variable for content values.
-        ContentValues values = new ContentValues();
-        
-        // on below line we are passing all values 
-        // along with its key and value pair.
+    private void storeValues(ContentValues values,
+			     String name, String hostName, int port,
+			     String userName, String password,
+			     String directory) {
         values.put(NAME_COL, name);
         values.put(HOST_NAME_COL, hostName);
         values.put(PORT_COL, port);
         values.put(USER_NAME_COL, userName);
         values.put(PASSWORD_COL, password);
-        
+        values.put(DIRECTORY_COL, directory);
+    }
+
+    // this method is use to add new course to our sqlite database.
+    public void addNewAccount(String name, String hostName, int port,
+			      String userName, String password,
+			      String directory) {
+
+        // on below line we are creating a variable for
+        // our sqlite database and calling writable method
+        // as we are writing data in our database.
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // on below line we are creating a
+        // variable for content values.
+        ContentValues values = new ContentValues();
+
+	storeValues(values,
+		    name, hostName, port,
+		    userName, password, directory);
+
         // after adding all values we are passing
         // content values to our table.
         db.insert(TABLE_NAME, null, values);
-        
+
         // at last we are closing our
         // database after adding database.
         db.close();
@@ -97,20 +111,17 @@ public class DBHandler extends SQLiteOpenHelper {
     // below is the method for updating our account
     public void updateAccount(int id,
 			      String name, String hostName, int port,
-			      String userName, String password) {
-        
+			      String userName, String password,
+			      String directory) {
+
         // calling a method to get writable database.
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        
-        // on below line we are passing all values
-        // along with its key and value pair.
-        values.put(NAME_COL, name);
-        values.put(HOST_NAME_COL, hostName);
-        values.put(PORT_COL, port);
-        values.put(USER_NAME_COL, userName);
-        values.put(PASSWORD_COL, password);
-        
+
+	storeValues(values,
+		    name, hostName, port,
+		    userName, password, directory);
+
         // on below line we are calling a update method to update our
         // database and passing our values. and we are comparing it
         // with name of our account which is stored in id variable.
@@ -121,7 +132,6 @@ public class DBHandler extends SQLiteOpenHelper {
 
     // below is the method for deleting our account.
     public void removeAccount(int id) {
-  
         // on below line we are creating
         // a variable to write our database.
         SQLiteDatabase db = this.getWritableDatabase();
@@ -132,10 +142,19 @@ public class DBHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    /**
+     * this method is called to perform any schema changes due to upgrade
+     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // this method is called to perform any schema changes due to upgrade
-	// for the moment, nothing
+	if(oldVersion >= newVersion)
+	    return;
+
+	if(oldVersion == 1) {
+	    String query = "ALTER TABLE " + TABLE_NAME +
+		" ADD COLUMN "+DIRECTORY_COL + " TEXT NOT NULL DEFAULT ''";
+	    db.execSQL(query);
+	}
     }
 
     // we have created a new method for reading all the courses.
@@ -149,12 +168,13 @@ public class DBHandler extends SQLiteOpenHelper {
 	// on below line we are creating a cursor with query to
 	// read data from database.
 	Cursor cursor
-	    = db.rawQuery("SELECT "+ID_COL+","+
-			  NAME_COL+","+
-			  HOST_NAME_COL+","+
-			  PORT_COL+","+
-			  USER_NAME_COL+","+
-			  PASSWORD_COL+
+	    = db.rawQuery("SELECT "+ID_COL+
+			  ","+NAME_COL+
+			  ","+HOST_NAME_COL+
+			  ","+PORT_COL+
+			  ","+USER_NAME_COL+
+			  ","+PASSWORD_COL+
+			  ","+DIRECTORY_COL+
 			  " FROM " + TABLE_NAME + " "  + whereClause,
 			  params);
 
@@ -164,14 +184,15 @@ public class DBHandler extends SQLiteOpenHelper {
 	// moving our cursor to first position.
 	if (cursor.moveToFirst()) {
 	    do {
-		// on below line we are adding the data from		
+		// on below line we are adding the data from
 		// cursor to our array list.
 		accountArrayList.add(new Account(cursor.getInt(0),
 						 cursor.getString(1),
 						 cursor.getString(2),
 						 cursor.getInt(3),
 						 cursor.getString(4),
-						 cursor.getString(5)
+						 cursor.getString(5),
+						 cursor.getString(6)
 						 ));
 	    } while (cursor.moveToNext());
 	    // moving our cursor to next.

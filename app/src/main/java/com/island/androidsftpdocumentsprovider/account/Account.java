@@ -12,6 +12,16 @@ public class Account {
     private String userName;
     private String password;
 
+    private String directory;
+
+    public int getId() {
+	return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     // creating getter and setter methods
     public String getName() {
 	return name;
@@ -29,6 +39,13 @@ public class Account {
         this.hostName = hostName;
     }
 
+    public int getPort() {
+	return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
 
     public String getUserName() {
 	return userName;
@@ -38,7 +55,6 @@ public class Account {
         this.userName = userName;
     }
 
-
     public String getPassword() {
 	return password;
     }
@@ -47,21 +63,20 @@ public class Account {
         this.password = password;
     }
 
-
-    public int getId() {
-	return id;
+    /**
+     * Gets directory. Directory is home directory of user
+     * @return the directory
+     */
+    public String getDirectory() {
+	return directory;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getPort() {
-	return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
+    /**
+     * Sets directory. Directory is home directory of user
+     * @param directory the directory
+     */
+    public void setDirectory(String directory) {
+	this.directory = directory;
     }
 
     // constructor
@@ -73,12 +88,14 @@ public class Account {
 		   String hostName,
 		   int port,
 		   String userName,
-		   String password) {
+		   String password,
+		   String directory) {
 	this.id=id;
 	this.name=name;
 	this.hostName=hostName;
 	this.port=port;
 	this.userName=userName;
 	this.password=password;
+	this.directory=directory;
     }
 }
