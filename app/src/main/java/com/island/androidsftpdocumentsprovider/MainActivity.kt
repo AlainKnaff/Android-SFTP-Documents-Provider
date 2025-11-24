@@ -91,6 +91,7 @@ class MainActivity : Activity()
 
 	    init {
 		view.setOnClickListener(this)
+		text.setOnClickListener(this)
 	    }
 
 	    override fun onClick(view: View)
