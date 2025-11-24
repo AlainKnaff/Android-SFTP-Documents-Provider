@@ -64,7 +64,7 @@ public class SFTP implements Closeable
 	}
 
 	private JSch jsch;
-	
+
 	protected void init(Context ctx, Uri uri, String password) throws ConnectException {
 		Log.d(SFTPProvider.TAG,String.format("Created new connection for %s",uri.getAuthority()));
 		checkArguments(uri,password);
@@ -117,7 +117,7 @@ public class SFTP implements Closeable
 		// solution other than canceling StrictMode would involve
 		// cheating by handing processing off to another thread, but
 		// then waiting for that thread, blocking anyways
-		StrictMode.ThreadPolicy gfgPolicy = 
+		StrictMode.ThreadPolicy gfgPolicy =
 			new StrictMode.ThreadPolicy.Builder()
 			.permitAll()
 			.build();
@@ -351,7 +351,7 @@ public class SFTP implements Closeable
 		assert output!=null;
 		assert buffer!=null;
 		int bytesRead=input.read(buffer);
-		if(bytesRead!=-1) {   
+		if(bytesRead!=-1) {
 			output.write(buffer,0,bytesRead);
 		}
 		return bytesRead;

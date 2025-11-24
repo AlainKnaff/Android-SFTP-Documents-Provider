@@ -69,7 +69,7 @@ class MainActivity : Activity()
     fun sharePublicKey(view: View) {
 	Keygen.shareKey(this);
     }
-    
+
     override fun onResume()
     {
         super.onResume()
@@ -88,7 +88,7 @@ class MainActivity : Activity()
             val text:TextView = view.findViewById(R.id.text)
             val button:Button = view.findViewById(R.id.button)
 	    var account:Account? = null
-	    
+
 	    init {
 		view.setOnClickListener(this)
 	    }

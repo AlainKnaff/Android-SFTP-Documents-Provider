@@ -33,7 +33,7 @@ public class Keygen {
 
     public static final String PRIVATE_KEY_FILE="privateKey.pem";
     public static final String PUBLIC_KEY_FILE="publicKey.txt";
-    
+
     public static void genKey(Context ctx) {
         try {
 	    // confirmation dialog if it already exists:
@@ -85,7 +85,7 @@ public class Keygen {
                 .putInt(eBytes.length).put(eBytes)
                 .putInt(nBytes.length).put(nBytes)
                 .array();
-		
+
         final String publicKeyBase64 = Base64.getEncoder()
                 .encodeToString(publicKeyBytes);
 
@@ -97,7 +97,7 @@ public class Keygen {
 	return ctx.getFilesDir()+"/"+PRIVATE_KEY_FILE;
     }
 
-    
+
     public static String readPublicKey(Context ctx) {
 	try(BufferedReader br =
 	    new BufferedReader(new InputStreamReader(ctx.openFileInput(PUBLIC_KEY_FILE)))) {
@@ -113,7 +113,7 @@ public class Keygen {
 
     public static void shareKey(Context ctx) {
 	// Sharing intent
-	Intent shareIntent = new Intent();	
+	Intent shareIntent = new Intent();
 	shareIntent.setAction(Intent.ACTION_SEND);
 	shareIntent.putExtra(Intent.EXTRA_SUBJECT,
 			     ctx
