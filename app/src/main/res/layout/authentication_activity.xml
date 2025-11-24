@@ -131,7 +131,7 @@
 			android:autofillHints="Start directory"
 			android:id="@+id/start_directory"
 			android:gravity="center"
-			android:text="/home/user"/>
+			/>
 
 	</RelativeLayout>
 
