@@ -31,6 +31,12 @@ public class AuthenticationActivity extends Activity
 		dbHandler = new DBHandler(this);
 		setContentView(R.layout.authentication_activity);
 		int accountId=getIntent().getIntExtra(DBHandler.ID_COL,-1);
+
+		findViewById(R.id.add_account)
+		    .setVisibility(accountId == -1 ? View.VISIBLE : View.GONE);
+		findViewById(R.id.update_account)
+		    .setVisibility(accountId != -1 ? View.VISIBLE : View.GONE);
+
 		if(accountId != -1)
 		{
 			account=dbHandler.readAccountById(accountId);
