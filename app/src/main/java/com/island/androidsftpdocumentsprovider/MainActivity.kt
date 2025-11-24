@@ -49,14 +49,14 @@ class MainActivity : Activity()
 
     fun addSftpAccount(view:View)
     {
-        Log.i(TAG,"AddSftpAccount $view")
+	Log.i(TAG,"AddSftpAccount $view")
 	val intent:Intent = Intent(this, AuthenticationActivity::class.java)
 	startActivity(intent)
     }
 
     fun editSftpAccount(view:View, account:Account?)
     {
-        Log.i(TAG,"EditSftpAccount $view $account.id")
+	Log.i(TAG,"EditSftpAccount $view $account.id")
 	val intent:Intent = Intent(this, AuthenticationActivity::class.java)
 	intent.putExtra(DBHandler.ID_COL, account!!.id)
 	startActivity(intent)
@@ -109,11 +109,11 @@ class MainActivity : Activity()
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int)
         {
-            Log.i(TAG,"OnBindViewHolder $holder $position")
-            val account=accounts[position]
-            holder.text.text=account.name
+	    Log.i(TAG,"OnBindViewHolder $holder $position")
+	    val account=accounts[position]
+	    holder.text.text=account.name
 	    holder.account=account
-            holder.button.setOnClickListener()
+	    holder.button.setOnClickListener()
 	    @SuppressLint("ImplicitSamInstance")
 	    @Suppress("deprecation")
             {
