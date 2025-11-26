@@ -54,9 +54,6 @@ public class SFTPProvider extends DocumentsProvider
 	public boolean onCreate()
 	{
 	    dbHandler = new DBHandler(getContext());
-	    int flags=0;
-	    if(Build.VERSION.SDK_INT>=33)
-		flags |= ContextCompat.RECEIVER_NOT_EXPORTED;
 	    ContextCompat
 		.registerReceiver(getContext(),new BroadcastReceiver() {
 		    @Override
@@ -65,7 +62,8 @@ public class SFTPProvider extends DocumentsProvider
 			Log.i(TAG, String.format("Current uploading files: %s, remove %s", uploadingFiles, uri));
 			uploadingFiles.remove(uri);
 		    }
-		}, new IntentFilter(SFTP_UPLOAD_POST), flags);
+		}, new IntentFilter(SFTP_UPLOAD_POST),
+		    ContextCompat.RECEIVER_NOT_EXPORTED);
 	    return true;
 	}
 	@Override
