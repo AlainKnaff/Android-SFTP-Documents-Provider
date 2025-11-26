@@ -10,6 +10,7 @@
 	android:textIsSelectable="true"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:focusable="true"
         android:clickable="true"
         app:layout_constraintBottom_toBottomOf="@+id/button"
         app:layout_constraintStart_toStartOf="parent"
