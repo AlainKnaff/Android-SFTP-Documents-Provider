@@ -33,7 +33,7 @@ class MainActivity : Activity()
 {
     private val TAG="MainActivity"
 
-    private var dbHandler:DBHandler? = null
+    private lateinit var dbHandler:DBHandler
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -54,11 +54,11 @@ class MainActivity : Activity()
 	startActivity(intent)
     }
 
-    fun editSftpAccount(view:View, account:Account?)
+    fun editSftpAccount(view:View, account:Account)
     {
 	Log.i(TAG,"EditSftpAccount $view $account.id")
 	val intent:Intent = Intent(this, AuthenticationActivity::class.java)
-	intent.putExtra(DBHandler.ID_COL, account!!.id)
+	intent.putExtra(DBHandler.ID_COL, account.id)
 	startActivity(intent)
     }
 
@@ -80,14 +80,14 @@ class MainActivity : Activity()
     inner class SFTPAdapter(private val activity:Activity):RecyclerView.Adapter<SFTPAdapter.ViewHolder>()
     {
         private val TAG="SFTPAdapter"
-        private var accounts =dbHandler!!.readAccounts()
+        private var accounts =dbHandler.readAccounts()
         inner class ViewHolder(view:View):RecyclerView.ViewHolder(view),
 				    View.OnClickListener
         {
 	    private val TAG="SFTPAdapter.ViewHolder"
             val text:TextView = view.findViewById(R.id.text)
             val button:Button = view.findViewById(R.id.button)
-	    var account:Account? = null
+	    public lateinit var account:Account
 
 	    init {
 		view.setOnClickListener(this)
@@ -117,8 +117,8 @@ class MainActivity : Activity()
 	    @SuppressLint("ImplicitSamInstance")
 	    @Suppress("deprecation")
             {
-		val oldName=account!!.name
-		dbHandler!!.removeAccount(account!!.id)
+		val oldName=account.name
+		dbHandler.removeAccount(account.id)
 		var flags=0
 		if(Build.VERSION.SDK_INT>=30)
 		    flags = flags or ContentResolver.NOTIFY_DELETE
@@ -137,7 +137,7 @@ class MainActivity : Activity()
         fun updateData()
         {
             Log.i(TAG,"updateData")
-            accounts=dbHandler!!.readAccounts()
+            accounts=dbHandler.readAccounts()
             notifyDataSetChanged()
         }
     }
