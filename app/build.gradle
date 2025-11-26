@@ -8,7 +8,7 @@ android {
     namespace='com.island.androidsftpdocumentsprovider'
     defaultConfig {
         applicationId = "com.island.androidsftpdocumentsprovider"
-        minSdkVersion = 24
+        minSdkVersion = 21
         targetSdkVersion = 36
         versionCode = 1
         versionName = "1.0"

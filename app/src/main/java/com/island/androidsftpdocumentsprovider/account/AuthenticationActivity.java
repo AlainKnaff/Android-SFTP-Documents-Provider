@@ -11,6 +11,7 @@ import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.annotation.TargetApi;
 
 import com.island.androidsftpdocumentsprovider.R;
 import com.island.androidsftpdocumentsprovider.provider.SFTPProvider;
@@ -120,10 +121,13 @@ public class AuthenticationActivity extends Activity
 		finish();
 	}
 
+	@TargetApi(24)
 	public static void notifyChange(Context context, int mode) {
-		Uri uri = DocumentsContract.buildRootsUri(AUTHORITY);
-		context
-			.getContentResolver()
-			.notifyChange(uri, null, mode);
+		if(Build.VERSION.SDK_INT>=24) {
+			Uri uri = DocumentsContract.buildRootsUri(AUTHORITY);
+			context
+				.getContentResolver()
+				.notifyChange(uri, null, mode);
+		}
 	}
 }
