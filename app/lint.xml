@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <lint>
     <issue id="LogConditional" severity="ignore" />
+    <!-- to be fixed once we can do non-debug builds -->
+    
     <issue id="StringFormatTrivial" severity="ignore" />
+    <!-- low priority, too many of them to fix. Some of them will be
+	 suppressed entirely -->
+
     <issue id="SyntheticAccessor" severity="ignore" />
+    <!-- important for large apps running up against the 64K method
+	 handle limit, not important in small projects -->
+
+    <issue id="ButtonStyle" severity="ignore" />
+    <!-- Not particularly hung up about material style, only got it
+	 because we have to (FloatingActionButton: the plus at the
+	 bottom of screen to add new filesystem roots) -->
+
+    <!-- the following are warnings disabled by default, which we
+	 actually want: -->
+    <issue id="ThreadConstraint" severity="warning" />
+    <issue id="WrongThreadInterprocedural" severity="warning" />
 </lint>
