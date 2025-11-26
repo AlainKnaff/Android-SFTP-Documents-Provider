@@ -96,7 +96,11 @@ public class Keygen {
     }
 
     public static String readPrivateKey(Context ctx) {
-	return ctx.getFilesDir()+"/"+PRIVATE_KEY_FILE;
+	String privKeyFilename = ctx.getFilesDir()+"/"+PRIVATE_KEY_FILE;
+	if(new File(privKeyFilename).exists())
+	    return privKeyFilename;
+	else
+	    return null;
     }
 
 
