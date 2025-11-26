@@ -121,7 +121,6 @@ public class AuthenticationActivity extends Activity
 		finish();
 	}
 
-	@TargetApi(24)
 	public static void notifyChange(Context context, int mode) {
 		if(Build.VERSION.SDK_INT>=24) {
 			Uri uri = DocumentsContract.buildRootsUri(AUTHORITY);
