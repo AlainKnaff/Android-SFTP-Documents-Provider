@@ -53,7 +53,7 @@ public class UploaderService extends Service
 		}
 		else builder=new Notification.Builder(context);
 		builder.setContentTitle(title);
-		if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP)builder.setVisibility(Notification.VISIBILITY_PUBLIC);
+		builder.setVisibility(Notification.VISIBILITY_PUBLIC);
 		builder.setOngoing(true);
 		builder.setContentText(getNotificationDescription(context,progress));
 		builder.setSmallIcon(R.drawable.ic_stat_name);

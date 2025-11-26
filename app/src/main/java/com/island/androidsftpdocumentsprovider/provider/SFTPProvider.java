@@ -86,11 +86,9 @@ public class SFTPProvider extends DocumentsProvider
 				row.add(Root.COLUMN_DOCUMENT_ID,documentId);
 				int icon=R.drawable.ic_launcher;
 				row.add(Root.COLUMN_ICON,icon);
-				int flags = Root.FLAG_SUPPORTS_CREATE;
-				if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-					flags = flags | Root.FLAG_SUPPORTS_IS_CHILD;
-				}
-				row.add(Root.COLUMN_FLAGS,flags);
+				row.add(Root.COLUMN_FLAGS,
+					Root.FLAG_SUPPORTS_CREATE |
+					Root.FLAG_SUPPORTS_IS_CHILD);
 				String title=getContext().getString(R.string.sftp);
 				row.add(Root.COLUMN_TITLE,title);
 				row.add(Root.COLUMN_SUMMARY,uri.getAuthority());
