@@ -132,6 +132,10 @@ class MainActivity : Activity()
         {
             Log.i(TAG,"updateData")
             accounts=dbHandler.readAccounts()
+	    @SuppressLint("NotifyDataSetChanged")
+	    // not a huge list, and sometimes we cannot indeed
+	    // describe which position has changed exactly, such as
+	    // when *adding* a new item
             notifyDataSetChanged()
         }
     }
