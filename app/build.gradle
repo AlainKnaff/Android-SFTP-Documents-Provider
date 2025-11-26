@@ -8,7 +8,11 @@ android {
     namespace='com.island.androidsftpdocumentsprovider'
     defaultConfig {
         applicationId = "com.island.androidsftpdocumentsprovider"
-        minSdkVersion = 21
+        minSdkVersion = 23
+	// Min SDK Version is 23, as older than that triggers Lint warnings
+	// about onClick handlers in XML being unreliable. As I have no
+	// device old enough to test for real-world impact, I prefer to set
+	// it to 23
         targetSdkVersion = 36
         versionCode = 1
         versionName = "1.0"
