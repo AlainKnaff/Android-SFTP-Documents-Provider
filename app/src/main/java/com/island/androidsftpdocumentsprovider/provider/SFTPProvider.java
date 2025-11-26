@@ -28,6 +28,9 @@ import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsContract.Document;
 import android.util.Log;
 
+import androidx.core.content.ContextCompat;
+
+
 import com.island.androidsftpdocumentsprovider.R;
 import com.island.androidsftpdocumentsprovider.account.DBHandler;
 import com.island.androidsftpdocumentsprovider.account.Account;
@@ -53,8 +56,9 @@ public class SFTPProvider extends DocumentsProvider
 	    dbHandler = new DBHandler(getContext());
 	    int flags=0;
 	    if(Build.VERSION.SDK_INT>=33)
-		flags |= Context.RECEIVER_NOT_EXPORTED; 
-	    getContext().registerReceiver(new BroadcastReceiver() {
+		flags |= ContextCompat.RECEIVER_NOT_EXPORTED;
+	    ContextCompat
+		.registerReceiver(getContext(),new BroadcastReceiver() {
 		    @Override
 		    public void onReceive(Context context, Intent intent) {
 			String uri = intent.getStringExtra("uri");

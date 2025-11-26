@@ -16,11 +16,11 @@ import java.security.interfaces.RSAPublicKey;
 import java.nio.charset.StandardCharsets;
 import java.nio.ByteOrder;
 import java.nio.ByteBuffer;
-import java.util.Base64;
 
 import android.content.Intent;
 import android.content.Context;
 import android.util.Log;
+import android.util.Base64;
 
 import com.island.androidsftpdocumentsprovider.R;
 
@@ -58,9 +58,13 @@ public class Keygen {
         }
     }
 
+    private static String toBase64(byte[] bin) {
+	return Base64.encodeToString(bin, Base64.NO_WRAP);
+    }
+
     public static String convertToPEM(Key key, String type) {
         byte[] encodedKey = key.getEncoded();
-        String base64Key = Base64.getEncoder().encodeToString(encodedKey);
+        String base64Key = toBase64(encodedKey);
         return "-----BEGIN "+type+" KEY-----\n" + base64Key + "\n-----END "+type+" KEY-----";
     }
 
@@ -85,8 +89,7 @@ public class Keygen {
                 .putInt(nBytes.length).put(nBytes)
                 .array();
 
-        final String publicKeyBase64 = Base64.getEncoder()
-                .encodeToString(publicKeyBytes);
+        final String publicKeyBase64 = toBase64(publicKeyBytes);
 
         final String publicKeyEncoded = sig + " " + publicKeyBase64 + " user@sftpprovider";
         return publicKeyEncoded;
