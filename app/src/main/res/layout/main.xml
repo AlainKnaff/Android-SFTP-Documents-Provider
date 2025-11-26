@@ -57,6 +57,7 @@
         android:focusable="true"
         android:onClick="addSftpAccount"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/add_icon" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
