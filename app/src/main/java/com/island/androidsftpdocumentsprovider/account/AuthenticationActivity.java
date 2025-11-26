@@ -11,7 +11,6 @@ import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.annotation.TargetApi;
 
 import com.island.androidsftpdocumentsprovider.R;
 import com.island.androidsftpdocumentsprovider.provider.SFTPProvider;
