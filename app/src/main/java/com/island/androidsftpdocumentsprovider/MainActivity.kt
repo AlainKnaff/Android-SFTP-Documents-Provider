@@ -2,9 +2,11 @@ package com.island.androidsftpdocumentsprovider
 
 import java.util.List
 
+import android.net.Uri;
 import android.app.Activity
-import android.content.ContentResolver;
+import android.content.ContentResolver
 import android.content.Intent
+import android.content.ComponentName
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -39,6 +41,15 @@ class MainActivity : Activity()
         val recyclerView=findViewById<RecyclerView>(R.id.sftp_accounts)
         recyclerView.adapter=SFTPAdapter(this)
         recyclerView.layoutManager=LinearLayoutManager(this)
+    }
+
+    fun browseFiles(view:View)
+    {
+	val intent = Intent(Intent.ACTION_VIEW,null)
+	intent.setComponent(ComponentName("com.google.android.documentsui",
+					  "com.android.documentsui.files.FilesActivity"));
+	intent.setData(Uri.parse("content://com.island.androidsftpdocumentsprovider/root"))
+	startActivity(intent)
     }
 
     fun addSftpAccount(view:View)

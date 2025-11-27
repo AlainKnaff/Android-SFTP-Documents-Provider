@@ -10,6 +10,17 @@
     android:fitsSystemWindows="true"
     >
 
+    <Button
+        android:id="@+id/file_browser"
+	android:layout_height="wrap_content"
+	android:layout_width="wrap_content"
+	android:text="@string/file_browser"
+	android:onClick="browseFiles"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+	app:layout_constraintTop_toTopOf="parent"
+	/>
 
     <LinearLayout
         android:id="@+id/key_line"
@@ -20,7 +31,7 @@
 
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-	app:layout_constraintTop_toTopOf="parent"
+	app:layout_constraintTop_toBottomOf="@id/file_browser"
 	>
 
 	<Button
