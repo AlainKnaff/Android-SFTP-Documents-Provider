@@ -95,10 +95,14 @@ public class Keygen {
         return publicKeyEncoded;
     }
 
-    public static String readPrivateKey(Context ctx) {
+    public static boolean haveKey(Context ctx) {
 	String privKeyFilename = ctx.getFilesDir()+"/"+PRIVATE_KEY_FILE;
-	if(new File(privKeyFilename).exists())
-	    return privKeyFilename;
+	return new File(privKeyFilename).exists();
+    }
+
+    public static String readPrivateKey(Context ctx) {
+	if(haveKey(ctx))
+	    return ctx.getFilesDir()+"/"+PRIVATE_KEY_FILE;
 	else
 	    return null;
     }

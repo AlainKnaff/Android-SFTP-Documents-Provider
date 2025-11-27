@@ -31,6 +31,17 @@ class MainActivity : Activity()
 
     private val dbHandler: DBHandler by lazy { DBHandler(this) }
 
+    private fun fixButtonState() {
+	val share: Button  = findViewById(R.id.share_public_key)
+	val generate: Button  = findViewById(R.id.generate_keypair)
+	if(Keygen.haveKey(this)) {
+	    share.setEnabled(true);
+	    generate.setText(R.string.regenerate_key)
+	} else {
+	    share.setEnabled(false);
+	}
+    }
+
     override fun onCreate(savedInstanceState: Bundle?)
     {
         Log.i(TAG,"OnCreate $savedInstanceState")
@@ -40,6 +51,7 @@ class MainActivity : Activity()
         val recyclerView=findViewById<RecyclerView>(R.id.sftp_accounts)
         recyclerView.adapter=SFTPAdapter(this)
         recyclerView.layoutManager=LinearLayoutManager(this)
+	fixButtonState();
     }
 
     fun browseFiles(view:View)
@@ -68,6 +80,7 @@ class MainActivity : Activity()
 
     fun generateKey(view: View) {
 	Keygen.genKey(this);
+	fixButtonState();
     }
 
     fun sharePublicKey(view: View) {
