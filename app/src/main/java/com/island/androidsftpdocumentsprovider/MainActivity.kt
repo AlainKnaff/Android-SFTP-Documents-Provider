@@ -4,6 +4,7 @@ import java.util.List
 
 import android.net.Uri;
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ContentResolver
 import android.content.Intent
 import android.content.ComponentName
@@ -79,6 +80,20 @@ class MainActivity : Activity()
     }
 
     fun generateKey(view: View) {
+	if(Keygen.haveKey(this)) {
+	    // pop up a dialog
+	    val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+	    builder
+		.setMessage(R.string.keygen_confirm)
+		.setPositiveButton(R.string.yes) { d, w -> generateKey2(view) }
+		.setNegativeButton(R.string.no) { d, w  ->d.dismiss() }
+		.show();
+	} else {
+	    generateKey2(view)
+	}
+    }
+
+    private fun generateKey2(view: View) {
 	Keygen.genKey(this);
 	fixButtonState();
     }
