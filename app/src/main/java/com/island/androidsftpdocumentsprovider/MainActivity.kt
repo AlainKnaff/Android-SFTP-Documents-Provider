@@ -29,14 +29,13 @@ class MainActivity : Activity()
 {
     private val TAG="MainActivity"
 
-    private lateinit var dbHandler:DBHandler
+    private val dbHandler: DBHandler by lazy { DBHandler(this) }
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
         Log.i(TAG,"OnCreate $savedInstanceState")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main)
-        dbHandler = DBHandler(this)
 
         val recyclerView=findViewById<RecyclerView>(R.id.sftp_accounts)
         recyclerView.adapter=SFTPAdapter(this)
