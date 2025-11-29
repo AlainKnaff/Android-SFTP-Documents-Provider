@@ -11,6 +11,7 @@ import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.island.androidsftpdocumentsprovider.R;
 import com.island.androidsftpdocumentsprovider.provider.SFTPProvider;
@@ -84,8 +85,10 @@ public class AuthenticationActivity extends Activity
 			   port == account.getPort() &&
 			   password.isEmpty() &&
 			   directory.equals(account.getDirectory())) {
-				Log.i(SFTPProvider.TAG,"Nothing changed");
-				cancel();
+				Toast.makeText(this,
+					       R.string.nothing_changed,
+					       Toast.LENGTH_SHORT)
+					.show();
 				return;
 			}
 		}
