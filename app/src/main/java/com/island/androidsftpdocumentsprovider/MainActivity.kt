@@ -45,13 +45,13 @@ class MainActivity : Activity()
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
-        Log.i(TAG,"OnCreate $savedInstanceState")
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.main)
+	Log.i(TAG,"OnCreate $savedInstanceState")
+	super.onCreate(savedInstanceState)
+	setContentView(R.layout.main)
 
-        val recyclerView=findViewById<RecyclerView>(R.id.sftp_accounts)
-        recyclerView.adapter=SFTPAdapter(this)
-        recyclerView.layoutManager=LinearLayoutManager(this)
+	val recyclerView=findViewById<RecyclerView>(R.id.sftp_accounts)
+	recyclerView.adapter=SFTPAdapter(this)
+	recyclerView.layoutManager=LinearLayoutManager(this)
 	fixButtonState();
     }
 
@@ -104,21 +104,21 @@ class MainActivity : Activity()
 
     override fun onResume()
     {
-        super.onResume()
-        Log.i(TAG,"OnResume")
-        (findViewById<RecyclerView>(R.id.sftp_accounts).adapter as SFTPAdapter).updateData()
+	super.onResume()
+	Log.i(TAG,"OnResume")
+	(findViewById<RecyclerView>(R.id.sftp_accounts).adapter as SFTPAdapter).updateData()
     }
 
     inner class SFTPAdapter(private val activity:Activity):RecyclerView.Adapter<SFTPAdapter.ViewHolder>()
     {
-        private val TAG="SFTPAdapter"
-        private var accounts =dbHandler.readAccounts()
-        inner class ViewHolder(view:View):RecyclerView.ViewHolder(view),
-				    View.OnClickListener
-        {
+	private val TAG="SFTPAdapter"
+	private var accounts =dbHandler.readAccounts()
+	inner class ViewHolder(view:View):RecyclerView.ViewHolder(view),
+					  View.OnClickListener
+	{
 	    private val TAG="SFTPAdapter.ViewHolder"
-            val text:TextView = view.findViewById(R.id.text)
-            val button:Button = view.findViewById(R.id.button)
+	    val text:TextView = view.findViewById(R.id.text)
+	    val button:Button = view.findViewById(R.id.button)
 	    public lateinit var account:Account
 
 	    init {
@@ -130,17 +130,17 @@ class MainActivity : Activity()
 	    {
 		editSftpAccount(view,account)
 	    }
-        }
+	}
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder
-        {
-            Log.i(TAG,"OnCreateViewHolder $parent $viewType")
-            val view=LayoutInflater.from(parent.context).inflate(R.layout.sftp_item,parent,false)
-            return ViewHolder(view)
-        }
+	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder
+	{
+	    Log.i(TAG,"OnCreateViewHolder $parent $viewType")
+	    val view=LayoutInflater.from(parent.context).inflate(R.layout.sftp_item,parent,false)
+	    return ViewHolder(view)
+	}
 
-        override fun onBindViewHolder(holder: ViewHolder, position: Int)
-        {
+	override fun onBindViewHolder(holder: ViewHolder, position: Int)
+	{
 	    Log.i(TAG,"OnBindViewHolder $holder $position")
 	    val account=accounts[position]
 	    holder.text.text=account.name
@@ -148,7 +148,7 @@ class MainActivity : Activity()
 	    holder.button.setOnClickListener()
 	    @SuppressLint("ImplicitSamInstance")
 	    @Suppress("deprecation")
-            {
+	    {
 		val oldName=account.name
 		dbHandler.removeAccount(account.id)
 		var flags=0
@@ -157,24 +157,24 @@ class MainActivity : Activity()
 		AuthenticationActivity
 		    .notifyChange(this@MainActivity, flags)
 		updateData()
-            }
-        }
+	    }
+	}
 
-        override fun getItemCount(): Int
-        {
-            Log.i(TAG,"GetItemCount "+accounts.size)
-            return accounts.size
-        }
+	override fun getItemCount(): Int
+	{
+	    Log.i(TAG,"GetItemCount "+accounts.size)
+	    return accounts.size
+	}
 
-        fun updateData()
-        {
-            Log.i(TAG,"updateData")
-            accounts=dbHandler.readAccounts()
+	fun updateData()
+	{
+	    Log.i(TAG,"updateData")
+	    accounts=dbHandler.readAccounts()
 	    @SuppressLint("NotifyDataSetChanged")
 	    // not a huge list, and sometimes we cannot indeed
 	    // describe which position has changed exactly, such as
 	    // when *adding* a new item
-            notifyDataSetChanged()
-        }
+	    notifyDataSetChanged()
+	}
     }
 }
