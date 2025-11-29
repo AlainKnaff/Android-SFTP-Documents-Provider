@@ -28,6 +28,8 @@ public class ErrorNotification {
 
     public static void sendNotification(Context ctx,
 					String title, Throwable t) {
+	if(Build.VERSION.SDK_INT < 26)
+	    return;
 	while(true) {
 	    Throwable c = t.getCause();
 	    if(c == null)
@@ -40,7 +42,7 @@ public class ErrorNotification {
 	    message=t.toString();
 
 	createChannel(ctx);
-        Notification.Builder notificationBuilder =
+	Notification.Builder notificationBuilder =
 	    new Notification.Builder(ctx, channelName)
 	    .setContentTitle(title)
 	    .setContentText(message)
@@ -50,8 +52,8 @@ public class ErrorNotification {
 	    .setAutoCancel(true)
 	    ;
 
-        NotificationManager notificationManager = (NotificationManager)
+	NotificationManager notificationManager = (NotificationManager)
 	    ctx.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(0, notificationBuilder.build());
+	notificationManager.notify(0, notificationBuilder.build());
     }
 }
