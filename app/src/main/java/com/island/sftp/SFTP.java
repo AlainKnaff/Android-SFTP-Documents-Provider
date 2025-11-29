@@ -36,6 +36,7 @@ import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.SftpException;
 
 import com.island.androidsftpdocumentsprovider.provider.SFTPProvider;
+import com.island.util.ErrorNotification;
 
 public class SFTP implements Closeable
 {
@@ -43,9 +44,10 @@ public class SFTP implements Closeable
 	private static final int BUFFER=1024;
 	public static final String SCHEME="sftp://";
 	public  Uri uri;
-	private  String password;
-	private  Session session;
-	private  ChannelSftp channel;
+	private String password;
+	private Session session;
+	private ChannelSftp channel;
+	private Context context;
 	private final HashMap<File,Long>lastModified=new HashMap<>();
 	private final HashMap<File,Long>size=new HashMap<>();
 	private final HashMap<File,Boolean>directory=new HashMap<>();
@@ -67,6 +69,7 @@ public class SFTP implements Closeable
 
 	protected void init(Context ctx, Uri uri, String password) throws ConnectException {
 		Log.d(SFTPProvider.TAG,String.format("Created new connection for %s",uri.getAuthority()));
+		this.context=ctx;
 		checkArguments(uri,password);
 		cancelStrictMode();
 		this.uri=uri;
@@ -80,6 +83,9 @@ public class SFTP implements Closeable
 				jsch.addIdentity(privKey);
 			makeSession();
 		} catch(JSchException e) {
+			ErrorNotification.sendNotification(ctx,
+							   String.valueOf(uri),
+							   e);
 			Log.d(SFTPProvider.TAG, "JschException during init", e);
 			ConnectException exception=new ConnectException(String.format("Can't connect to %s",uri));
 			exception.initCause(e);
@@ -379,6 +385,8 @@ public class SFTP implements Closeable
 	private IOException getException(Exception cause)
 	{
 		assert cause!=null;
+
+		ErrorNotification.sendNotification(context,"sftp",cause);
 		if(cause.getCause()!=null) {
 			SocketException exception=new SocketException("Connection closed");
 			exception.initCause(cause);
