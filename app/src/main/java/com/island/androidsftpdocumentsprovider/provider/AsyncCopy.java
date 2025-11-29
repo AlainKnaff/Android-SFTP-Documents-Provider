@@ -40,7 +40,7 @@ public class AsyncCopy extends AsyncTask<File,Long,Void>implements Observer
 	@Override
 	protected Void doInBackground(File[]files)
 	{
-		Log.i(SFTPProvider.TAG,String.format("AsyncCopy doInBackground %s",Arrays.toString(files)));
+		Log.d(SFTPProvider.TAG,String.format("AsyncCopy doInBackground %s",Arrays.toString(files)));
 		Objects.requireNonNull(files);
 		try
 		{
@@ -84,7 +84,7 @@ public class AsyncCopy extends AsyncTask<File,Long,Void>implements Observer
 	@Override
 	protected void onPostExecute(Void result)
 	{
-		Log.i(SFTPProvider.TAG,String.format("AsyncCopy onPostExecute %s %s",uri.toString(), result));
+		Log.d(SFTPProvider.TAG,String.format("AsyncCopy onPostExecute %s %s",uri.toString(), result));
 		Context context=getContext();
 		NotificationManager notificationManager=(NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
 		notificationManager.cancelAll();
@@ -98,7 +98,7 @@ public class AsyncCopy extends AsyncTask<File,Long,Void>implements Observer
 	@Override
 	protected void onProgressUpdate(Long[]values)
 	{
-		Log.i(SFTPProvider.TAG,String.format("AsyncCopy onProgressUpdate %s %s",uri.toString(),Arrays.toString(values)));
+		Log.d(SFTPProvider.TAG,String.format("AsyncCopy onProgressUpdate %s %s",uri.toString(),Arrays.toString(values)));
 		Objects.requireNonNull(values);
 		if(values.length==0)throw new IllegalArgumentException("values length is 0");
 		Context context=getContext();

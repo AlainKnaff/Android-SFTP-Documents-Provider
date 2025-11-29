@@ -45,7 +45,6 @@ class MainActivity : Activity()
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
-	Log.i(TAG,"OnCreate $savedInstanceState")
 	super.onCreate(savedInstanceState)
 	setContentView(R.layout.main)
 
@@ -66,14 +65,12 @@ class MainActivity : Activity()
 
     fun addSftpAccount(view:View)
     {
-	Log.i(TAG,"AddSftpAccount $view")
 	val intent:Intent = Intent(this, AuthenticationActivity::class.java)
 	startActivity(intent)
     }
 
     fun editSftpAccount(view:View, account:Account)
     {
-	Log.i(TAG,"EditSftpAccount $view $account.id")
 	val intent:Intent = Intent(this, AuthenticationActivity::class.java)
 	intent.putExtra(DBHandler.ID_COL, account.id)
 	startActivity(intent)
@@ -105,7 +102,6 @@ class MainActivity : Activity()
     override fun onResume()
     {
 	super.onResume()
-	Log.i(TAG,"OnResume")
 	(findViewById<RecyclerView>(R.id.sftp_accounts).adapter as SFTPAdapter).updateData()
     }
 
@@ -134,14 +130,12 @@ class MainActivity : Activity()
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder
 	{
-	    Log.i(TAG,"OnCreateViewHolder $parent $viewType")
 	    val view=LayoutInflater.from(parent.context).inflate(R.layout.sftp_item,parent,false)
 	    return ViewHolder(view)
 	}
 
 	override fun onBindViewHolder(holder: ViewHolder, position: Int)
 	{
-	    Log.i(TAG,"OnBindViewHolder $holder $position")
 	    val account=accounts[position]
 	    holder.text.text=account.name
 	    holder.account=account
@@ -162,13 +156,11 @@ class MainActivity : Activity()
 
 	override fun getItemCount(): Int
 	{
-	    Log.i(TAG,"GetItemCount "+accounts.size)
 	    return accounts.size
 	}
 
 	fun updateData()
 	{
-	    Log.i(TAG,"updateData")
 	    accounts=dbHandler.readAccounts()
 	    @SuppressLint("NotifyDataSetChanged")
 	    // not a huge list, and sometimes we cannot indeed

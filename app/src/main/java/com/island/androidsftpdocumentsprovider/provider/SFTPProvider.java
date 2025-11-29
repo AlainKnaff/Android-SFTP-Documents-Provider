@@ -59,7 +59,7 @@ public class SFTPProvider extends DocumentsProvider
 		    @Override
 		    public void onReceive(Context context, Intent intent) {
 			String uri = intent.getStringExtra("uri");
-			Log.i(TAG, String.format("Current uploading files: %s, remove %s", uploadingFiles, uri));
+			Log.d(TAG, String.format("Current uploading files: %s, remove %s", uploadingFiles, uri));
 			uploadingFiles.remove(uri);
 		    }
 		}, new IntentFilter(SFTP_UPLOAD_POST),
@@ -69,7 +69,7 @@ public class SFTPProvider extends DocumentsProvider
 	@Override
 	public Cursor queryRoots(String[]projection)throws FileNotFoundException
 	{
-		Log.i(SFTPProvider.TAG,String.format("SFTPProvider queryRoots %s",Arrays.toString(projection)));
+		Log.d(SFTPProvider.TAG,String.format("SFTPProvider queryRoots %s",Arrays.toString(projection)));
 		try
 		{
 			MatrixCursor result=new MatrixCursor(resolveRootProjection(projection));
@@ -112,7 +112,7 @@ public class SFTPProvider extends DocumentsProvider
 	@Override
 	public Cursor queryDocument(String uri,String[]projection)throws FileNotFoundException
 	{
-		Log.i(SFTPProvider.TAG,String.format("SFTPProvider queryDocuments %s %s",uri,Arrays.toString(projection)));
+		Log.d(SFTPProvider.TAG,String.format("SFTPProvider queryDocuments %s %s",uri,Arrays.toString(projection)));
 		try
 		{
 			Objects.requireNonNull(uri);
@@ -129,7 +129,7 @@ public class SFTPProvider extends DocumentsProvider
 	@Override
 	public Cursor queryChildDocuments(String parentUri,String[]projection,String sortOrder)throws FileNotFoundException
 	{
-		Log.i(SFTPProvider.TAG,String.format("SFTPProvider queryChildDocuments %s %s %s",parentUri,Arrays.toString(projection),Arrays.toString(projection)));
+		Log.d(SFTPProvider.TAG,String.format("SFTPProvider queryChildDocuments %s %s %s",parentUri,Arrays.toString(projection),Arrays.toString(projection)));
 		try
 		{
 			Objects.requireNonNull(parentUri);
@@ -159,7 +159,7 @@ public class SFTPProvider extends DocumentsProvider
 	@Override
 	public ParcelFileDescriptor openDocument(String uri,String mode,CancellationSignal signal)throws FileNotFoundException
 	{
-		Log.i(SFTPProvider.TAG,String.format("SFTPProvider openDocument %s %s %s",uri,mode,signal));
+		Log.d(SFTPProvider.TAG,String.format("SFTPProvider openDocument %s %s %s",uri,mode,signal));
 		try
 		{
 			Objects.requireNonNull(uri);
@@ -176,11 +176,11 @@ public class SFTPProvider extends DocumentsProvider
                 long serverLastModified = sftp.lastModified(serverFile);
                 if(cache.exists()){
                     if( uploadingFiles.contains(documentId.toString())){
-                        Log.i(TAG, String.format("File %s uploading, open cache file.", documentId.toString()));
+                        Log.d(TAG, String.format("File %s uploading, open cache file.", documentId.toString()));
                         isDownloadFile = false;
                     }
                     if(cache.lastModified() == serverLastModified){
-                        Log.i(TAG, String.format("File %s is not modify, open cache file.", documentId.toString()));
+                        Log.d(TAG, String.format("File %s is not modify, open cache file.", documentId.toString()));
                         isDownloadFile = false;
                     }
                 }
@@ -240,7 +240,7 @@ public class SFTPProvider extends DocumentsProvider
 	@Override
     public String createDocument(String parentUri,String mimeType,String displayName)throws FileNotFoundException
 	{
-		Log.i(SFTPProvider.TAG,String.format("SFTPProvider createDocument %s %s %s",parentUri,mimeType,displayName));
+		Log.d(SFTPProvider.TAG,String.format("SFTPProvider createDocument %s %s %s",parentUri,mimeType,displayName));
 		try
 		{
 			Objects.requireNonNull(parentUri);
@@ -270,7 +270,7 @@ public class SFTPProvider extends DocumentsProvider
     @Override
     public void deleteDocument(String uri)throws FileNotFoundException
 	{
-		Log.i(SFTPProvider.TAG,String.format("SFTPProvider deleteDocument %s",uri));
+		Log.d(SFTPProvider.TAG,String.format("SFTPProvider deleteDocument %s",uri));
         try
 		{
 			Objects.requireNonNull(uri);
@@ -294,7 +294,7 @@ public class SFTPProvider extends DocumentsProvider
     @Override
     public String getDocumentType(String uri)throws FileNotFoundException
 	{
-		Log.i(SFTPProvider.TAG,String.format("SFTPProvider getDocumentType %s",uri));
+		Log.d(SFTPProvider.TAG,String.format("SFTPProvider getDocumentType %s",uri));
 		try
 		{
 			Objects.requireNonNull(uri);
@@ -320,7 +320,7 @@ public class SFTPProvider extends DocumentsProvider
 	@Override
 	public String renameDocument(String uri,String displayName)throws FileNotFoundException
 	{
-		Log.i(SFTPProvider.TAG,String.format("SFTPProvider renameDocument %s %s",uri,displayName));
+		Log.d(SFTPProvider.TAG,String.format("SFTPProvider renameDocument %s %s",uri,displayName));
 		try
 		{
 			Objects.requireNonNull(uri);
@@ -349,7 +349,7 @@ public class SFTPProvider extends DocumentsProvider
 	@Override
 	public String moveDocument(String sourceUri,String sourceParentUri,String targetParentUri)throws FileNotFoundException
 	{
-		Log.i(SFTPProvider.TAG,String.format("SFTPProvider moveDocument %s %s %s",sourceUri,sourceParentUri,targetParentUri));
+		Log.d(SFTPProvider.TAG,String.format("SFTPProvider moveDocument %s %s %s",sourceUri,sourceParentUri,targetParentUri));
 		try
 		{
 			Objects.requireNonNull(sourceUri);
@@ -378,7 +378,7 @@ public class SFTPProvider extends DocumentsProvider
 	@Override
 	public String copyDocument(String sourceUri,String targetParentUri)throws FileNotFoundException
 	{
-		Log.i(SFTPProvider.TAG,String.format("SFTPProvider copyDocument %s %s",sourceUri,targetParentUri));
+		Log.d(SFTPProvider.TAG,String.format("SFTPProvider copyDocument %s %s",sourceUri,targetParentUri));
 		try
 		{
 			Objects.requireNonNull(sourceUri);

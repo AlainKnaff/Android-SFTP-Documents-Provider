@@ -23,7 +23,7 @@ public class UploaderService extends Service
 	@Override
 	public int onStartCommand(Intent intent,int flags,int startId)
 	{
-		Log.i(SFTPProvider.TAG,String.format("UploaderService onStartCommand %s %s %s",intent,flags,startId));
+		Log.d(SFTPProvider.TAG,String.format("UploaderService onStartCommand %s %s %s",intent,flags,startId));
 		Objects.requireNonNull(intent);
 		Objects.requireNonNull(intent.getData());
 		File file=SFTP.getFile(intent.getData());

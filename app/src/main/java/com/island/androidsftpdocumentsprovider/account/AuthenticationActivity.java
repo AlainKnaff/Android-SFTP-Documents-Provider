@@ -27,7 +27,6 @@ public class AuthenticationActivity extends Activity
 	@Override
 	protected void onCreate(Bundle icicle)
 	{
-		Log.i(SFTPProvider.TAG,String.format("AuthenticationActivity onCreate %s",icicle));
 		super.onCreate(icicle);
 		dbHandler = new DBHandler(this);
 		setContentView(R.layout.authentication_activity);
@@ -59,7 +58,6 @@ public class AuthenticationActivity extends Activity
 	}
 
 	public void confirm(View view) {
-		Log.i(SFTPProvider.TAG,String.format("AuthenticationActivity confirm %s",view));
 		String hostName=((EditText)findViewById(R.id.host))
 			.getText().toString();
 
