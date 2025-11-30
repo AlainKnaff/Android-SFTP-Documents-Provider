@@ -15,7 +15,7 @@ public class ErrorNotification {
 	if(isInitialized)
 	    return;
 	if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O) {
-	    int importance=NotificationManager.IMPORTANCE_DEFAULT;
+	    int importance=NotificationManager.IMPORTANCE_HIGH;
 	    NotificationChannel channel=new NotificationChannel(channelName,
 								channelName,
 								importance);
