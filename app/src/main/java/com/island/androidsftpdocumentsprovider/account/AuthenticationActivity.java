@@ -8,18 +8,15 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.island.androidsftpdocumentsprovider.R;
-import com.island.androidsftpdocumentsprovider.provider.SFTPProvider;
 
 public class AuthenticationActivity extends Activity
 {
 	public static final String ACCOUNT_TYPE="com.island.sftp.account";
-	public static final String TOKEN_TYPE="login";
 	public static final String AUTHORITY="com.island.androidsftpdocumentsprovider";
 
 	private DBHandler dbHandler;
