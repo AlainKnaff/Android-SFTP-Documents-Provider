@@ -10,7 +10,7 @@ import android.content.Context;
 public class ErrorNotification {
     private static boolean isInitialized=false;
     private static String channelName="ErrorChannel";
-    
+
     private static synchronized void createChannel(Context ctx) {
 	if(isInitialized)
 	    return;
