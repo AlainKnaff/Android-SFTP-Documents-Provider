@@ -18,6 +18,7 @@ import android.content.BroadcastReceiver;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.os.StrictMode;
 import android.os.ParcelFileDescriptor;
 import android.os.Looper;
 import android.os.Handler;
@@ -69,7 +70,8 @@ public class SFTPProvider extends DocumentsProvider
 	@Override
 	public Cursor queryRoots(String[]projection)throws FileNotFoundException
 	{
-		Log.d(SFTPProvider.TAG,String.format("SFTPProvider queryRoots %s",Arrays.toString(projection)));
+	    cancelStrictMode();
+	    Log.d(SFTPProvider.TAG,String.format("SFTPProvider queryRoots %s",Arrays.toString(projection)));
 		try
 		{
 			MatrixCursor result=new MatrixCursor(resolveRootProjection(projection));
@@ -103,6 +105,7 @@ public class SFTPProvider extends DocumentsProvider
 
 	@Override
 	public boolean isChildDocument(String parentDocumentId, String documentId) {
+		cancelStrictMode();
 		Log.d(TAG, String.format("isChildDocument: parentDocumentId=%s, documentId=%s", parentDocumentId, documentId));
 		final String parentUri = parentDocumentId;
 		final String childUri = documentId;
@@ -112,6 +115,7 @@ public class SFTPProvider extends DocumentsProvider
 	@Override
 	public Cursor queryDocument(String uri,String[]projection)throws FileNotFoundException
 	{
+		cancelStrictMode();
 		Log.d(SFTPProvider.TAG,String.format("SFTPProvider queryDocuments %s %s",uri,Arrays.toString(projection)));
 		try
 		{
@@ -129,6 +133,7 @@ public class SFTPProvider extends DocumentsProvider
 	@Override
 	public Cursor queryChildDocuments(String parentUri,String[]projection,String sortOrder)throws FileNotFoundException
 	{
+		cancelStrictMode();
 		Log.d(SFTPProvider.TAG,String.format("SFTPProvider queryChildDocuments %s %s %s",parentUri,Arrays.toString(projection),Arrays.toString(projection)));
 		try
 		{
@@ -159,6 +164,7 @@ public class SFTPProvider extends DocumentsProvider
 	@Override
 	public ParcelFileDescriptor openDocument(String uri,String mode,CancellationSignal signal)throws FileNotFoundException
 	{
+		cancelStrictMode();
 		Log.d(SFTPProvider.TAG,String.format("SFTPProvider openDocument %s %s %s",uri,mode,signal));
 		try
 		{
@@ -240,6 +246,7 @@ public class SFTPProvider extends DocumentsProvider
 	@Override
     public String createDocument(String parentUri,String mimeType,String displayName)throws FileNotFoundException
 	{
+		cancelStrictMode();
 		Log.d(SFTPProvider.TAG,String.format("SFTPProvider createDocument %s %s %s",parentUri,mimeType,displayName));
 		try
 		{
@@ -270,6 +277,7 @@ public class SFTPProvider extends DocumentsProvider
     @Override
     public void deleteDocument(String uri)throws FileNotFoundException
 	{
+		cancelStrictMode();
 		Log.d(SFTPProvider.TAG,String.format("SFTPProvider deleteDocument %s",uri));
         try
 		{
@@ -294,6 +302,7 @@ public class SFTPProvider extends DocumentsProvider
     @Override
     public String getDocumentType(String uri)throws FileNotFoundException
 	{
+		cancelStrictMode();
 		Log.d(SFTPProvider.TAG,String.format("SFTPProvider getDocumentType %s",uri));
 		try
 		{
@@ -320,6 +329,7 @@ public class SFTPProvider extends DocumentsProvider
 	@Override
 	public String renameDocument(String uri,String displayName)throws FileNotFoundException
 	{
+		cancelStrictMode();
 		Log.d(SFTPProvider.TAG,String.format("SFTPProvider renameDocument %s %s",uri,displayName));
 		try
 		{
@@ -349,6 +359,7 @@ public class SFTPProvider extends DocumentsProvider
 	@Override
 	public String moveDocument(String sourceUri,String sourceParentUri,String targetParentUri)throws FileNotFoundException
 	{
+		cancelStrictMode();
 		Log.d(SFTPProvider.TAG,String.format("SFTPProvider moveDocument %s %s %s",sourceUri,sourceParentUri,targetParentUri));
 		try
 		{
@@ -378,6 +389,7 @@ public class SFTPProvider extends DocumentsProvider
 	@Override
 	public String copyDocument(String sourceUri,String targetParentUri)throws FileNotFoundException
 	{
+		cancelStrictMode();
 		Log.d(SFTPProvider.TAG,String.format("SFTPProvider copyDocument %s %s",sourceUri,targetParentUri));
 		try
 		{
@@ -458,7 +470,8 @@ public class SFTPProvider extends DocumentsProvider
 		try
 		{
 			File file=SFTP.getFile(uri);
-			if(sftp.isDirectory(file))flags=Document.FLAG_DIR_SUPPORTS_CREATE;
+			if(sftp.isDirectory(file))
+			    flags=Document.FLAG_DIR_SUPPORTS_CREATE;
 			else
 			{
 				flags=Document.FLAG_SUPPORTS_WRITE;
@@ -524,5 +537,27 @@ public class SFTPProvider extends DocumentsProvider
 		} catch (IOException e) {
 			Log.e(TAG, "sftp close exception", e);
 		}
+	}
+
+	private void cancelStrictMode() {
+		// if an application directly opens a file on a root
+		// supplied by this document provider from its UI
+		// thread, the StrictMode attached to that thread
+		// carries over to the document provider via binder,
+		// preventing it to invoke network (for SFTP),
+		// although it's really the calling app's fault. =>
+		// cancel StrictMode. This is legitimate as we can't
+		// really do anything about it, as Documents Provider
+		// API is synchronous (return from same method, rather
+		// than calling a callback when done). Any solution
+		// other than canceling StrictMode would involve
+		// cheating by handing processing off to another
+		// thread, but then waiting for that thread, blocking
+		// anyways
+		StrictMode.ThreadPolicy gfgPolicy =
+			new StrictMode.ThreadPolicy.Builder()
+			.permitAll()
+			.build();
+		StrictMode.setThreadPolicy(gfgPolicy);
 	}
 }

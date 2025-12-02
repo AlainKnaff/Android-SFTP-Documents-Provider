@@ -26,7 +26,6 @@ import android.net.Uri;
 import android.util.Log;
 import android.provider.DocumentsContract;
 import android.webkit.MimeTypeMap;
-import android.os.StrictMode;
 
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.ChannelSftp;
@@ -71,7 +70,6 @@ public class SFTP implements Closeable
 		Log.d(SFTPProvider.TAG,String.format("Created new connection for %s",uri.getAuthority()));
 		this.context=ctx;
 		checkArguments(uri,password);
-		cancelStrictMode();
 		this.uri=uri;
 		this.password=password;
 		String privKey = Keygen.readPrivateKey(ctx);
@@ -111,27 +109,7 @@ public class SFTP implements Closeable
 		channel.connect();
 	}
 
-	private void cancelStrictMode() {
-		// if an applications directly opens a file on this root from
-		// its UI thread, the StrictMode attached to that thread
-		// carries over to this application via binder, preventing it
-		// to invoke network (for SFTP), although it's really the
-		// calling app's fault. => cancel StrictMode this is
-		// legitimate as we can't really do anything about it, as
-		// Documents Provider API is syncrhonous (return from same
-		// method, rather than calling a callback when done). Any
-		// solution other than canceling StrictMode would involve
-		// cheating by handing processing off to another thread, but
-		// then waiting for that thread, blocking anyways
-		StrictMode.ThreadPolicy gfgPolicy =
-			new StrictMode.ThreadPolicy.Builder()
-			.permitAll()
-			.build();
-		StrictMode.setThreadPolicy(gfgPolicy);
-	}
-
 	private synchronized void reconnectIfNeeded() throws JSchException {
-		cancelStrictMode();
 		if(!session.isConnected()) {
 			try {
 				Log.d(SFTPProvider.TAG,"Reconnecting session");
@@ -399,7 +377,6 @@ public class SFTP implements Closeable
 	}
 	private void checkArguments(Object...arguments)
 	{
-		cancelStrictMode();
 		assert arguments!=null;
 		for(Object argument:arguments)Objects.requireNonNull(argument,Arrays.toString(arguments));
 		if(disconnected)throw new IllegalStateException("Connection already closed");
