@@ -69,6 +69,21 @@ public class DBHandler extends SQLiteOpenHelper {
         db.execSQL(query);
     }
 
+    /**
+     * this method is called to perform any schema changes due to upgrade
+     */
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+	if(oldVersion >= newVersion)
+	    return;
+
+	if(oldVersion == 1) {
+	    String query = "ALTER TABLE " + TABLE_NAME +
+		" ADD COLUMN "+DIRECTORY_COL + " TEXT NOT NULL DEFAULT ''";
+	    db.execSQL(query);
+	}
+    }
+
     private void storeValues(ContentValues values,
 			     String name, String hostName, int port,
 			     String userName, String password,
@@ -89,23 +104,21 @@ public class DBHandler extends SQLiteOpenHelper {
         // on below line we are creating a variable for
         // our sqlite database and calling writable method
         // as we are writing data in our database.
-        SQLiteDatabase db = this.getWritableDatabase();
+        try(SQLiteDatabase db = this.getWritableDatabase()) {
+	    
 
-        // on below line we are creating a
-        // variable for content values.
-        ContentValues values = new ContentValues();
+	    // on below line we are creating a
+	    // variable for content values.
+	    ContentValues values = new ContentValues();
 
-	storeValues(values,
-		    name, hostName, port,
-		    userName, password, directory);
+	    storeValues(values,
+			name, hostName, port,
+			userName, password, directory);
 
-        // after adding all values we are passing
-        // content values to our table.
-        db.insert(TABLE_NAME, null, values);
-
-        // at last we are closing our
-        // database after adding database.
-        db.close();
+	    // after adding all values we are passing
+	    // content values to our table.
+	    db.insert(TABLE_NAME, null, values);
+	}
     }
 
     // below is the method for updating our account
@@ -115,45 +128,29 @@ public class DBHandler extends SQLiteOpenHelper {
 			      String directory) {
 
         // calling a method to get writable database.
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
+	try(SQLiteDatabase db = this.getWritableDatabase()) {
+	    ContentValues values = new ContentValues();
 
-	storeValues(values,
-		    name, hostName, port,
-		    userName, password, directory);
+	    storeValues(values,
+			name, hostName, port,
+			userName, password, directory);
 
-        // on below line we are calling a update method to update our
-        // database and passing our values. and we are comparing it
-        // with name of our account which is stored in id variable.
-        db.update(TABLE_NAME, values, ID_COL+"=?",
-		  new String[]{String.valueOf(id)});
-        db.close();
+	    // on below line we are calling a update method to update our
+	    // database and passing our values. and we are comparing it
+	    // with name of our account which is stored in id variable.
+	    db.update(TABLE_NAME, values, ID_COL+"=?",
+		      new String[]{String.valueOf(id)});
+	}
     }
 
     // below is the method for deleting our account.
     public void removeAccount(int id) {
         // on below line we are creating
         // a variable to write our database.
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        // on below line we are calling a method to delete our
-        // account and we are comparing it with our account id.
-        db.delete(TABLE_NAME, ID_COL+"=?", new String[]{String.valueOf(id)});
-        db.close();
-    }
-
-    /**
-     * this method is called to perform any schema changes due to upgrade
-     */
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-	if(oldVersion >= newVersion)
-	    return;
-
-	if(oldVersion == 1) {
-	    String query = "ALTER TABLE " + TABLE_NAME +
-		" ADD COLUMN "+DIRECTORY_COL + " TEXT NOT NULL DEFAULT ''";
-	    db.execSQL(query);
+        try(SQLiteDatabase db = this.getWritableDatabase()) {
+	    // on below line we are calling a method to delete our
+	    // account and we are comparing it with our account id.
+	    db.delete(TABLE_NAME, ID_COL+"=?", new String[]{String.valueOf(id)});
 	}
     }
 
@@ -163,44 +160,44 @@ public class DBHandler extends SQLiteOpenHelper {
     {
 	// on below line we are creating a
 	// database for reading our database.
-	SQLiteDatabase db = this.getReadableDatabase();
+	try(SQLiteDatabase db = this.getReadableDatabase();
 
-	// on below line we are creating a cursor with query to
-	// read data from database.
-	Cursor cursor
-	    = db.rawQuery("SELECT "+ID_COL+
-			  ","+NAME_COL+
-			  ","+HOST_NAME_COL+
-			  ","+PORT_COL+
-			  ","+USER_NAME_COL+
-			  ","+PASSWORD_COL+
-			  ","+DIRECTORY_COL+
-			  " FROM " + TABLE_NAME + " "  + whereClause,
-			  params);
+	    // on below line we are creating a cursor with query to
+	    // read data from database.
+	    Cursor cursor = db.rawQuery("SELECT "+ID_COL+
+					","+NAME_COL+
+					","+HOST_NAME_COL+
+					","+PORT_COL+
+					","+USER_NAME_COL+
+					","+PASSWORD_COL+
+					","+DIRECTORY_COL+
+					" FROM " + TABLE_NAME + " "  +
+					whereClause,
+					params)) {
 
-	// on below line we are creating a new array list.
-	ArrayList<Account> accountArrayList  = new ArrayList<>();
+	    // on below line we are creating a new array list.
+	    ArrayList<Account> accountArrayList  = new ArrayList<>();
 
-	// moving our cursor to first position.
-	if (cursor.moveToFirst()) {
-	    do {
-		// on below line we are adding the data from
-		// cursor to our array list.
-		accountArrayList.add(new Account(cursor.getInt(0),
-						 cursor.getString(1),
-						 cursor.getString(2),
-						 cursor.getInt(3),
-						 cursor.getString(4),
-						 cursor.getString(5),
-						 cursor.getString(6)
-						 ));
-	    } while (cursor.moveToNext());
-	    // moving our cursor to next.
+	    // moving our cursor to first position.
+	    if (cursor.moveToFirst()) {
+		do {
+		    // on below line we are adding the data from
+		    // cursor to our array list.
+		    accountArrayList.add(new Account(cursor.getInt(0),
+						     cursor.getString(1),
+						     cursor.getString(2),
+						     cursor.getInt(3),
+						     cursor.getString(4),
+						     cursor.getString(5),
+						     cursor.getString(6)
+						     ));
+		} while (cursor.moveToNext());
+		// moving our cursor to next.
+	    }
+	    // at last closing our cursor
+	    // and returning our array list.
+	    return accountArrayList;
 	}
-	// at last closing our cursor
-	// and returning our array list.
-	cursor.close();
-	return accountArrayList;
     }
 
     public Account readAccountById(int id) {
