@@ -105,7 +105,6 @@ public class DBHandler extends SQLiteOpenHelper {
         // our sqlite database and calling writable method
         // as we are writing data in our database.
         try(SQLiteDatabase db = this.getWritableDatabase()) {
-	    
 
 	    // on below line we are creating a
 	    // variable for content values.
@@ -154,9 +153,12 @@ public class DBHandler extends SQLiteOpenHelper {
 	}
     }
 
-    // we have created a new method for reading all the courses.
-    private List<Account> readAccounts(String whereClause,
-				       String[] params)
+    // we have created a new method for reading all the accounts.
+    // Needs to be synchronized due to possible reference counting bug
+    // around cursor:
+    // https://stackoverflow.com/questions/23293572/android-cannot-perform-this-operation-because-the-connection-pool-has-been-clos
+    private synchronized List<Account> readAccounts(String whereClause,
+						    String[] params)
     {
 	// on below line we are creating a
 	// database for reading our database.
