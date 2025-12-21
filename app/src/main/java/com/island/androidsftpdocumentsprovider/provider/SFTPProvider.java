@@ -36,6 +36,8 @@ import com.island.androidsftpdocumentsprovider.account.DBHandler;
 import com.island.androidsftpdocumentsprovider.account.Account;
 import com.island.sftp.SFTP;
 
+import com.island.androidsftpdocumentsprovider.provider.UploadWorker;
+
 public class SFTPProvider extends DocumentsProvider
 {
     public static final String TAG="SFTPDocumentsProvider";
@@ -222,9 +224,7 @@ public class SFTPProvider extends DocumentsProvider
 
     private void asyncUpload(File cacheFile, Uri documentId) {
 	uploadingFiles.add(documentId.toString());
-	Intent intent=new Intent(getContext(), UploaderService.class);
-	intent.setData(documentId);
-	getContext().startService(intent);
+	UploadWorker.Upload(getContext(), cacheFile, documentId);
     }
 
     @Override

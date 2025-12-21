@@ -44,10 +44,10 @@
             <intent-filter>
                 <action android:name="android.content.action.DOCUMENTS_PROVIDER"/>
             </intent-filter>
-        </provider>
+	</provider>
 	<service
-	    android:name=".provider.UploaderService"
+	    android:name="androidx.work.impl.foreground.SystemForegroundService"
 	    android:foregroundServiceType="dataSync"
-	    />
+	    tools:node="merge" />
     </application>
 </manifest>
