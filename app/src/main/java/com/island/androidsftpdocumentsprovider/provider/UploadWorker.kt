@@ -87,7 +87,7 @@ class UploadWorker(context: Context, parameters: WorkerParameters) :
     var lastPercent = 0
 
     // id to distinguish several ongoing notifications amongst each other?
-    val notification_id = 1
+    val notification_id = GetNotificationId()
 
     private fun upload(cacheFileName: String,  uri: Uri) {
 	val ctx: Context = applicationContext
@@ -194,7 +194,8 @@ class UploadWorker(context: Context, parameters: WorkerParameters) :
 	const val KEY_CACHE_FILE_NAME = "KEY_CACHE_FILE_NAME"
 	const val KEY_REMOTE_URL = "KEY_REMOTE_URL"
 	const val TAG = "UploadWorker"
-
+	var notificationId = 1
+	
 	@JvmStatic
 	public fun Upload(context: Context,
 			  cacheFile: File, documentId: Uri ): Unit {
@@ -215,6 +216,12 @@ class UploadWorker(context: Context, parameters: WorkerParameters) :
 
 	    // "Define input data":
 	    // https://stackoverflow.com/questions/52639001/how-to-create-a-worker-with-parameters-for-in-workmanager-for-android
+	}
+
+	fun GetNotificationId(): Int {
+	    synchronized(this) {
+		return notificationId++;
+	    }
 	}
     }
 }
