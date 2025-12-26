@@ -54,7 +54,7 @@ class UploadWorker(val id: Int,
 		      cache.getAbsolutePath() +" to " +
 		      uri)
 	    SFTP.writeAll(FileInputStream(cache),
-			  it.write(File(uri.getPath()))) {
+			  it.write(SFTP.getFile(uri))) {
 		o, w -> update(service, lastNamePart, w as Long)
 	    }
 	}
