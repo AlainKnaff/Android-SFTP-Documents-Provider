@@ -194,21 +194,29 @@ public class SFTPProvider extends DocumentsProvider
 		final File cacheDir = getContext().getCacheDir();
 		if(isWrite) {
 		    Looper looper=getContext().getMainLooper();
-		    return ParcelFileDescriptor.open(cache,accessMode,new Handler(looper),new ParcelFileDescriptor.OnCloseListener()
+		    File cacheFile = new File(cacheDir, SFTP.getFile(documentId).getName());
+
+		    UploadWorker req =
+			UploadWorker.Prepare(getContext(),
+					     cacheFile, documentId);
+
+		    var ret= ParcelFileDescriptor.open(cache,accessMode,new Handler(looper),new ParcelFileDescriptor.OnCloseListener()
 			{
 			    @Override
 			    public void onClose(IOException exception)
 			    {
-				File cacheFile = new File(cacheDir, SFTP.getFile(documentId).getName());
 				Log.d(TAG, "File close: " + cacheFile + ", file size: " + cacheFile.length());
 				if(exception==null) {
-				    asyncUpload(cacheFile, documentId);
+				    asyncUpload(cacheFile, documentId, req);
 				} else {
 				    exception(exception,"OnCloseDocument");
 				}
 			    }
 			}
 			);
+		    req.waitForSetup(); // make sure service is foregrounded
+			// before we return from the Binder call
+		    return ret;
 		} else {
 		    return ParcelFileDescriptor.open(cache,accessMode);
 		}
@@ -222,9 +230,10 @@ public class SFTPProvider extends DocumentsProvider
 	}
     }
 
-    private void asyncUpload(File cacheFile, Uri documentId) {
+    private void asyncUpload(File cacheFile, Uri documentId,
+			     UploadWorker req) {
 	uploadingFiles.add(documentId.toString());
-	UploadWorker.Upload(getContext(), cacheFile, documentId);
+	req.start();
     }
 
     @Override

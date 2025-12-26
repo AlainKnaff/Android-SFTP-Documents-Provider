@@ -34,8 +34,4 @@
 	<!-- async uploading -->
 	<string name="foreground">Foreground</string>
 	<string name="notification_description">Uploading: %d %%</string>
-
-	<string name="notification_channel_id">SfptUploadChannel</string>
-	<string name="notification_title">Uploading "%s" via sftp</string>
-	<string name="cancel_upload">Cancel upload</string>
 </resources>
