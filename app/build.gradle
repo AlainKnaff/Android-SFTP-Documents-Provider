@@ -36,6 +36,11 @@ android {
         checkAllWarnings = true // Checks all lint warnings
         // warningsAsErrors = true // Treats all warnings as errors
     }
+    gradle.projectsEvaluated{
+        tasks.withType(JavaCompile){
+            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+        }
+    }
 
 }
 

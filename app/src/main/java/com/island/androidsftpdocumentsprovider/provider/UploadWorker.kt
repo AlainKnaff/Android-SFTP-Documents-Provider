@@ -55,7 +55,7 @@ class UploadWorker(val id: Int,
 		      uri)
 	    SFTP.writeAll(FileInputStream(cache),
 			  it.write(SFTP.getFile(uri))) {
-		o, w -> update(service, lastNamePart, w as Long)
+		w -> update(service, lastNamePart, w as Long)
 	    }
 	}
     }

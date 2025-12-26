@@ -103,23 +103,34 @@ public class UploaderService extends Service
 		}
 	}
 
-	Notification getNotification(String title,int progress)
-	{
+	Notification getNotification(String title,int progress)	{
 		Objects.requireNonNull(title);
 		Notification.Builder builder;
 		if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O)
 			builder=new Notification.Builder(this,FOREGROUND_CHANNEL_ID);
 		else
-			builder=new Notification.Builder(this);
+			builder=makeBuilder();
 		builder.setContentTitle(title);
 		builder.setVisibility(Notification.VISIBILITY_PUBLIC);
 		builder.setOngoing(progress < 100);
 		builder.setContentText(getNotificationDescription(progress));
 		builder.setSmallIcon(R.drawable.ic_stat_name);
-		builder.setPriority(Notification.PRIORITY_LOW);
+		if(Build.VERSION.SDK_INT<Build.VERSION_CODES.O)
+			setNotificationPrioriy(builder);
 		builder.setProgress(100,progress,false);
 		return builder.build();
 	}
+
+	@SuppressWarnings("deprecation")
+	private Notification.Builder makeBuilder( ) {
+			return new Notification.Builder(this);
+	}
+
+	@SuppressWarnings("deprecation")
+	private void setNotificationPrioriy(Notification.Builder builder) {
+			builder.setPriority(Notification.PRIORITY_LOW);
+	}
+
 	private String getNotificationDescription(long progress)
 	{
 		return String.format(getString(R.string.notification_description),progress);

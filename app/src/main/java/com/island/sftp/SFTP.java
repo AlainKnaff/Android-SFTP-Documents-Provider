@@ -344,7 +344,15 @@ public class SFTP implements Closeable
 		}
 		return bytesRead;
 	}
-	public static void writeAll(InputStream input,OutputStream output,Observer observer)throws IOException
+
+	public interface ProgressObserver {
+		void update(long wrote);
+	}
+
+	public static void writeAll(InputStream input,
+				    OutputStream output,
+				    ProgressObserver progressNotification)
+		throws IOException
 	{
 		Objects.requireNonNull(input);
 		Objects.requireNonNull(output);
@@ -355,7 +363,7 @@ public class SFTP implements Closeable
 		long wrote=0;
 		while((bytesRead=SFTP.write(input,output,buffer))!=-1) {
 			wrote+=bytesRead;
-			observer.update(null,wrote);
+			progressNotification.update(wrote);
 		}
 		input.close();
 		output.close();
