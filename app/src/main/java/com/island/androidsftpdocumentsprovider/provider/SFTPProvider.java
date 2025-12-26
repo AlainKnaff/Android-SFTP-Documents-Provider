@@ -28,6 +28,7 @@ import android.provider.DocumentsProvider;
 import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsContract.Document;
 import android.util.Log;
+import android.util.Base64;
 
 import androidx.core.content.ContextCompat;
 
@@ -37,6 +38,7 @@ import com.island.androidsftpdocumentsprovider.account.Account;
 import com.island.sftp.SFTP;
 
 import com.island.androidsftpdocumentsprovider.provider.UploadWorker;
+import java.security.MessageDigest;
 
 public class SFTPProvider extends DocumentsProvider
 {
@@ -160,6 +162,35 @@ public class SFTPProvider extends DocumentsProvider
 	    throw exception(e,"QueryChildDocuments",parentUri);
 	}
     }
+
+    public static String hash(final String base) {
+	try {
+	    final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+	    final byte[] hash = digest.digest(base.getBytes("UTF-8"));
+	    return Base64.encodeToString(hash, Base64.NO_WRAP|Base64.URL_SAFE);
+	} catch(Exception e){
+	    throw new RuntimeException(e);
+	}
+    }
+
+    /**
+     * Make cache file, but take into account server identity, and
+     * server directory. However, rather than using server path as is,
+     * make a secure hash. This helps with dealing with path length
+     * issues, presence of ".." in path, as well as file names being
+     * reused for directory names at a later time, while they are
+     * still in client cache.
+     */
+    private File cacheFile(int accountId, File serverFile) {
+	File directory = getContext().getCacheDir();
+	String path=String.valueOf(accountId)+"/"+serverFile.getParent();
+	directory=new File(directory, hash(path));
+	if(!directory.isDirectory()){
+	    directory.mkdirs();
+	}
+	return new File(directory, serverFile.getName());
+    }
+
     @Override
     public ParcelFileDescriptor openDocument(String uri,String mode,CancellationSignal signal)throws FileNotFoundException
     {
@@ -173,7 +204,7 @@ public class SFTPProvider extends DocumentsProvider
 	    final Uri documentId=Uri.parse(uri);
 	    SFTP sftp=getSFTP(documentId);
 	    File serverFile = SFTP.getFile(documentId);
-	    File cache=new File(getContext().getCacheDir(), serverFile.getName());
+	    File cache=cacheFile(sftp.getId(), serverFile);
 	    try {
 		boolean isDownloadFile = true;
 		long serverLastModified = sftp.lastModified(serverFile);
@@ -191,29 +222,21 @@ public class SFTPProvider extends DocumentsProvider
 		if (isDownloadFile) {
 		    sftp.get(serverFile, cache);
 		}
-		final File cacheDir = getContext().getCacheDir();
 		if(isWrite) {
 		    Looper looper=getContext().getMainLooper();
-		    File cacheFile = new File(cacheDir, SFTP.getFile(documentId).getName());
-
 		    UploadWorker req =
-			UploadWorker.Prepare(getContext(),
-					     cacheFile, documentId);
+			UploadWorker.Prepare(getContext(), cache, documentId);
 
-		    var ret= ParcelFileDescriptor.open(cache,accessMode,new Handler(looper),new ParcelFileDescriptor.OnCloseListener()
-			{
-			    @Override
-			    public void onClose(IOException exception)
-			    {
-				Log.d(TAG, "File close: " + cacheFile + ", file size: " + cacheFile.length());
-				if(exception==null) {
-				    asyncUpload(cacheFile, documentId, req);
-				} else {
-				    exception(exception,"OnCloseDocument");
-				}
-			    }
-			}
-			);
+		    var ret= ParcelFileDescriptor
+			.open(cache,accessMode,new Handler(looper),
+			      exception -> {
+				  Log.d(TAG, "File close: " + cache + ", file size: " + cache.length());
+				  if(exception==null) {
+				      asyncUpload(cache, documentId, req);
+				  } else {
+				      exception(exception,"OnCloseDocument");
+				  }
+			      });
 		    req.waitForSetup(); // make sure service is foregrounded
 			// before we return from the Binder call
 		    return ret;
@@ -400,6 +423,12 @@ public class SFTPProvider extends DocumentsProvider
     public static String getToken(Context context,Uri documentId)
 	throws IOException
     {
+	return getAccountInfo(context, documentId).getPassword();
+    }
+
+    public static Account getAccountInfo(Context context,Uri documentId)
+	throws IOException
+    {
 	Objects.requireNonNull(context);
 	Objects.requireNonNull(documentId);
 	DBHandler dbHandler = new DBHandler(context);
@@ -408,7 +437,7 @@ public class SFTPProvider extends DocumentsProvider
 	if(account == null) {
 	    throw new FileNotFoundException(documentId.toString());
 	}
-	return account.getPassword();
+	return account;
     }
 
     private SFTP getSFTP(Uri documentId)
@@ -432,8 +461,9 @@ public class SFTPProvider extends DocumentsProvider
     private SFTP createSftp(Uri documentId)
 	throws IOException
     {
+	Account account = getAccountInfo(getContext(), documentId);
 	return new SFTP(getContext(), documentId,
-			getToken(getContext(),documentId));
+			account.getPassword(), account.getId());
     }
 
     private void putFileInfo(MatrixCursor.RowBuilder row,Uri uri)

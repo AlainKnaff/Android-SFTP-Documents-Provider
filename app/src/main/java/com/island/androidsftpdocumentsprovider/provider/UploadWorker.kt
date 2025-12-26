@@ -47,7 +47,7 @@ class UploadWorker(val id: Int,
 		       cache: File, uri: Uri) {
 	val lastNamePart = documentUri.lastPathSegment
 	lastPercent = 0
-	SFTP(service, uri, SFTPProvider.getToken(service,uri)).use {
+	SFTP(service, uri, SFTPProvider.getToken(service,uri), 0).use {
 	    total = cache.length()
 	    Log.d(SFTPProvider.TAG,
 		  "UploadWorker doInBackground Transfer "+

@@ -51,17 +51,21 @@ public class SFTP implements Closeable
 	private final HashMap<File,Long>size=new HashMap<>();
 	private final HashMap<File,Boolean>directory=new HashMap<>();
 	private boolean disconnected;
+	private int id;
 
 	public static Uri parseUri(String name) {
 		return Uri.parse(SFTP.SCHEME+name);
 	}
 
-	public SFTP(Context ctx, Uri uri, String password)throws ConnectException
+	public SFTP(Context ctx, Uri uri, String password, int id)
+		throws ConnectException
 	{
 		init(ctx, uri, password);
+		this.id = id;
 	}
 
-	public SFTP() {
+	public int getId() {
+		return id;
 	}
 
 	private JSch jsch;
