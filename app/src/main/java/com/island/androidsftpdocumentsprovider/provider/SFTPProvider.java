@@ -274,11 +274,40 @@ public class SFTPProvider extends DocumentsProvider
 	    Uri parentDocumentId=Uri.parse(parentUri);
 	    SFTP sftp=getSFTP(parentDocumentId);
 	    try {
-		Uri documentId=sftp.getUri(new File(SFTP.getFile(parentDocumentId),displayName));
-		File file=SFTP.getFile(documentId);
-		if(Document.MIME_TYPE_DIR.equals(mimeType))sftp.mkdirs(file);
-		else sftp.newFile(file);
-		return documentId.toString();
+		String base;
+		String extension;
+		int dotIdx=displayName.lastIndexOf('.');
+		if(dotIdx >= 0) {
+		    base = displayName.substring(0, dotIdx);
+		    extension = displayName.substring(dotIdx);
+		} else {
+		    base=displayName;
+		    extension = "";
+		}
+		int cnt=0;
+		while(true) {
+		    String seq;
+		    if(cnt==0)
+			seq="";
+		    else
+			seq="_"+cnt;
+		    Uri documentId=sftp
+			.getUri(new File(SFTP.getFile(parentDocumentId),
+					 base+seq+extension));
+		    File file=SFTP.getFile(documentId);
+		    try {
+			sftp.lastModified(file);
+			cnt++;
+			continue;
+		    } catch(FileNotFoundException e) {
+			// file does not exist yet => ok
+		    }
+		    if(Document.MIME_TYPE_DIR.equals(mimeType))
+			sftp.mkdirs(file);
+		    else
+			sftp.newFile(file);
+		    return documentId.toString();
+		}
 	    } catch(SocketException e) {
 		    remove(sftp);
 		    throw e;
