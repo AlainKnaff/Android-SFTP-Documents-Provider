@@ -15,6 +15,8 @@ import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
+import androidx.core.app.NotificationCompat;
+
 import com.island.androidsftpdocumentsprovider.R;
 import com.island.sftp.SFTP;
 
@@ -105,30 +107,19 @@ public class UploaderService extends Service
 
 	Notification getNotification(String title,int progress)	{
 		Objects.requireNonNull(title);
-		Notification.Builder builder;
-		if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O)
-			builder=new Notification.Builder(this,FOREGROUND_CHANNEL_ID);
-		else
-			builder=makeBuilder();
+		NotificationCompat.Builder builder;
+		builder=new NotificationCompat.Builder(this,FOREGROUND_CHANNEL_ID);
 		builder.setContentTitle(title);
-		builder.setVisibility(Notification.VISIBILITY_PUBLIC);
+		builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 		builder.setOngoing(progress < 100);
 		builder.setContentText(getNotificationDescription(progress));
 		builder.setSmallIcon(R.drawable.ic_stat_name);
-		if(Build.VERSION.SDK_INT<Build.VERSION_CODES.O)
-			setNotificationPrioriy(builder);
+		builder.setPriority(NotificationCompat.PRIORITY_LOW);
 		builder.setProgress(100,progress,false);
 		return builder.build();
 	}
 
-	@SuppressWarnings("deprecation")
-	private Notification.Builder makeBuilder( ) {
-			return new Notification.Builder(this);
-	}
-
-	@SuppressWarnings("deprecation")
-	private void setNotificationPrioriy(Notification.Builder builder) {
-			builder.setPriority(Notification.PRIORITY_LOW);
+	private void setNotificationPrioriy(NotificationCompat.Builder builder) {
 	}
 
 	private String getNotificationDescription(long progress)
