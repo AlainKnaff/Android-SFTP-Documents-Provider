@@ -2,7 +2,7 @@ on:
   push:
     branches: master
     tags:
-      - v*
+      - '*'
 
  release_build:
      runs-on: ubuntu-latest
