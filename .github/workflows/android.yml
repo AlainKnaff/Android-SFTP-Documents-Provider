@@ -1,8 +1,7 @@
 on:
   push:
     branches: master
-    tags:
-      - 'test3'
+    tags: test4
 
  release_build:
      runs-on: ubuntu-latest
