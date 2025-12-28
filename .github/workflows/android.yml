@@ -2,7 +2,8 @@ on:
   push:
     branches: master
 
- release_build:
+jobs:
+  release_build:
      runs-on: ubuntu-latest
      if: startsWith(github.ref, 'refs/tags/')
  
