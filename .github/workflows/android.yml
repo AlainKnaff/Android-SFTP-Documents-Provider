@@ -49,18 +49,18 @@ jobs:
        - name: Rename apk
          run: |
            printenv
-           mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/SFTP-SAF.apk
+           mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/SFTP-SAF_${GITHUB_REF_NAME}.apk
        #4
        - name: Upload Release Build to Artifacts
          uses: actions/upload-artifact@v4
          with:
            name: release-artifacts
            path: app/build/outputs/apk/release/
-       #5      
+       #5
        - name: Create Github Release
          uses: softprops/action-gh-release@v1
          with:
            generate_release_notes: true
            prerelease: true
            files: |
-             app/build/outputs/apk/release/SFTP-SAF.apk
+             app/build/outputs/apk/release/SFTP-SAF*.apk
