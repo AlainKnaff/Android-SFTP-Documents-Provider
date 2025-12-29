@@ -23,9 +23,9 @@ This app makes the android default file manager an SFTP client via SAF
 
 ## Installation
 
-Once this is released, download and install the latest app from the [release section](https://github.com/AlainKnaff/Android-SFTP-Documents-Provider/releases)
+Download and install the latest app from the [release section](https://github.com/AlainKnaff/Android-SFTP-Documents-Provider/releases)
 
-However, for now you need to compile it yourself:
+However, you may also compile it yourself:
 
 	./gradlew build
 
