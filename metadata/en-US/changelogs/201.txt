@@ -1,0 +1,5 @@
+Preparations for release to F-Droid:
+- wording of metadata files, and README.md
+- bump minSdk to 24 in order to drop v1 signature
+- application-id based on a domain that I own, and different from
+version I forked from
