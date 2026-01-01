@@ -17,7 +17,7 @@ import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
-import com.island.androidsftpdocumentsprovider.R;
+import lu.knaff.alain.saf_sftp.R;
 import com.island.sftp.SFTP;
 
 public class UploaderService extends Service

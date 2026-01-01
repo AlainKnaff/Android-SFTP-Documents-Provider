@@ -5,9 +5,9 @@ plugins {
 
 android {
     compileSdkVersion 36
-    namespace='com.island.androidsftpdocumentsprovider'
+    namespace='lu.knaff.alain.saf_sftp'
     defaultConfig {
-        applicationId = "com.island.androidsftpdocumentsprovider"
+        applicationId = "lu.knaff.alain.saf_sftp"
         minSdkVersion = 24
 	// Min SDK Version is 24, in order to be able to disable v1 signing
         targetSdkVersion = 36

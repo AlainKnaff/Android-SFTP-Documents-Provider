@@ -21,6 +21,7 @@ import com.island.androidsftpdocumentsprovider.account.Account
 import com.island.androidsftpdocumentsprovider.account.DBHandler
 import com.island.androidsftpdocumentsprovider.account.AuthenticationActivity
 
+import lu.knaff.alain.saf_sftp.R
 import com.island.sftp.Keygen
 
 class MainActivity : Activity()

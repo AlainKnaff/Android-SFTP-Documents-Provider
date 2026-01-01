@@ -12,7 +12,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.island.androidsftpdocumentsprovider.R;
+import lu.knaff.alain.saf_sftp.R;
 
 public class AuthenticationActivity extends Activity
 {

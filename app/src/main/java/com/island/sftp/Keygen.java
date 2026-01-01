@@ -22,7 +22,7 @@ import android.content.Context;
 import android.util.Log;
 import android.util.Base64;
 
-import com.island.androidsftpdocumentsprovider.R;
+import lu.knaff.alain.saf_sftp.R;
 
 /**
  * Ssh keygen, as mentioned in https://codingtechroom.com/question/-generate-ssh-key-using-java-

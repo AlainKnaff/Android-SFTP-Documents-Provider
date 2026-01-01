@@ -1,6 +1,6 @@
 package com.island.util;
 
-import com.island.androidsftpdocumentsprovider.R;
+import lu.knaff.alain.saf_sftp.R;
 import android.os.Build;
 import android.app.NotificationChannel;
 import android.app.Notification;

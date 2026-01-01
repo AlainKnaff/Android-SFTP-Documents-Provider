@@ -22,7 +22,6 @@ import android.os.StrictMode;
 import android.os.ParcelFileDescriptor;
 import android.os.Looper;
 import android.os.Handler;
-import android.os.Build;
 import android.os.CancellationSignal;
 import android.provider.DocumentsProvider;
 import android.provider.DocumentsContract.Root;
@@ -32,7 +31,7 @@ import android.util.Base64;
 
 import androidx.core.content.ContextCompat;
 
-import com.island.androidsftpdocumentsprovider.R;
+import lu.knaff.alain.saf_sftp.R;
 import com.island.androidsftpdocumentsprovider.account.DBHandler;
 import com.island.androidsftpdocumentsprovider.account.Account;
 import com.island.sftp.SFTP;
