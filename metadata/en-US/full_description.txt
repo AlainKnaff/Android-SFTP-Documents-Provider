@@ -1,5 +1,14 @@
-This application is a Storage Access Framework documents provider for
-data accessible by SFTP.
+This is a Storage Access Framework documents provider for accessing
+data via SFTP.
 
 It allows you to directly view or edit data on an sftp server using
 Android's file browser, or any SAF capable application's file picker.
+
+Other information:
+* No root is required.
+* It interact with other apps, which can use it to access the sftp
+server.
+* Apart from slighlty more difficult initial setup (configuring sftp
+accounts, creating and sharing ssh key, making a shortcut to file
+browser), it should be very easy to use.
+

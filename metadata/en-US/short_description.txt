@@ -1,1 +1,1 @@
-Android SAF documents provider for SFTP
+SAF documents provider for SFTP. Browse SFTP server in your file browser.
