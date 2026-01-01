@@ -8,11 +8,8 @@ android {
     namespace='com.island.androidsftpdocumentsprovider'
     defaultConfig {
         applicationId = "com.island.androidsftpdocumentsprovider"
-        minSdkVersion = 23
-	// Min SDK Version is 23, as older than that triggers Lint warnings
-	// about onClick handlers in XML being unreliable. As I have no
-	// device old enough to test for real-world impact, I prefer to set
-	// it to 23
+        minSdkVersion = 24
+	// Min SDK Version is 24, in order to be able to disable v1 signing
         targetSdkVersion = 36
 
 	// version code is supposed to be 2 digits of major, 2 digits
@@ -49,6 +46,7 @@ android {
 
     signingConfigs {
         release {
+            v1SigningEnabled false
             storeFile file("keystore.jks")
             storePassword System.getenv("SIGNING_STORE_PASSWORD")
             keyAlias System.getenv("SIGNING_KEY_ALIAS")
