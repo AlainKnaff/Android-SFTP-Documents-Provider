@@ -119,11 +119,9 @@ public class AuthenticationActivity extends Activity
 	}
 
 	public static void notifyChange(Context context, int mode) {
-		if(Build.VERSION.SDK_INT>=24) {
-			Uri uri = DocumentsContract.buildRootsUri(AUTHORITY);
-			context
-				.getContentResolver()
-				.notifyChange(uri, null, mode);
-		}
+	    Uri uri = DocumentsContract.buildRootsUri(AUTHORITY);
+	    context
+		.getContentResolver()
+		.notifyChange(uri, null, mode);
 	}
 }

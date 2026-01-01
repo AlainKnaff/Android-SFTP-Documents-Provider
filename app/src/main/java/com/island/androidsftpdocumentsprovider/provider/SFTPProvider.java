@@ -510,11 +510,10 @@ public class SFTPProvider extends DocumentsProvider
 		flags=Document.FLAG_SUPPORTS_WRITE;
 		row.add(Document.COLUMN_SIZE,sftp.length(file));
 	    }
-	    flags|=Document.FLAG_SUPPORTS_DELETE;
-	    if(Build.VERSION.SDK_INT>=24)
-		flags|= Document.FLAG_SUPPORTS_COPY|
-		    Document.FLAG_SUPPORTS_MOVE|
-		    Document.FLAG_SUPPORTS_RENAME;
+	    flags|=Document.FLAG_SUPPORTS_DELETE|
+		Document.FLAG_SUPPORTS_COPY|
+		Document.FLAG_SUPPORTS_MOVE|
+		Document.FLAG_SUPPORTS_RENAME;
 	    row.add(Document.COLUMN_FLAGS,flags);
 	    String mimeType=sftp.getMimeType(file);
 	    row.add(Document.COLUMN_MIME_TYPE,mimeType);
