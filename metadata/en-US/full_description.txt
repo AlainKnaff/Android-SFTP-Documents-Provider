@@ -1,0 +1,5 @@
+This application is a Storage Access Framework documents provider for
+data accessible by SFTP.
+
+It allows you to directly view or edit data on an sftp server using
+Android's file browser, or any SAF capable application's file picker.

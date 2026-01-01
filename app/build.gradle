@@ -14,7 +14,12 @@ android {
 	// device old enough to test for real-world impact, I prefer to set
 	// it to 23
         targetSdkVersion = 36
-        versionCode = 2
+
+	// version code is supposed to be 2 digits of major, 2 digits
+	// of minor, and 2 digits of 3rd part. As major is still 0, and
+	// as no leading zeroes are represented, 200 is what we get for
+	// 0.2
+	versionCode = 200
         versionName = "0.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -55,6 +60,11 @@ android {
         release {
             signingConfig signingConfigs.release
         }
+    }
+
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
 }
 

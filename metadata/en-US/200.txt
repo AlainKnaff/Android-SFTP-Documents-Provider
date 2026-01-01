@@ -1,0 +1,9 @@
+Initial release of this forked version
+
+Changes as compared to last original release:
+ - stability fixes for newer Android SDK levels (especially when sftp
+ sockets are autoclosed on us by the system)
+ - editable accounts (using custom database, rather than Android's
+ authentication framework)
+ - user-chosable start directory (home directory) on server
+ - support for public/private keypairs
