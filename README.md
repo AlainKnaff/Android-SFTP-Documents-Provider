@@ -5,11 +5,11 @@ This app makes the android default file manager an SFTP client via SAF
 
 ## Status
 
-- This package is a clone of [Android-SFTP-Documents-Provider](https://github.com/cheng6563/Android-SFTP-Documents-Provider)
+- This package is a clone of [Android-SFTP-Documents-Provider](https://github.com/cheng6563/Android-SFTP-Documents-Provider) by Riccardo Isola
 
-- It fixes a number a number of bugs in the original (unsynchronized multi-thread access to ssh backend, no handling of closed ssh handles, ...), and incompatibilities with current compilation environments, and a number of features (see below)
+- It fixes some minor issues  in the original (unsynchronized multi-thread access to ssh backend, no handling of closed ssh handles), and incompatibilities with current build environments, and adds a number of features (see below)
 
-- Another slightly more recent and more fully featured original package exists: [FileManagerUtils](https://github.com/rikyiso01/FileManagerUtils): however this was incompatible with current compilation environments too and had a number of bugs too, which were harder to fix. So I went with the earlier version
+- Another slightly more recent and more fully featured original package exists: [FileManagerUtils](https://github.com/rikyiso01/FileManagerUtils): however this was incompatible with current compilation environments too and also had some stability issues, which were harder to fix. So I went with the earlier version
 
 ## Features
 
