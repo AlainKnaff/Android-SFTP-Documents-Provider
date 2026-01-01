@@ -1,4 +1,4 @@
-# Android-SFTP-Document-Provider
+# SFTP-SAF a.k.a. Android-SFTP-Document-Provider
 
 This app makes the android default file manager an SFTP client via SAF
 (Storage Access Franework).
@@ -29,25 +29,28 @@ However, you may also compile it yourself:
 
 	./gradlew build
 
-## Usage
+## Usage / Set up
 
-- On the applications main activity (main page), add a new SSH account
+- On the application's main activity (main page), add a new SSH account
   (file system root), using the green plus button at the bottom right
 
-- Optionally generate an SSH key pair, and share the public key, to
-  place into the <code>~/.ssh/autorized_keys</code> file on the SFTP server.
+- Optionally generate an SSH key pair, share the public key (to
+  e-mail, for example), and place into the
+  <code>~/.ssh/autorized_keys</code> file on the SFTP server.
 
-- Open the android default file manager and on the left panel you
-  should now see the sftp section where you can connect to the sftp
-  server.
+- Up to Android 11: Open the Android default file manager and on the left
+  panel you should now see the sftp section where you can connect to
+  the sftp server.
 
-- For some reason, on newer Android version, this doesn't work on the
-  "Files by Google" filemanager (yet). However, it does work in the
-  older com.google.android.documentsui file manager, which you can
-  access from the "Browse files" button in this application's main
-  activity. You may also use the Activity Manager app from F-Droid to
-  make a shortcut to launch com.google.android.documentsui
+- For some reason, on Android versions newer than 12, the new "Files
+  by Google" filemanager cannot browse to SAF roots. However, the
+  older com.google.android.documentsui file manager is still present,
+  and can browse SAF roots. The only difficulty is, this older file
+  manager now lacks a launch icon.  You can however access it from the
+  "Browse files" button in this application's main activity. You may
+  also use the Activity Manager app from F-Droid to make a shortcut to
+  launch com.google.android.documentsui
 
-- This document provider does work from the Open file dialog of most
-  applications (as long as they use documents' UI, which most
-  applications nowadays do)
+- SFTP-SAF does work from the Open file dialog of most applications
+  (as long as they use documents' UI, which most applications nowadays
+  do). This works even on Android versions newer than 12.
