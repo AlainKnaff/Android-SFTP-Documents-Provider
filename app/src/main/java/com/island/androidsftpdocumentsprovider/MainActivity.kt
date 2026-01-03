@@ -10,7 +10,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import android.net.Uri;
+import android.net.Uri
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.ContentResolver
