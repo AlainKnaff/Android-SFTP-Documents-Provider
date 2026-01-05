@@ -10,6 +10,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+import android.util.Log
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.ContentResolver
@@ -76,9 +77,14 @@ class MainActivity : Activity()
 		startActivity(intent)
 		return;
 	    } catch(e: Exception) {
-
+		Log.e(TAG, "Exception while opening file browser", e)
 	    }
 	}
+	AlertDialog
+	    .Builder(this)
+	    .setMessage(R.string.no_documentsui)
+	    .setPositiveButton(R.string.ok) { d, w -> d.dismiss() }
+	    .show();
     }
 
     fun addSftpAccount(view:View)

@@ -6,12 +6,16 @@
 	<!-- other items that are relevant globally -->
 	<string name="yes">Yes</string>
 	<string name="no">No</string>
+	<string name="ok">OK</string>
 
 	<!-- main page -->
 	<string name="add">Add</string>
 	<string name="remove">Remove</string>
 	<string name="file_browser">Browse files</string>
-	
+
+	<!-- file browser -->
+	<string name="no_documentsui">Documentsui not found</string>
+
 	<!-- account (filesystem root) editing dialog -->
 	<string name="host">Host</string>
 	<string name="hostExample">myserver.home.com</string>
