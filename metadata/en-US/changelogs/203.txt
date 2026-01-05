@@ -1,3 +1,7 @@
-When opening file browsers, try both com.google.android.documentsui
-and com.android.documentsui packages. Indeed, older Android versions,
-and non-Google Android variants don't have google in the package name.
+- When opening file browsers, try both com.google.android.documentsui
+  and com.android.documentsui packages. Indeed, older Android
+  versions, and non-Google Android variants don't have google in the
+  package name.
+
+- Change authority name to better match application id, and patterns
+  used by other document providers

@@ -27,8 +27,7 @@ import lu.knaff.alain.saf_sftp.R;
 
 public class AuthenticationActivity extends Activity
 {
-	public static final String ACCOUNT_TYPE="com.island.sftp.account";
-	public static final String AUTHORITY="com.island.androidsftpdocumentsprovider";
+	public static final String AUTHORITY="lu.knaff.alain.sftp.documents";
 
 	private DBHandler dbHandler;
 	private Account account = null;
