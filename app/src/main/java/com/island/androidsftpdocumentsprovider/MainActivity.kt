@@ -10,7 +10,6 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import android.net.Uri
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.ContentResolver
@@ -24,6 +23,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import android.annotation.SuppressLint
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -65,10 +65,20 @@ class MainActivity : Activity()
     fun browseFiles(view:View)
     {
 	val intent = Intent(Intent.ACTION_VIEW,null)
-	intent.setComponent(ComponentName("com.google.android.documentsui",
-					  "com.android.documentsui.files.FilesActivity"));
-	intent.setData(Uri.parse("content://com.island.androidsftpdocumentsprovider/root"))
-	startActivity(intent)
+	for(packge in arrayOf("com.google.android.documentsui",
+			       "com.android.documentsui")) {
+	    try {
+		intent.setComponent(ComponentName(packge,
+						  "com.android.documentsui.files.FilesActivity"));
+		intent.setData(("content://"+
+				    AuthenticationActivity.AUTHORITY+
+				    "/root").toUri())
+		startActivity(intent)
+		return;
+	    } catch(e: Exception) {
+
+	    }
+	}
     }
 
     fun addSftpAccount(view:View)

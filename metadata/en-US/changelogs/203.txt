@@ -1,0 +1,3 @@
+When opening file browsers, try both com.google.android.documentsui
+and com.android.documentsui packages. Indeed, older Android versions,
+and non-Google Android variants don't have google in the package name.
