@@ -1,0 +1,2 @@
+- Optimize F-Droid Metadata
+- Declare AUTHORITY variable in strings.xml, so that it can be used in AndoidManifest.xml too (if it ever needs to change again)
