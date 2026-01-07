@@ -11,24 +11,19 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import android.app.Activity;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.DocumentsContract;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+import com.island.androidsftpdocumentsprovider.provider.ProviderActivity;
 
 import lu.knaff.alain.saf_sftp.R;
 
-public class AuthenticationActivity extends Activity
+public class AuthenticationActivity extends ProviderActivity
 {
-	public static final String AUTHORITY="lu.knaff.alain.sftp.documents";
-
 	private DBHandler dbHandler;
 	private Account account = null;
 
@@ -107,7 +102,7 @@ public class AuthenticationActivity extends Activity
 			int flags=0;
 			if(Build.VERSION.SDK_INT>=30)
 			    flags |= ContentResolver.NOTIFY_INSERT;
-			notifyChange(this, flags);
+			notifyChange(flags);
 		} else {
 			String oldName = account.getName();
 			// update existing account
@@ -120,7 +115,7 @@ public class AuthenticationActivity extends Activity
 			int flags=0;
 			if(Build.VERSION.SDK_INT>=30)
 			    flags |= ContentResolver.NOTIFY_UPDATE;
-			notifyChange(this, flags);
+			notifyChange(flags);
 		}
 
 		Intent result=new Intent();
@@ -128,10 +123,4 @@ public class AuthenticationActivity extends Activity
 		finish();
 	}
 
-	public static void notifyChange(Context context, int mode) {
-	    Uri uri = DocumentsContract.buildRootsUri(AUTHORITY);
-	    context
-		.getContentResolver()
-		.notifyChange(uri, null, mode);
-	}
 }

@@ -3,6 +3,8 @@
 	<string name="app_name">SFTP Documents Provider</string>
 	<string name="sftp">SFTP</string>
 
+	<string name="authority">lu.knaff.alain.sftp.documents</string>
+
 	<!-- other items that are relevant globally -->
 	<string name="yes">Yes</string>
 	<string name="no">No</string>

@@ -34,7 +34,7 @@
 	</activity>
 	<provider
             android:name="com.island.androidsftpdocumentsprovider.provider.SFTPProvider"
-            android:authorities="lu.knaff.alain.sftp.documents"
+            android:authorities="@string/authority"
             android:grantUriPermissions="true"
             android:exported="true"
             android:permission="android.permission.MANAGE_DOCUMENTS">

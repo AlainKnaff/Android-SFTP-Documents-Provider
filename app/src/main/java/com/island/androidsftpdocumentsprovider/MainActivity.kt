@@ -28,6 +28,7 @@ import androidx.core.net.toUri
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
+import com.island.androidsftpdocumentsprovider.provider.ProviderActivity;
 import com.island.androidsftpdocumentsprovider.account.Account
 import com.island.androidsftpdocumentsprovider.account.DBHandler
 import com.island.androidsftpdocumentsprovider.account.AuthenticationActivity
@@ -35,7 +36,7 @@ import com.island.androidsftpdocumentsprovider.account.AuthenticationActivity
 import lu.knaff.alain.saf_sftp.R
 import com.island.sftp.Keygen
 
-class MainActivity : Activity()
+class MainActivity : ProviderActivity()
 {
     private val TAG="MainActivity"
 
@@ -71,8 +72,7 @@ class MainActivity : Activity()
 	    try {
 		intent.setComponent(ComponentName(packge,
 						  "com.android.documentsui.files.FilesActivity"));
-		intent.setData(("content://"+
-				    AuthenticationActivity.AUTHORITY+
+		intent.setData(("content://"+getAuthority()+
 				    "/root").toUri())
 		startActivity(intent)
 		return;
@@ -172,8 +172,7 @@ class MainActivity : Activity()
 		var flags=0
 		if(Build.VERSION.SDK_INT>=30)
 		    flags = flags or ContentResolver.NOTIFY_DELETE
-		AuthenticationActivity
-		    .notifyChange(this@MainActivity, flags)
+		notifyChange(flags)
 		updateData()
 	    }
 	}
