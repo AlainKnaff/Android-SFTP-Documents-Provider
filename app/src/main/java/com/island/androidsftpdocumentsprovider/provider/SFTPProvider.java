@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.net.SocketException;
+import java.security.MessageDigest;
 
 import android.content.Context;
 import android.content.Intent;
@@ -42,13 +43,12 @@ import android.util.Base64;
 
 import androidx.core.content.ContextCompat;
 
-import lu.knaff.alain.saf_sftp.R;
 import com.island.androidsftpdocumentsprovider.account.DBHandler;
 import com.island.androidsftpdocumentsprovider.account.Account;
+import com.island.androidsftpdocumentsprovider.provider.UploadWorker;
 import com.island.sftp.SFTP;
 
-import com.island.androidsftpdocumentsprovider.provider.UploadWorker;
-import java.security.MessageDigest;
+import lu.knaff.alain.saf_sftp.R;
 
 public class SFTPProvider extends DocumentsProvider
 {

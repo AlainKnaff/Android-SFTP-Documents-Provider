@@ -1,13 +1,13 @@
 package com.island.sftp;
 
-import com.jcraft.jsch.SftpATTRS;
 import java.io.File;
+import com.jcraft.jsch.SftpATTRS;
 
 public class SftpFile extends File {
     private long lastModified;
 
     /**
-     * Gets lastModified. LastModified is 
+     * Gets lastModified. LastModified is the last modified time of file
      * @return the lastModified
      */
     public long getSftpLastModified() {
@@ -17,7 +17,7 @@ public class SftpFile extends File {
     private long size;
 
     /**
-     * Gets size. Size is 
+     * Gets size. Size is the size of the file
      * @return the size
      */
     public long getSize() {
@@ -27,7 +27,7 @@ public class SftpFile extends File {
     private boolean isDirectory;
 
     /**
-     * Gets isDirectory. IsDirectory is 
+     * Gets isDirectory. IsDirectory is a boolean indicating whether this is a directory
      * @return the isDirectory
      */
     public boolean getIsDirectory() {
