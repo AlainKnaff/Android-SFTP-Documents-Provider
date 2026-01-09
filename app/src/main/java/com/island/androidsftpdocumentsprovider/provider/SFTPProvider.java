@@ -161,7 +161,7 @@ public class SFTPProvider extends DocumentsProvider
 	    try {
 		File[]files=sftp.listFiles(SFTP.getFile(parentDocumentId));
 		for(File file:files) {
-		    putFileInfo(result.newRow(),sftp.getUri(file));
+		    putFileInfo(result.newRow(), sftp, file);
 		}
 	    } catch(SocketException e) {
 		remove(sftp);
@@ -505,15 +505,20 @@ public class SFTPProvider extends DocumentsProvider
 			account.getPassword(), account.getId());
     }
 
-    private void putFileInfo(MatrixCursor.RowBuilder row,Uri uri)
+    private void putFileInfo(MatrixCursor.RowBuilder row, Uri uri)
 	throws IOException
     {
 	assert row!=null;
 	assert uri!=null;
-	int flags;
 	SFTP sftp=getSFTP(uri);
+	putFileInfo(row, sftp, SFTP.getFile(uri));
+    }
+
+    private void putFileInfo(MatrixCursor.RowBuilder row, SFTP sftp, File file)
+	throws IOException
+    {
 	try {
-	    File file=SFTP.getFile(uri);
+	    int flags;
 	    if(sftp.isDirectory(file))
 		flags=Document.FLAG_DIR_SUPPORTS_CREATE;
 	    else {

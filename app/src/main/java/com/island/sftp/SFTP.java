@@ -59,7 +59,7 @@ public class SFTP implements Closeable
 	private Context context;
 	private final HashMap<File,Long>lastModified=new HashMap<>();
 	private final HashMap<File,Long>size=new HashMap<>();
-	private final HashMap<File,Boolean>directory=new HashMap<>();
+	private final HashMap<File,Boolean>isDirectory=new HashMap<>();
 	private boolean disconnected;
 	private int id;
 
@@ -88,7 +88,7 @@ public class SFTP implements Closeable
 		this.password=password;
 		String privKey = Keygen.readPrivateKey(ctx);
 		jsch=new JSch();
-		directory.put(new File("/"),true);
+		isDirectory.put(new File("/"),true);
 		lastModified.put(new File("/"),0l);
 		try {
 			if(privKey != null)
@@ -155,17 +155,26 @@ public class SFTP implements Closeable
 	public long lastModified(File file)throws IOException
 	{
 		checkArguments(file);
-		return getValue(lastModified,file);
+		if(file instanceof SftpFile f)
+			return f.getSftpLastModified();
+		else
+			return getValue(lastModified,file);
 	}
 	public long length(File file)throws IOException
 	{
 		checkArguments(file);
-		return getValue(size,file);
+		if(file instanceof SftpFile f)
+			return f.getSize();
+		else
+			return getValue(size,file);
 	}
 	public boolean isDirectory(File file)throws IOException
 	{
 		checkArguments(file);
-		return getValue(directory,file);
+		if(file instanceof SftpFile f)
+			return f.getIsDirectory();
+		else
+			return getValue(isDirectory,file);
 	}
 	@Override
 	public synchronized void close() throws IOException
@@ -174,25 +183,26 @@ public class SFTP implements Closeable
 		channel.quit();
 		disconnected=true;
 	}
-	public synchronized File[]listFiles(File file)throws IOException
+	public synchronized SftpFile[]listFiles(File directory)throws IOException
 	{
-		checkArguments(file);
+		checkArguments(directory);
 		try {
 			reconnectIfNeeded();
-			Vector vector=channel.ls(file.getPath());
-			List<File>files=new ArrayList<>(vector.size()-2);
+			Vector vector=channel.ls(directory.getPath());
+			List<SftpFile>files=new ArrayList<>(vector.size()-2);
 			for(Object obj:vector) {
 				ChannelSftp.LsEntry entry=
 					(ChannelSftp.LsEntry) obj;
 				if(entry.getFilename().equals(".")||entry.getFilename().equals(".."))continue;
-				File newFile=new File(file,entry.getFilename());
-				SftpATTRS attributes=entry.getAttrs();
-				files.add(newFile);
-				lastModified.put(newFile,attributes.getMTime()*1000L);
-				size.put(newFile,attributes.getSize());
-				directory.put(newFile,attributes.isDir());
+				SftpFile file=new SftpFile(directory,
+							   entry.getFilename(),
+							   entry.getAttrs());
+				files.add(file);
+				lastModified.put(file,file.getSftpLastModified());
+				size.put(file,file.getSize());
+				isDirectory.put(file,file.getIsDirectory());
 			}
-			return files.toArray(new File[0]);
+			return files.toArray(new SftpFile[0]);
 		} catch(JSchException e) {
 			throw getException(e);
 		} catch(SftpException e) {
@@ -255,7 +265,10 @@ public class SFTP implements Closeable
 	{
 		checkArguments(file);
 		try {
-			getValue(directory,file);
+			if(file instanceof SftpFile f)
+				f.getIsDirectory();
+			else
+				getValue(isDirectory,file);
 			return true;
 		} catch(FileNotFoundException e) {
 			return false;
