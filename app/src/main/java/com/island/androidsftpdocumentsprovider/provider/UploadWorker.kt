@@ -65,7 +65,7 @@ class UploadWorker(val id: Int,
 		      uri)
 	    SFTP.writeAll(FileInputStream(cache),
 			  it.write(SFTP.getFile(uri))) {
-		w -> update(service, lastNamePart, w as Long)
+		w -> update(service, lastNamePart, w)
 	    }
 	}
     }
@@ -106,7 +106,7 @@ class UploadWorker(val id: Int,
 	    service.runOnUiThread() {
 		if(!stopping) {
 		    // Log.d(TAG, "Updating "+percent)
-		    service?.updateNotification(lastNamePart, lastPercent)
+		    service.updateNotification(lastNamePart, lastPercent)
 		}
 		messageWaiting = false
 		lastPercent = percent
