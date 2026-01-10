@@ -11,6 +11,8 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Arrays;
 import java.util.List;
@@ -69,6 +71,16 @@ public class SFTPProvider extends DocumentsProvider
 
     private final static Set<String> uploadingFiles = new CopyOnWriteArraySet<>();
     private DBHandler dbHandler;
+
+    private Map<Uri,MC> cursors = new HashMap<>();
+
+    public void registerCursor(MC cursor, Uri documentId) {
+	cursors.put(documentId, cursor);
+    }
+
+    public void unregisterCursor(MC cursor, Uri documentId) {
+	cursors.remove(documentId, cursor);
+    }
 
     @Override
     public boolean onCreate()
@@ -155,19 +167,20 @@ public class SFTPProvider extends DocumentsProvider
 	Log.d(SFTPProvider.TAG,String.format("SFTPProvider queryChildDocuments %s %s %s",parentUri,Arrays.toString(projection),Arrays.toString(projection)));
 	try {
 	    Objects.requireNonNull(parentUri);
-	    MatrixCursor result=new MatrixCursor(resolveDocumentProjection(projection));
 	    Uri parentDocumentId=Uri.parse(parentUri);
 	    SFTP sftp=getSFTP(parentDocumentId);
 	    try {
 		File[]files=sftp.listFiles(SFTP.getFile(parentDocumentId));
+		MC result=new MC(this, parentDocumentId,
+				 resolveDocumentProjection(projection), files.length);
 		for(File file:files) {
 		    putFileInfo(result.newRow(), sftp, file);
 		}
+		return result;
 	    } catch(SocketException e) {
 		remove(sftp);
 		throw e;
 	    }
-	    return result;
 	} catch(Exception e) {
 	    throw exception(e,"QueryChildDocuments",parentUri);
 	}
@@ -312,9 +325,14 @@ public class SFTPProvider extends DocumentsProvider
 		    } catch(FileNotFoundException e) {
 			// file does not exist yet => ok
 		    }
-		    if(Document.MIME_TYPE_DIR.equals(mimeType))
+		    if(Document.MIME_TYPE_DIR.equals(mimeType)) {
 			sftp.mkdirs(file);
-		    else
+			MC mc = cursors.get(parentDocumentId);
+			if(mc != null) {
+			    putFileInfo(mc.newRow(), sftp, file);
+			    mc.onChange(false);
+			}
+		    } else
 			sftp.newFile(file);
 		    return documentId.toString();
 		}
