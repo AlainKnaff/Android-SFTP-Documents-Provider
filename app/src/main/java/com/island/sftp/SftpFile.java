@@ -27,6 +27,19 @@ public class SftpFile extends File {
     private boolean isDirectory;
 
     /**
+     * Display name for file
+     */
+    private String name;
+
+    public String getName() {
+	return name;
+    }
+
+    public void setDisplayName(String name) {
+	this.name=name;
+    }
+
+    /**
      * Gets isDirectory. IsDirectory is a boolean indicating whether this is a directory
      * @return the isDirectory
      */

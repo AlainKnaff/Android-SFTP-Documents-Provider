@@ -39,6 +39,7 @@ import android.webkit.MimeTypeMap;
 
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
@@ -192,10 +193,29 @@ public class SFTP implements Closeable
 			for(Object obj:vector) {
 				ChannelSftp.LsEntry entry=
 					(ChannelSftp.LsEntry) obj;
-				if(entry.getFilename().equals(".")||entry.getFilename().equals(".."))continue;
-				SftpFile file=new SftpFile(directory,
-							   entry.getFilename(),
-							   entry.getAttrs());
+				if(entry.getFilename().equals(".")||
+				   entry.getFilename().equals(".."))
+					continue;
+				SftpFile file;
+				SftpATTRS attrs=entry.getAttrs();
+				if(attrs.isLink()) {
+					File link = new File(directory,
+							     entry.getFilename());
+					try {
+						attrs=channel.stat(link.getPath());
+						String lname = channel.readlink(link.getPath());
+						file=new SftpFile(lname.charAt(0)=='/' ? null : directory,
+								  lname,
+								  attrs);
+						file.setDisplayName(entry.getFilename());
+					} catch(Exception e) {
+						Log.e(SFTPProvider.TAG, "Could not read "+link.getPath());
+						continue;
+					}
+				} else {
+					file=new SftpFile(directory,
+							  entry.getFilename(), attrs);
+				}
 				files.add(file);
 				lastModified.put(file,file.getSftpLastModified());
 				size.put(file,file.getSize());
