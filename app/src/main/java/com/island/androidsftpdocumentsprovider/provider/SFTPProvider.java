@@ -186,7 +186,7 @@ public class SFTPProvider extends DocumentsProvider
 	}
     }
 
-    public static String hash(final String base) {
+    private static String hash(final String base) {
 	try {
 	    final MessageDigest digest = MessageDigest.getInstance("SHA-256");
 	    final byte[] hash = digest.digest(base.getBytes("UTF-8"));
