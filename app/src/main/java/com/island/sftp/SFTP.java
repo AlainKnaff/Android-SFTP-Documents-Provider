@@ -203,19 +203,13 @@ public class SFTP implements Closeable
 							     entry.getFilename());
 					try {
 						attrs=channel.stat(link.getPath());
-						String lname = channel.readlink(link.getPath());
-						file=new SftpFile(lname.charAt(0)=='/' ? null : directory,
-								  lname,
-								  attrs);
-						file.setDisplayName(entry.getFilename());
 					} catch(Exception e) {
-						Log.e(SFTPProvider.TAG, "Could not read "+link.getPath());
+						Log.e(SFTPProvider.TAG,
+						      "Could not read "+link.getPath());
 						continue;
 					}
-				} else {
-					file=new SftpFile(directory,
-							  entry.getFilename(), attrs);
-				}
+				} 
+				file=new SftpFile(directory, entry.getFilename(), attrs);
 				files.add(file);
 				lastModified.put(file,file.getSftpLastModified());
 				size.put(file,file.getSize());
