@@ -189,7 +189,7 @@ public class SFTP implements Closeable
 		try {
 			reconnectIfNeeded();
 			Vector vector=channel.ls(directory.getPath());
-			List<SftpFile>files=new ArrayList<>(vector.size()-2);
+			List<SftpFile>files=new ArrayList<>(vector.size());
 			for(Object obj:vector) {
 				ChannelSftp.LsEntry entry=
 					(ChannelSftp.LsEntry) obj;
