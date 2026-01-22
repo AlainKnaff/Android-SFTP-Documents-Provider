@@ -1,0 +1,1 @@
+- Support for ED25519 ssh keys: shorter while still being as secure
