@@ -67,12 +67,13 @@ public class SFTP implements Closeable
 		return Uri.parse(SFTP.SCHEME+name);
 	}
 
-	public SFTP(Context ctx, Uri uri, String password, int id)
-		throws ConnectException
-	{
-		init(ctx, uri, password);
-		this.id = id;
-	}
+        public SFTP(Context ctx, Uri uri, String password, int id)
+                throws ConnectException
+        {
+                BouncyCastle.trigger();
+                init(ctx, uri, password);
+                this.id = id;
+        }
 
 	public int getId() {
 		return id;
@@ -208,7 +209,7 @@ public class SFTP implements Closeable
 						      "Could not read "+link.getPath());
 						continue;
 					}
-				} 
+				}
 				file=new SftpFile(directory, entry.getFilename(), attrs);
 				files.add(file);
 				lastModified.put(file,file.getSftpLastModified());

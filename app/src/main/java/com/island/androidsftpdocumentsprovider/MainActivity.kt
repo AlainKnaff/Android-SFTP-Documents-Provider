@@ -114,8 +114,23 @@ class MainActivity : ProviderActivity()
 	}
     }
 
+    val keyTypes = arrayOf("RSA",
+                           "ED25519",
+                           // "ECDSA"
+    );
+
     private fun generateKey2(view: View) {
-	Keygen.genKey(this);
+        AlertDialog.Builder(this)
+            .setTitle("Choose a key type")
+            .setSingleChoiceItems(keyTypes, 1) {
+                dialog, which -> generateKey3(keyTypes[which], view);
+                                 dialog.dismiss();
+            }
+            .show();
+    }
+
+    private fun generateKey3(algo: String, view: View) {
+	Keygen.genKey(this, algo);
 	fixButtonState();
     }
 

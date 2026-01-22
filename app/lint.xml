@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <lint>
+    <issue id="InvalidPackage" severity="ignore" />
+    <!-- for bouncycastle
+         https://codingtechroom.com/question/trouble-integrating-bouncycastle-jar
+    -->
+
     <issue id="LogConditional" severity="ignore" />
     <!-- to be fixed once we can do non-debug builds -->
     

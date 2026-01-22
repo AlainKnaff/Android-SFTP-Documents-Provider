@@ -4,6 +4,7 @@ import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.Key;
@@ -11,6 +12,13 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.NoSuchProviderException;
+
+import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
+import org.bouncycastle.crypto.util.OpenSSHPrivateKeyUtil;
+import org.bouncycastle.crypto.util.OpenSSHPublicKeyUtil;
+import org.bouncycastle.crypto.util.PrivateKeyFactory;
+import org.bouncycastle.crypto.util.PublicKeyFactory;
 
 /* This file is part of SFTP-SAF, an Android app to access sftp servers via Storage access framework
  Copyright (C) 2025,2026 Alain Knaff
@@ -22,8 +30,6 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import java.security.interfaces.RSAPublicKey;
-import java.nio.charset.StandardCharsets;
 import java.nio.ByteOrder;
 import java.nio.ByteBuffer;
 
@@ -43,28 +49,37 @@ public class Keygen {
     public static final String PRIVATE_KEY_FILE="privateKey.pem";
     public static final String PUBLIC_KEY_FILE="publicKey.txt";
 
-    public static void genKey(Context ctx) {
+    public static void genKey(Context ctx, String algo) {
         try {
-	    // confirmation dialog if it already exists:
-	    // https://stackoverflow.com/questions/5127407/how-to-implement-a-confirmation-yes-no-dialogpreference
+            BouncyCastle.trigger();
 
-            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-            keyGen.initialize(2048);
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance(algo,"BC");
             KeyPair keyPair = keyGen.generateKeyPair();
-            saveKeyToFile(ctx, PRIVATE_KEY_FILE, convertToPEM(keyPair.getPrivate(), "PRIVATE"));
-            saveKeyToFile(ctx, PUBLIC_KEY_FILE, getEncodedSshPublicKey( (PublicKey) keyPair.getPublic()));
 
+            saveKeyToFile(ctx, PRIVATE_KEY_FILE,
+                          convertToPEM(keyPair.getPrivate(),
+                                       "RSA".equals(algo)));
+
+            saveKeyToFile(ctx, PUBLIC_KEY_FILE,
+                          getEncodedSshPublicKey(keyPair.getPublic()));
+        } catch (IOException e) {
+	    Log.e(TAG, "Error generating keys: " + e.getMessage());
+        } catch (NoSuchProviderException e) {
+	    Log.e(TAG, "Error generating keys: " + e.getMessage());
         } catch (NoSuchAlgorithmException e) {
 	    Log.e(TAG, "Error generating keys: " + e.getMessage());
         }
     }
 
-    private static void saveKeyToFile(Context ctx, String fileName, String key) {
+    private static void saveKeyToFile(Context ctx, String fileName, String key)
+        throws IOException
+    {
         try(PrintWriter pw = new PrintWriter(ctx.openFileOutput(fileName, 0))) {
             pw.println(key);
             System.out.println(fileName + " saved successfully.");
         } catch (IOException e) {
 	    Log.e(TAG, "Error saving key to file: " + e.getMessage());
+            throw e;
         }
     }
 
@@ -72,33 +87,37 @@ public class Keygen {
 	return Base64.encodeToString(bin, Base64.NO_WRAP);
     }
 
-    public static String convertToPEM(Key key, String type) {
-        byte[] encodedKey = key.getEncoded();
+    public static String convertToPEM(Key key, boolean isRsa)
+        throws IOException
+    {
+        byte[] encodedKey;
+        String type;
+        if(isRsa) {
+            encodedKey = key.getEncoded();
+            type = "";
+        } else {
+            AsymmetricKeyParameter bprv =
+                PrivateKeyFactory.createKey(key.getEncoded());
+            encodedKey = OpenSSHPrivateKeyUtil.encodePrivateKey(bprv);
+            type="OPENSSH ";
+        }
         String base64Key = toBase64(encodedKey);
-        return "-----BEGIN "+type+" KEY-----\n" + base64Key + "\n-----END "+type+" KEY-----";
+        return "-----BEGIN "+type+"PRIVATE KEY-----\n" + base64Key + "\n-----END "+type+"PRIVATE KEY-----";
     }
 
     // see https://linuxtut.com/en/ee3c7d0ba7d4610a9d21/ for
     // outputting public key
-    public static String getEncodedSshPublicKey(final PublicKey pKey) {
-        final String sig = "ssh-rsa";
-
-	RSAPublicKey publicKey = (RSAPublicKey) pKey;
-        final byte[] sigBytes = sig.getBytes(StandardCharsets.US_ASCII);
-        final byte[] eBytes = publicKey.getPublicExponent().toByteArray();
-        final byte[] nBytes = publicKey.getModulus().toByteArray();
-
-        final int size = 4 + sigBytes.length
-                + 4 + eBytes.length
-                + 4 + nBytes.length;
-
-        final byte[] publicKeyBytes = ByteBuffer.allocate(size)
-                .order(ByteOrder.BIG_ENDIAN)
-                .putInt(sigBytes.length).put(sigBytes)
-                .putInt(eBytes.length).put(eBytes)
-                .putInt(nBytes.length).put(nBytes)
-                .array();
-
+    public static String getEncodedSshPublicKey(final PublicKey pKey)
+        throws IOException
+    {
+        AsymmetricKeyParameter bpub =
+            PublicKeyFactory.createKey(pKey.getEncoded());
+        byte[] publicKeyBytes = OpenSSHPublicKeyUtil.encodePublicKey(bpub);
+        int sigLen = ByteBuffer
+            .wrap(publicKeyBytes)
+            .order(ByteOrder.BIG_ENDIAN)
+            .getInt();
+        final String sig = new String(publicKeyBytes, 4, sigLen);
         final String publicKeyBase64 = toBase64(publicKeyBytes);
 
         final String publicKeyEncoded = sig + " " + publicKeyBase64 + " user@sftpprovider";
