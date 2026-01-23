@@ -43,7 +43,7 @@ jobs:
            SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
            SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
            SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
-         run: ./gradlew assembleRelease
+         run: ./gradlew assembleRelease|| cat build/reports/problems/problems-report.html
  
        #3
        - name: Rename apk
