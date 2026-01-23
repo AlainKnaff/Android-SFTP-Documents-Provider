@@ -116,7 +116,7 @@ class MainActivity : ProviderActivity()
 
     val keyTypes = arrayOf("RSA",
                            "ED25519",
-                           // "ECDSA"
+                           "ECDSA"
     );
 
     private fun generateKey2(view: View) {

@@ -4,7 +4,6 @@ import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.PrintWriter;
-import java.io.OutputStreamWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.Key;
@@ -13,6 +12,10 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.NoSuchProviderException;
+import java.security.spec.ECGenParameterSpec;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.interfaces.ECPrivateKey;
 
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.util.OpenSSHPrivateKeyUtil;
@@ -54,11 +57,12 @@ public class Keygen {
             BouncyCastle.trigger();
 
             KeyPairGenerator keyGen = KeyPairGenerator.getInstance(algo,"BC");
+            if("ECDSA".equalsIgnoreCase(algo))
+                keyGen.initialize(new ECGenParameterSpec("secp256r1"));
             KeyPair keyPair = keyGen.generateKeyPair();
 
             saveKeyToFile(ctx, PRIVATE_KEY_FILE,
-                          convertToPEM(keyPair.getPrivate(),
-                                       "RSA".equals(algo)));
+                          convertToPEM(keyPair.getPrivate(), algo));
 
             saveKeyToFile(ctx, PUBLIC_KEY_FILE,
                           getEncodedSshPublicKey(keyPair.getPublic()));
@@ -67,6 +71,10 @@ public class Keygen {
         } catch (NoSuchProviderException e) {
 	    Log.e(TAG, "Error generating keys: " + e.getMessage());
         } catch (NoSuchAlgorithmException e) {
+	    Log.e(TAG, "Error generating keys: " + e.getMessage());
+        } catch (InvalidAlgorithmParameterException e) {
+	    Log.e(TAG, "Error generating keys: " + e.getMessage());
+        } catch (InvalidKeyException e) {
 	    Log.e(TAG, "Error generating keys: " + e.getMessage());
         }
     }
@@ -87,14 +95,17 @@ public class Keygen {
 	return Base64.encodeToString(bin, Base64.NO_WRAP);
     }
 
-    public static String convertToPEM(Key key, boolean isRsa)
-        throws IOException
+    public static String convertToPEM(Key key, String algo)
+        throws IOException, InvalidKeyException
     {
         byte[] encodedKey;
         String type;
-        if(isRsa) {
+        if("RSA".equalsIgnoreCase(algo)) {
             encodedKey = key.getEncoded();
             type = "";
+        } else if("ECDSA".equalsIgnoreCase(algo)) {
+            encodedKey = EcdsaConverter.convertToOpenSshPrivateKey((ECPrivateKey)key);
+            type="OPENSSH ";
         } else {
             AsymmetricKeyParameter bprv =
                 PrivateKeyFactory.createKey(key.getEncoded());
