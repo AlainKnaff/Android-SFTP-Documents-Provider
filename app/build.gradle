@@ -27,11 +27,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17
+        jvmTarget = JavaVersion.VERSION_21
     }
 
     lintOptions {
@@ -71,8 +71,8 @@ dependencies {
     //compile 'commons-net:commons-net:+'
     // https://mvnrepository.com/artifact/it.sauronsoftware/ftp4j
     implementation 'com.github.mwiede:jsch:2.27.7'
-    implementation 'org.bouncycastle:bcpkix-jdk15on:1.70'
-    implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
+    implementation 'org.bouncycastle:bcpkix-jdk18on:1.83'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.83'
 
     implementation 'com.google.android.material:material:1.13.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
