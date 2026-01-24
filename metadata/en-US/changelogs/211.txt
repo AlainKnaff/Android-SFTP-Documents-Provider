@@ -1,0 +1,1 @@
+- JDK 21 (it was set in android.yml too, not just app/build.gradle)
