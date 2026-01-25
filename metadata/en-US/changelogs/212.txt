@@ -1,0 +1,3 @@
+- If password is specified for an account, still try also public key
+  authentication
+- Use a more meaningful user name in generated ssh public keys
