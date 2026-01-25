@@ -112,11 +112,8 @@ public class SFTP implements Closeable
 		config.put("StrictHostKeyChecking","no");
 		session.setConfig(config);
 
-		if(password != null && !password.isEmpty()) {
-			session.setConfig("PreferredAuthentications","password");
+		if(password != null && !password.isEmpty())
 			session.setPassword(password);
-		}
-
 
 		session.setTimeout(TIMEOUT);
 		session.connect();
