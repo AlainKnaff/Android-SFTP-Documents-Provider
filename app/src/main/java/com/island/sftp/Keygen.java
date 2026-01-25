@@ -40,6 +40,8 @@ import android.content.Intent;
 import android.content.Context;
 import android.util.Log;
 import android.util.Base64;
+import android.os.Build;
+import android.provider.Settings;
 
 import lu.knaff.alain.saf_sftp.R;
 
@@ -65,7 +67,7 @@ public class Keygen {
                           convertToPEM(keyPair.getPrivate(), algo));
 
             saveKeyToFile(ctx, PUBLIC_KEY_FILE,
-                          getEncodedSshPublicKey(keyPair.getPublic()));
+                          getEncodedSshPublicKey(ctx, keyPair.getPublic()));
         } catch (IOException e) {
 	    Log.e(TAG, "Error generating keys: " + e.getMessage());
         } catch (NoSuchProviderException e) {
@@ -116,9 +118,23 @@ public class Keygen {
         return "-----BEGIN "+type+"PRIVATE KEY-----\n" + base64Key + "\n-----END "+type+"PRIVATE KEY-----";
     }
 
+    private static String getHostName(Context ctx) {
+        String hostName;
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+            hostName = Settings.Global.getString(ctx.getContentResolver(),
+                                                 Settings.Global.DEVICE_NAME);
+        else
+            hostName = Build.MODEL;
+        if(hostName == null)
+            hostName = "unknown";
+        hostName=hostName.replaceAll("[^a-zA-Z0-9_.-]+","_");
+        return hostName;
+    }
+
     // see https://linuxtut.com/en/ee3c7d0ba7d4610a9d21/ for
     // outputting public key
-    public static String getEncodedSshPublicKey(final PublicKey pKey)
+    public static String getEncodedSshPublicKey(Context ctx,
+                                                final PublicKey pKey)
         throws IOException
     {
         AsymmetricKeyParameter bpub =
@@ -131,7 +147,8 @@ public class Keygen {
         final String sig = new String(publicKeyBytes, 4, sigLen);
         final String publicKeyBase64 = toBase64(publicKeyBytes);
 
-        final String publicKeyEncoded = sig + " " + publicKeyBase64 + " user@sftpprovider";
+        final String publicKeyEncoded = sig + " " + publicKeyBase64 +
+            " sftp@" + getHostName(ctx);
         return publicKeyEncoded;
     }
 
