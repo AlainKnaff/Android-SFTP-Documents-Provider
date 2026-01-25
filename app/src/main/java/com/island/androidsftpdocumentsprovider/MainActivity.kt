@@ -28,7 +28,7 @@ import androidx.core.net.toUri
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-import com.island.androidsftpdocumentsprovider.provider.ProviderActivity;
+import com.island.androidsftpdocumentsprovider.provider.ProviderActivity
 import com.island.androidsftpdocumentsprovider.account.Account
 import com.island.androidsftpdocumentsprovider.account.DBHandler
 import com.island.androidsftpdocumentsprovider.account.AuthenticationActivity
@@ -46,10 +46,10 @@ class MainActivity : ProviderActivity()
 	val share: Button  = findViewById(R.id.share_public_key)
 	val generate: Button  = findViewById(R.id.generate_keypair)
 	if(Keygen.haveKey(this)) {
-	    share.setEnabled(true);
+	    share.setEnabled(true)
 	    generate.setText(R.string.regenerate_key)
 	} else {
-	    share.setEnabled(false);
+	    share.setEnabled(false)
 	}
     }
 
@@ -61,7 +61,7 @@ class MainActivity : ProviderActivity()
 	val recyclerView=findViewById<RecyclerView>(R.id.sftp_accounts)
 	recyclerView.adapter=SFTPAdapter(this)
 	recyclerView.layoutManager=LinearLayoutManager(this)
-	fixButtonState();
+	fixButtonState()
     }
 
     fun browseFiles(view:View)
@@ -71,11 +71,11 @@ class MainActivity : ProviderActivity()
 			       "com.android.documentsui")) {
 	    try {
 		intent.setComponent(ComponentName(packge,
-						  "com.android.documentsui.files.FilesActivity"));
+						  "com.android.documentsui.files.FilesActivity"))
 		intent.setData(("content://"+getAuthority()+
 				    "/root").toUri())
 		startActivity(intent)
-		return;
+		return
 	    } catch(e: Exception) {
 		Log.e(TAG, "Exception while opening file browser", e)
 	    }
@@ -84,7 +84,7 @@ class MainActivity : ProviderActivity()
 	    .Builder(this)
 	    .setMessage(R.string.no_documentsui)
 	    .setPositiveButton(R.string.ok) { d, w -> d.dismiss() }
-	    .show();
+	    .show()
     }
 
     fun addSftpAccount(view:View)
@@ -108,7 +108,7 @@ class MainActivity : ProviderActivity()
 		.setMessage(R.string.keygen_confirm)
 		.setPositiveButton(R.string.yes) { d, w -> generateKey2(view) }
 		.setNegativeButton(R.string.no) { d, w  ->d.dismiss() }
-		.show();
+		.show()
 	} else {
 	    generateKey2(view)
 	}
@@ -117,25 +117,25 @@ class MainActivity : ProviderActivity()
     val keyTypes = arrayOf("RSA",
                            "ED25519",
                            "ECDSA"
-    );
+    )
 
     private fun generateKey2(view: View) {
         AlertDialog.Builder(this)
             .setTitle("Choose a key type")
             .setSingleChoiceItems(keyTypes, 1) {
-                dialog, which -> generateKey3(keyTypes[which], view);
-                                 dialog.dismiss();
+                dialog, which -> generateKey3(keyTypes[which], view)
+                                 dialog.dismiss()
             }
-            .show();
+            .show()
     }
 
     private fun generateKey3(algo: String, view: View) {
-	Keygen.genKey(this, algo);
-	fixButtonState();
+	Keygen.genKey(this, algo)
+	fixButtonState()
     }
 
     fun sharePublicKey(view: View) {
-	Keygen.shareKey(this);
+	Keygen.shareKey(this)
     }
 
     override fun onResume()
