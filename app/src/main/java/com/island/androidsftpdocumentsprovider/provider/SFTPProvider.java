@@ -476,7 +476,7 @@ public class SFTPProvider extends DocumentsProvider
         for(SFTP connection:connections) {
             if(connection.uri.getAuthority().equals(documentId.getAuthority())){
                 if(!connection.isConnected()) {
-                    Log.i(TAG, "Connection closed, cleaning");
+                    Log.d(TAG, "Connection closed, cleaning");
                     toRemove.add(connection);
                     continue;
                 }
