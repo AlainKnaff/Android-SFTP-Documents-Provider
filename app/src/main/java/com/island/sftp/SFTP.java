@@ -248,12 +248,12 @@ public class SFTP implements Closeable
 			throw getException(e);
 		}
 	}
-	public synchronized InputStream read(File file)throws IOException
+	public synchronized InputStream read(File file, long offset)throws IOException
 	{
 		checkArguments(file);
 		try {
 			reconnectIfNeeded();
-			return new BufferedInputStream(channel.get(file.getPath()));
+			return channel.get(file.getPath(), null, offset);
 		} catch(JSchException e) {
 			throw getException(e);
 		} catch(SftpException e) {
@@ -297,12 +297,12 @@ public class SFTP implements Closeable
 			throw getException(e);
 		}
 	}
-	public synchronized OutputStream write(File file)throws IOException
+	public synchronized OutputStream write(File file, int mode, long offset)throws IOException
 	{
 		checkArguments(file);
 		try {
 			reconnectIfNeeded();
-			return channel.put(file.getPath());
+			return channel.put(file.getPath(), null, mode, offset);
 		} catch(JSchException e) {
 			throw getException(e);
 		} catch(SftpException e) {
@@ -427,4 +427,8 @@ public class SFTP implements Closeable
 		for(Object argument:arguments)Objects.requireNonNull(argument,Arrays.toString(arguments));
 		if(disconnected)throw new IllegalStateException("Connection already closed");
 	}
+
+        public boolean isConnected() {
+                return channel != null && channel.isConnected();
+        }
 }

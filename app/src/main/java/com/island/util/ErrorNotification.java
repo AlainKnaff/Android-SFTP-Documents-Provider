@@ -22,24 +22,20 @@ public class ErrorNotification {
     private static String channelName="ErrorChannel";
 
     private static synchronized void createChannel(Context ctx) {
-	if(isInitialized)
-	    return;
-	if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O) {
-	    int importance=NotificationManager.IMPORTANCE_HIGH;
-	    NotificationChannel channel=new NotificationChannel(channelName,
-								channelName,
-								importance);
-	    NotificationManager notificationManager=
-		ctx.getSystemService(NotificationManager.class);
-	    notificationManager.createNotificationChannel(channel);
-	    isInitialized=true;
-	}
+        if(isInitialized)
+            return;
+        int importance=NotificationManager.IMPORTANCE_HIGH;
+        NotificationChannel channel=new NotificationChannel(channelName,
+                                                            channelName,
+                                                            importance);
+        NotificationManager notificationManager=
+            ctx.getSystemService(NotificationManager.class);
+        notificationManager.createNotificationChannel(channel);
+        isInitialized=true;
     }
 
     public static void sendNotification(Context ctx,
 					String title, Throwable t) {
-	if(Build.VERSION.SDK_INT < 26)
-	    return;
 	while(true) {
 	    Throwable c = t.getCause();
 	    if(c == null)

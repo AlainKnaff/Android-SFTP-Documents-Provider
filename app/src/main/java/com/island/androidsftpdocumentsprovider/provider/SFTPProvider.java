@@ -16,8 +16,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Arrays;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.io.File;
 import java.io.IOException;
@@ -34,8 +34,6 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.StrictMode;
 import android.os.ParcelFileDescriptor;
-import android.os.Looper;
-import android.os.Handler;
 import android.os.CancellationSignal;
 import android.provider.DocumentsProvider;
 import android.provider.DocumentsContract.Root;
@@ -47,7 +45,6 @@ import androidx.core.content.ContextCompat;
 
 import com.island.androidsftpdocumentsprovider.account.DBHandler;
 import com.island.androidsftpdocumentsprovider.account.Account;
-import com.island.androidsftpdocumentsprovider.provider.UploadWorker;
 import com.island.sftp.SFTP;
 
 import lu.knaff.alain.saf_sftp.R;
@@ -66,7 +63,7 @@ public class SFTPProvider extends DocumentsProvider
 	Document.COLUMN_FLAGS
     };
     public static final String SFTP_UPLOAD_POST = "com.island.androidsftpdocumentsprovider.provider.SFTPProvider.uploadPost";
-    private final List<SFTP>connections=new ArrayList<>();
+    private final Set<SFTP>connections=new HashSet<>();
 
 
     private final static Set<String> uploadingFiles = new CopyOnWriteArraySet<>();
@@ -223,63 +220,23 @@ public class SFTPProvider extends DocumentsProvider
 	    Objects.requireNonNull(uri);
 	    Objects.requireNonNull(mode);
 	    int accessMode=ParcelFileDescriptor.parseMode(mode);
-	    boolean isWrite=(mode.indexOf('w')!=-1);
 	    final Uri documentId=Uri.parse(uri);
-	    SFTP sftp=getSFTP(documentId);
+	    SFTP sftp=getSFTP(documentId, true);
 	    File serverFile = SFTP.getFile(documentId);
-	    File cache=cacheFile(sftp.getId(), serverFile);
+
 	    try {
-		boolean isDownloadFile = true;
-		long serverLastModified = sftp.lastModified(serverFile);
-		if(cache.exists()){
-		    if( uploadingFiles.contains(documentId.toString())){
-			Log.d(TAG, String.format("File %s uploading, open cache file.", documentId.toString()));
-			isDownloadFile = false;
-		    }
-		    if(cache.lastModified() == serverLastModified){
-			Log.d(TAG, String.format("File %s is not modify, open cache file.", documentId.toString()));
-			isDownloadFile = false;
-		    }
-		}
-
-		if (isDownloadFile) {
-		    sftp.get(serverFile, cache);
-		}
-		if(isWrite) {
-		    Looper looper=getContext().getMainLooper();
-		    UploadWorker req =
-			UploadWorker.Prepare(getContext(), cache, documentId);
-
-		    var ret= ParcelFileDescriptor
-			.open(cache,accessMode,new Handler(looper),
-			      exception -> {
-				  Log.d(TAG, "File close: " + cache + ", file size: " + cache.length());
-				  if(exception==null) {
-				      asyncUpload(cache, documentId, req);
-				  } else {
-				      exception(exception,"OnCloseDocument");
-				  }
-			      });
-		    req.waitForSetup(); // make sure service is foregrounded
-			// before we return from the Binder call
-		    return ret;
-		} else {
-		    return ParcelFileDescriptor.open(cache,accessMode);
-		}
-	    }
-	    catch(SocketException e) {
+		return Proxy.open(getContext(), sftp, serverFile, accessMode,
+                                  s->connections.add(s));
+	    } catch (Exception e) {
+		Log.e(TAG, "Failed to open proxy file descriptor", e);
+		// openProxyFileDescriptor can throw an exception without
+		// invoking onRelease
 		remove(sftp);
-		throw e;
+		throw new FileNotFoundException(serverFile.getPath());
 	    }
 	} catch(Exception e) {
 	    throw exception(e,"openDocument",uri);
 	}
-    }
-
-    private void asyncUpload(File cacheFile, Uri documentId,
-			     UploadWorker req) {
-	uploadingFiles.add(documentId.toString());
-	req.start();
     }
 
     @Override
@@ -500,19 +457,34 @@ public class SFTPProvider extends DocumentsProvider
     private SFTP getSFTP(Uri documentId)
 	throws IOException
     {
+        return getSFTP(documentId, false);
+    }
+
+    private SFTP getSFTP(Uri documentId, boolean needsFresh)
+	throws IOException
+    {
 	assert documentId!=null;
 	SFTP sftp=null;
-	for(SFTP connection:connections) {
-	    if(connection.uri.getAuthority().equals(documentId.getAuthority())){
-		sftp=connection;
-		break;
-	    }
-	}
-	if(sftp==null) {
-	    sftp= createSftp(documentId);
-	    connections.add(sftp);
-	}
-	return sftp;
+        for(SFTP connection:connections) {
+            if(connection.uri.getAuthority().equals(documentId.getAuthority())){
+                if(!connection.isConnected()) {
+                    Log.i(TAG, "Connection closed, cleaning");
+                    connections.remove(connection);
+                    continue;
+                }
+                sftp=connection;
+                if(needsFresh)
+                    // remove connection from pool while used elsewhere
+                    connections.remove(sftp);
+                break;
+            }
+        }
+        if(sftp==null) {
+            sftp= createSftp(documentId);
+            if(!needsFresh)
+                connections.add(sftp);
+        }
+        return sftp;
     }
 
     private SFTP createSftp(Uri documentId)
