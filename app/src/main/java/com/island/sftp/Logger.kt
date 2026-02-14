@@ -18,7 +18,7 @@ class Logger : com.jcraft.jsch.Logger {
     override fun log(level: Int, message: String) {
         when(level) {
             DEBUG -> Log.d(TAG, message)
-            INFO -> Log.i(TAG, message)
+            INFO -> Log.v(TAG, message) // too chatty => demote to verbose
             WARN -> Log.w(TAG, message)
             ERROR -> Log.e(TAG, message)
             FATAL -> Log.wtf(TAG, message)
