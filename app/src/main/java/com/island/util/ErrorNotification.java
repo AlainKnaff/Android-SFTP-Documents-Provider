@@ -11,7 +11,6 @@ You should have received a copy of the GNU General Public License along with thi
 */
 
 import lu.knaff.alain.saf_sftp.R;
-import android.os.Build;
 import android.app.NotificationChannel;
 import android.app.Notification;
 import android.app.NotificationManager;
