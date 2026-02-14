@@ -46,6 +46,7 @@ import androidx.core.content.ContextCompat;
 import com.island.androidsftpdocumentsprovider.account.DBHandler;
 import com.island.androidsftpdocumentsprovider.account.Account;
 import com.island.sftp.SFTP;
+import com.island.sftp.SftpService;
 
 import lu.knaff.alain.saf_sftp.R;
 
@@ -464,6 +465,12 @@ public class SFTPProvider extends DocumentsProvider
 	throws IOException
     {
 	assert documentId!=null;
+        // Start the service, but don't bother if it doesn't work out
+        try {
+            getContext().startService(new Intent(getContext(), SftpService.class ) );
+        } catch(Exception e) {
+            Log.i(TAG, "Error trying to start service", e);
+        }
 	SFTP sftp=null;
         Set<SFTP> toRemove = new HashSet<>();
         for(SFTP connection:connections) {
