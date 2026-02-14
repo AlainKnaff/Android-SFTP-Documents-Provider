@@ -82,29 +82,30 @@ public class SFTP implements Closeable
 	private JSch jsch;
 
 	protected void init(Context ctx, Uri uri, String password) throws ConnectException {
-		Log.d(SFTPProvider.TAG,String.format("Created new connection for %s",uri.getAuthority()));
-		this.context=ctx;
-		checkArguments(uri,password);
-		this.uri=uri;
-		this.password=password;
-		String privKey = Keygen.readPrivateKey(ctx);
-		jsch=new JSch();
-		isDirectory.put(new File("/"),true);
-		lastModified.put(new File("/"),0l);
-		try {
-			if(privKey != null)
-				jsch.addIdentity(privKey);
-			makeSession();
-		} catch(JSchException e) {
-			ErrorNotification.sendNotification(ctx,
-							   String.valueOf(uri),
-							   e);
-			Log.d(SFTPProvider.TAG, "JschException during init", e);
-			ConnectException exception=new ConnectException(String.format("Can't connect to %s",uri));
-			exception.initCause(e);
-			throw exception;
-		}
-	}
+                Log.d(SFTPProvider.TAG,String.format("Created new connection for %s",uri.getAuthority()));
+                this.context=ctx;
+                checkArguments(uri,password);
+                this.uri=uri;
+                this.password=password;
+                String privKey = Keygen.readPrivateKey(ctx);
+                jsch=new JSch();
+                jsch.setLogger(new Logger());
+                isDirectory.put(new File("/"),true);
+                lastModified.put(new File("/"),0l);
+                try {
+                        if(privKey != null)
+                                jsch.addIdentity(privKey);
+                        makeSession();
+                } catch(JSchException e) {
+                        ErrorNotification.sendNotification(ctx,
+                                                           String.valueOf(uri),
+                                                           e);
+                        Log.d(SFTPProvider.TAG, "JschException during init", e);
+                        ConnectException exception=new ConnectException(String.format("Can't connect to %s",uri));
+                        exception.initCause(e);
+                        throw exception;
+                }
+        }
 
 	private void makeSession() throws JSchException {
 		session=jsch.getSession(uri.getUserInfo(),uri.getHost(),uri.getPort());
