@@ -29,7 +29,7 @@ class SftpService : Service() {
     // execution of service will start
     // on calling this method
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        Log.i(TAG, "Service (re)started")
+        Log.d(TAG, "Service (re)started")
 
         // returns the status
         // of the program
@@ -44,7 +44,7 @@ class SftpService : Service() {
     }
 
     override fun onBind(intent: Intent): IBinder? {
-        Log.i(TAG, "onBind")
+        Log.e(TAG, "onBind, should not happen")
         return null
     }
 }
