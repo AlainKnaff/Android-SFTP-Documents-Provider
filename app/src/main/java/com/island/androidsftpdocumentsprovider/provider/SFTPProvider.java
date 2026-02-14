@@ -465,11 +465,12 @@ public class SFTPProvider extends DocumentsProvider
     {
 	assert documentId!=null;
 	SFTP sftp=null;
+        Set<SFTP> toRemove = new HashSet<>();
         for(SFTP connection:connections) {
             if(connection.uri.getAuthority().equals(documentId.getAuthority())){
                 if(!connection.isConnected()) {
                     Log.i(TAG, "Connection closed, cleaning");
-                    connections.remove(connection);
+                    toRemove.add(connection);
                     continue;
                 }
                 sftp=connection;
@@ -479,6 +480,7 @@ public class SFTPProvider extends DocumentsProvider
                 break;
             }
         }
+        connections.removeAll(toRemove);
         if(sftp==null) {
             sftp= createSftp(documentId);
             if(!needsFresh)
