@@ -23,12 +23,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.net.SocketException;
-import java.security.MessageDigest;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.BroadcastReceiver;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
@@ -39,9 +36,6 @@ import android.provider.DocumentsProvider;
 import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsContract.Document;
 import android.util.Log;
-import android.util.Base64;
-
-import androidx.core.content.ContextCompat;
 
 import com.island.androidsftpdocumentsprovider.account.DBHandler;
 import com.island.androidsftpdocumentsprovider.account.Account;
@@ -84,16 +78,6 @@ public class SFTPProvider extends DocumentsProvider
     public boolean onCreate()
     {
 	dbHandler = new DBHandler(getContext());
-	ContextCompat
-	    .registerReceiver(getContext(),new BroadcastReceiver() {
-		    @Override
-		    public void onReceive(Context context, Intent intent) {
-			String uri = intent.getStringExtra("uri");
-			Log.d(TAG, String.format("Current uploading files: %s, remove %s", uploadingFiles, uri));
-			uploadingFiles.remove(uri);
-		    }
-		}, new IntentFilter(SFTP_UPLOAD_POST),
-		ContextCompat.RECEIVER_NOT_EXPORTED);
 	return true;
     }
     @Override
@@ -182,34 +166,6 @@ public class SFTPProvider extends DocumentsProvider
 	} catch(Exception e) {
 	    throw exception(e,"QueryChildDocuments",parentUri);
 	}
-    }
-
-    private static String hash(final String base) {
-	try {
-	    final MessageDigest digest = MessageDigest.getInstance("SHA-256");
-	    final byte[] hash = digest.digest(base.getBytes("UTF-8"));
-	    return Base64.encodeToString(hash, Base64.NO_WRAP|Base64.URL_SAFE);
-	} catch(Exception e){
-	    throw new RuntimeException(e);
-	}
-    }
-
-    /**
-     * Make cache file, but take into account server identity, and
-     * server directory. However, rather than using server path as is,
-     * make a secure hash. This helps with dealing with path length
-     * issues, presence of ".." in path, as well as file names being
-     * reused for directory names at a later time, while they are
-     * still in client cache.
-     */
-    private File cacheFile(int accountId, File serverFile) {
-	File directory = getContext().getCacheDir();
-	String path=String.valueOf(accountId)+"/"+serverFile.getParent();
-	directory=new File(directory, hash(path));
-	if(!directory.isDirectory()){
-	    directory.mkdirs();
-	}
-	return new File(directory, serverFile.getName());
     }
 
     @Override
