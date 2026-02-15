@@ -1,7 +1,7 @@
 package com.island.androidsftpdocumentsprovider.provider
 
 import java.io.OutputStream
-import java.io.IOException;
+import java.io.IOException
 import java.io.InputStream
 import java.io.File
 import java.util.function.Consumer
@@ -14,6 +14,8 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.storage.StorageManager
 
+import com.jcraft.jsch.ChannelSftp
+
 import com.island.sftp.SFTP
 
 /**
@@ -22,20 +24,41 @@ import com.island.sftp.SFTP
  */
 class Proxy private constructor(val sftp: SFTP,
                                 val file: File,
+                                val modeString : String,
                                 var recycler: Consumer<SFTP>?
 ) : ProxyFileDescriptorCallback() {
     val TAG = "Proxy"
 
+    // first write ever is 0 (OVERWRITE or APPEND) to make sure file is
+    // truncated initially, and from then on 3 (Neither OVERWRITE nor
+    // RESUME nor APPEND) to make sure new data is added rather than
+    // re-truncating file over and over again
+    var mode = 0
+
     private val ioThread = HandlerThread(javaClass.simpleName).apply { start() }
     private val ioHandler = Handler(ioThread.looper)
+
+    init {
+        if(modeString.indexOf("a") != -1) {
+            if(modeString.indexOf("r") != -1) {
+                throw RuntimeException("Read + append not supported ${modeString}")
+            }
+            Log.d(TAG, "Using append mode for ${modeString}")
+            mode = ChannelSftp.APPEND
+        } else {
+            Log.d(TAG, "Using default mode for ${modeString}")
+            mode = ChannelSftp.OVERWRITE
+        }
+    }
 
     companion object {
         @JvmStatic
         fun open(context: Context,
                  sftp: SFTP, file: File,
-                 accessMode: Int,
+                 mode: String,
                  recycler: Consumer<SFTP>) : ParcelFileDescriptor {
-            val proxy = Proxy(sftp, file, recycler)
+            val proxy = Proxy(sftp, file, mode, recycler)
+            val accessMode=ParcelFileDescriptor.parseMode(mode);
             var storageManager = context
                 .getSystemService(StorageManager::class.java)
             return storageManager
@@ -108,15 +131,11 @@ class Proxy private constructor(val sftp: SFTP,
         return bufOffset
     }
 
-    // first write ever is 0 (OVERWRITE) to make sure file is
-    // truncated initially, and from then on 3 (Neither OVERWRITE nor
-    // RESUME nor APPEND) to make sure new data is added rather than
-    // re-truncating file over and over again
-    var mode = 0
 
     override fun onWrite(offset: Long, size: Int, data: ByteArray): Int {
         if(outStr == null || offset != outPos) {
             closeCurrentStreams()
+            Log.d(TAG, "Writing with ${mode} to ${offset}")
             outStr = sftp.write(file, mode, offset)
             mode = 3
             outPos = offset

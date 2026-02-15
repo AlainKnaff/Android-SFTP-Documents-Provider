@@ -176,13 +176,12 @@ public class SFTPProvider extends DocumentsProvider
 	try {
 	    Objects.requireNonNull(uri);
 	    Objects.requireNonNull(mode);
-	    int accessMode=ParcelFileDescriptor.parseMode(mode);
 	    final Uri documentId=Uri.parse(uri);
 	    SFTP sftp=getSFTP(documentId, true);
 	    File serverFile = SFTP.getFile(documentId);
 
 	    try {
-		return Proxy.open(getContext(), sftp, serverFile, accessMode,
+		return Proxy.open(getContext(), sftp, serverFile, mode,
                                   s->connections.add(s));
 	    } catch (Exception e) {
 		Log.e(TAG, "Failed to open proxy file descriptor", e);
