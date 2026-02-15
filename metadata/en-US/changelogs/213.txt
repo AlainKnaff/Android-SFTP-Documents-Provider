@@ -1,0 +1,1 @@
+- Use ProxyFileDescriptorCallback rather than caching. Better for handling large files. Might make Google Photos slower (due to it reloading the same image up to 25 times!), so just use Gallery
