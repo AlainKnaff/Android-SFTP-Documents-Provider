@@ -57,7 +57,6 @@ public class SFTPProvider extends DocumentsProvider
 	Document.COLUMN_MIME_TYPE,
 	Document.COLUMN_FLAGS
     };
-    public static final String SFTP_UPLOAD_POST = "com.island.androidsftpdocumentsprovider.provider.SFTPProvider.uploadPost";
     private final Set<SFTP>connections=new HashSet<>();
 
 
