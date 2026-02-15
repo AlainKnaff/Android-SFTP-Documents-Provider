@@ -41,7 +41,7 @@ class Proxy private constructor(val sftp: SFTP,
     init {
         if(modeString.indexOf("a") != -1) {
             if(modeString.indexOf("r") != -1) {
-                throw RuntimeException("Read + append not supported ${modeString}")
+                throw UnsupportedOperationException("Read + append not supported ${modeString}")
             }
             Log.d(TAG, "Using append mode for ${modeString}")
             mode = ChannelSftp.APPEND
