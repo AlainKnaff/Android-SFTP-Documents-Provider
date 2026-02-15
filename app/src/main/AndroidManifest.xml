@@ -39,5 +39,12 @@
 	</provider>
 	<service
 	    android:name="com.island.sftp.SftpService" />
+        <receiver
+            android:name="com.island.androidsftpdocumentsprovider.provider.CleanOldCache"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>
