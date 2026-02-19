@@ -24,7 +24,7 @@ import com.island.sftp.SFTP
  */
 class Proxy private constructor(val sftp: SFTP,
                                 val file: File,
-                                val modeString : String,
+                                val accessMode : Int,
                                 var recycler: Consumer<SFTP>?
 ) : ProxyFileDescriptorCallback() {
     val TAG = "Proxy"
@@ -39,14 +39,14 @@ class Proxy private constructor(val sftp: SFTP,
     private val ioHandler = Handler(ioThread.looper)
 
     init {
-        if(modeString.indexOf("a") != -1) {
-            if(modeString.indexOf("r") != -1) {
-                throw UnsupportedOperationException("Read + append not supported ${modeString}")
+        if(accessMode and ParcelFileDescriptor.MODE_APPEND != 0) {
+            if(accessMode and ParcelFileDescriptor.MODE_READ_ONLY != 0) {
+                throw UnsupportedOperationException("Read + append not supported ${Integer.toHexString(accessMode)}")
             }
-            Log.d(TAG, "Using append mode for ${modeString}")
+            Log.d(TAG, "Using append mode for ${Integer.toHexString(accessMode)}")
             mode = ChannelSftp.APPEND
         } else {
-            Log.d(TAG, "Using default mode for ${modeString}")
+            Log.d(TAG, "Using default mode for ${Integer.toHexString(accessMode)}")
             mode = ChannelSftp.OVERWRITE
         }
     }
@@ -57,8 +57,8 @@ class Proxy private constructor(val sftp: SFTP,
                  sftp: SFTP, file: File,
                  mode: String,
                  recycler: Consumer<SFTP>) : ParcelFileDescriptor {
-            val proxy = Proxy(sftp, file, mode, recycler)
             val accessMode=ParcelFileDescriptor.parseMode(mode);
+            val proxy = Proxy(sftp, file, accessMode, recycler)
             var storageManager = context
                 .getSystemService(StorageManager::class.java)
             return storageManager
