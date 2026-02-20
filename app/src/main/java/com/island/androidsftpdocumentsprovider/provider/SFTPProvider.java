@@ -40,6 +40,7 @@ import android.util.Log;
 import com.island.androidsftpdocumentsprovider.account.DBHandler;
 import com.island.androidsftpdocumentsprovider.account.Account;
 import com.island.sftp.SFTP;
+import com.island.sftp.SftpFile;
 import com.island.sftp.SftpService;
 
 import lu.knaff.alain.saf_sftp.R;
@@ -151,10 +152,10 @@ public class SFTPProvider extends DocumentsProvider
 	    Uri parentDocumentId=Uri.parse(parentUri);
 	    SFTP sftp=getSFTP(parentDocumentId);
 	    try {
-		File[]files=sftp.listFiles(SFTP.getFile(parentDocumentId));
+		SftpFile[]files=sftp.listFiles(sftp.getFile(parentDocumentId));
 		MC result=new MC(this, parentDocumentId,
 				 resolveDocumentProjection(projection), files.length);
-		for(File file:files) {
+		for(SftpFile file:files) {
 		    putFileInfo(result.newRow(), sftp, file);
 		}
 		return result;
@@ -177,7 +178,7 @@ public class SFTPProvider extends DocumentsProvider
 	    Objects.requireNonNull(mode);
 	    final Uri documentId=Uri.parse(uri);
 	    SFTP sftp=getSFTP(documentId, true);
-	    File serverFile = SFTP.getFile(documentId);
+	    SftpFile serverFile = sftp.getFile(documentId);
 
 	    try {
 		return Proxy.open(getContext(), sftp, serverFile, mode,
@@ -220,6 +221,7 @@ public class SFTPProvider extends DocumentsProvider
 		    extension = "";
 		}
 		int cnt=0;
+		SftpFile parent = sftp.getFile(parentDocumentId);
 		while(true) {
 		    String seq;
 		    if(cnt==0)
@@ -227,9 +229,8 @@ public class SFTPProvider extends DocumentsProvider
 		    else
 			seq="_"+cnt;
 		    Uri documentId=sftp
-			.getUri(new File(SFTP.getFile(parentDocumentId),
-					 base+seq+extension));
-		    File file=SFTP.getFile(documentId);
+			.getUri(new File(parent, base+seq+extension));
+		    SftpFile file=sftp.getFile(documentId);
 		    try {
 			sftp.lastModified(file);
 			cnt++;
@@ -267,7 +268,7 @@ public class SFTPProvider extends DocumentsProvider
 	    Uri documentId=Uri.parse(uri);
 	    SFTP sftp=getSFTP(documentId);
 	    try {
-		sftp.delete(SFTP.getFile(documentId));
+		sftp.delete(sftp.getFile(documentId));
 	    }
 	    catch(SocketException e) {
 		remove(sftp);
@@ -289,7 +290,7 @@ public class SFTPProvider extends DocumentsProvider
 	    Uri documentId=Uri.parse(uri);
 	    SFTP sftp=getSFTP(documentId);
 	    try {
-		String mimeType=sftp.getMimeType(SFTP.getFile(documentId));
+		String mimeType=sftp.getMimeType(sftp.getFile(documentId));
 		return mimeType;
 	    } catch(SocketException e) {
 		remove(sftp);
@@ -312,7 +313,7 @@ public class SFTPProvider extends DocumentsProvider
 	    Uri documentId=Uri.parse(uri);
 	    SFTP sftp=getSFTP(documentId);
 	    try {
-		File source=SFTP.getFile(documentId);
+		File source=sftp.getFile(documentId);
 		File parent=source.getParentFile();
 		File destination=uniqueFile(sftp,parent,displayName);
 		sftp.renameTo(source,destination);
@@ -339,10 +340,10 @@ public class SFTPProvider extends DocumentsProvider
 	    Objects.requireNonNull(sourceParentUri);
 	    Objects.requireNonNull(targetParentUri);
 	    Uri sourceDocumentId=Uri.parse(sourceUri);
-	    File source=SFTP.getFile(sourceDocumentId);
 	    SFTP sftp=getSFTP(sourceDocumentId);
+	    File source=sftp.getFile(sourceDocumentId);
 	    try {
-		File destination=uniqueFile(sftp,SFTP.getFile(Uri.parse(targetParentUri)),source.getName());
+		File destination=uniqueFile(sftp,sftp.getFile(Uri.parse(targetParentUri)),source.getName());
 		sftp.renameTo(source,destination);
 		return sftp.getUri(destination).toString();
 	    } catch(SocketException e) {
@@ -364,10 +365,10 @@ public class SFTPProvider extends DocumentsProvider
 	    Objects.requireNonNull(sourceUri);
 	    Objects.requireNonNull(targetParentUri);
 	    Uri sourceDocumentId=Uri.parse(sourceUri);
-	    File source=SFTP.getFile(sourceDocumentId);
 	    SFTP sftp=getSFTP(sourceDocumentId);
+	    File source=sftp.getFile(sourceDocumentId);
 	    try {
-		File destination=uniqueFile(sftp,SFTP.getFile(Uri.parse(targetParentUri)),source.getName());
+		File destination=uniqueFile(sftp,sftp.getFile(Uri.parse(targetParentUri)),source.getName());
 		sftp.copy(source,destination);
 		return sftp.getUri(destination).toString();
 	    } catch(SocketException e) {
@@ -464,10 +465,11 @@ public class SFTPProvider extends DocumentsProvider
 	assert row!=null;
 	assert uri!=null;
 	SFTP sftp=getSFTP(uri);
-	putFileInfo(row, sftp, SFTP.getFile(uri));
+	putFileInfo(row, sftp, sftp.getFile(uri));
     }
 
-    private void putFileInfo(MatrixCursor.RowBuilder row, SFTP sftp, File file)
+    private void putFileInfo(MatrixCursor.RowBuilder row, SFTP sftp,
+                             SftpFile file)
 	throws IOException
     {
 	try {

@@ -49,6 +49,7 @@ import com.island.util.ErrorNotification;
 
 public class SFTP implements Closeable
 {
+	private static final String TAG = "SFTP";
 	private static final int TIMEOUT=20000;
 	private static final int BUFFER=1024;
 	public static final String SCHEME="sftp://";
@@ -57,11 +58,10 @@ public class SFTP implements Closeable
 	private Session session;
 	private ChannelSftp channel;
 	private Context context;
-	private final HashMap<File,Long>lastModified=new HashMap<>();
-	private final HashMap<File,Long>size=new HashMap<>();
-	private final HashMap<File,Boolean>isDirectory=new HashMap<>();
 	private boolean disconnected;
 	private int id;
+
+	private Map<String,SftpFile> files = new HashMap<>();
 
 	public static Uri parseUri(String name) {
 		return Uri.parse(SFTP.SCHEME+name);
@@ -82,7 +82,7 @@ public class SFTP implements Closeable
 	private JSch jsch;
 
 	protected void init(Context ctx, Uri uri, String password) throws ConnectException {
-                Log.d(SFTPProvider.TAG,String.format("Created new connection for %s",uri.getAuthority()));
+                Log.d(TAG,String.format("Created new connection for %s",uri.getAuthority()));
                 this.context=ctx;
                 checkArguments(uri,password);
                 this.uri=uri;
@@ -90,17 +90,15 @@ public class SFTP implements Closeable
                 String privKey = Keygen.readPrivateKey(ctx);
                 jsch=new JSch();
                 jsch.setLogger(new Logger());
-                isDirectory.put(new File("/"),true);
-                lastModified.put(new File("/"),0l);
                 try {
                         if(privKey != null)
                                 jsch.addIdentity(privKey);
                         makeSession();
                 } catch(JSchException e) {
+                        Log.e(TAG, "JschException during init: "+e, e);
                         ErrorNotification.sendNotification(ctx,
                                                            String.valueOf(uri),
                                                            e);
-                        Log.d(SFTPProvider.TAG, "JschException during init", e);
                         ConnectException exception=new ConnectException(String.format("Can't connect to %s",uri));
                         exception.initCause(e);
                         throw exception;
@@ -125,56 +123,42 @@ public class SFTP implements Closeable
 	private synchronized void reconnectIfNeeded() throws JSchException {
 		if(!session.isConnected()) {
 			try {
-				Log.d(SFTPProvider.TAG,"Reconnecting session");
+				Log.d(TAG,"Reconnecting session");
 				session.connect();
 			} catch(JSchException e) {
 				// if it fails, just re-create the session from scratch
 				// https://stackoverflow.com/questions/16127200/jsch-how-to-keep-the-session-alive-and-up
-				Log.d(SFTPProvider.TAG,
+				Log.d(TAG,
 				      "Session unusable, create a new one");
 				makeSession();
 			}
 		}
 		if(!channel.isConnected()) {
-			Log.d(SFTPProvider.TAG,"Reconnecting channel");
+			Log.d(TAG,"Reconnecting channel");
 			channel.connect();
 		}
 	}
-
-	private<T>T getValue(Map<File,T>map,File file)throws IOException
-	{
-		checkArguments(map,file);
-		if(!map.containsKey(file)) {
-			Log.d(SFTPProvider.TAG,"Requested file attributes are unknown");
-			listFiles(file.getParentFile());
-		}
-		if(!map.containsKey(file))throw new FileNotFoundException(String.format("File %s is missing",file));
-		return map.get(file);
-	}
-	public long lastModified(File file)throws IOException
-	{
-		checkArguments(file);
-		if(file instanceof SftpFile f)
-			return f.getSftpLastModified();
-		else
-			return getValue(lastModified,file);
-	}
-	public long length(File file)throws IOException
-	{
-		checkArguments(file);
-		if(file instanceof SftpFile f)
-			return f.getSize();
-		else
-			return getValue(size,file);
-	}
-	public boolean isDirectory(File file)throws IOException
-	{
-		checkArguments(file);
-		if(file instanceof SftpFile f)
-			return f.getIsDirectory();
-		else
-			return getValue(isDirectory,file);
-	}
+        public long lastModified(SftpFile file)throws IOException
+        {
+                checkArguments(file);
+                if(file.getSftpLastModified() == -1)
+                        listFile(file);
+                return file.getSftpLastModified();
+        }
+        public long length(SftpFile file)throws IOException
+        {
+                checkArguments(file);
+                if(file.getSize() == -1)
+                        listFile(file);
+                return file.getSize();
+        }
+        public boolean isDirectory(SftpFile file)throws IOException
+        {
+                checkArguments(file);
+                if(file.getIsDirectory() == null)
+                        listFile(file);
+                return file.getIsDirectory();
+        }
 	@Override
 	public synchronized void close() throws IOException
 	{
@@ -182,6 +166,31 @@ public class SFTP implements Closeable
 		channel.quit();
 		disconnected=true;
 	}
+        public synchronized void listFile(SftpFile file)
+                throws IOException
+        {
+                Log.d(TAG, "List file "+file);
+                checkArguments(file);
+                try {
+                        reconnectIfNeeded();
+                        try {
+                                SftpATTRS attrs = channel.stat(file.getPath());
+                                Log.d(TAG, "Found "+file);
+                                file.setAttrs(attrs);
+                        } catch(SftpException e) {
+                                if(e.id == ChannelSftp.SSH_FX_NO_SUCH_FILE) {
+                                        // all is ok, file simply doesn't exist
+                                        Log.d(TAG, "Not found "+file);
+                                        throw new FileNotFoundException(file.getPath());
+                                }
+                                throw e;
+                        }
+                } catch(JSchException e) {
+                        throw getException(e);
+                } catch(SftpException e) {
+                        throw getException(e);
+                }
+        }
 	public synchronized SftpFile[]listFiles(File directory)throws IOException
 	{
 		checkArguments(directory);
@@ -203,16 +212,15 @@ public class SFTP implements Closeable
 					try {
 						attrs=channel.stat(link.getPath());
 					} catch(Exception e) {
-						Log.e(SFTPProvider.TAG,
+						Log.e(TAG,
 						      "Could not read "+link.getPath());
 						continue;
 					}
 				}
-				file=new SftpFile(directory, entry.getFilename(), attrs);
+				String fileName = entry.getFilename();
+				file=new SftpFile(directory, fileName, attrs);
+				this.files.put(fileName, file);
 				files.add(file);
-				lastModified.put(file,file.getSftpLastModified());
-				size.put(file,file.getSize());
-				isDirectory.put(file,file.getIsDirectory());
 			}
 			return files.toArray(new SftpFile[0]);
 		} catch(JSchException e) {
@@ -233,13 +241,14 @@ public class SFTP implements Closeable
 			throw getException(e);
 		}
 	}
-	public synchronized void delete(File file)throws IOException
+	public synchronized void delete(SftpFile file)throws IOException
 	{
 		checkArguments(file);
 		try {
 			reconnectIfNeeded();
 			if(isDirectory(file)) {
-				for(File child:listFiles(file))delete(child);
+				for(SftpFile child:listFiles(file))
+                                        delete(child);
 				channel.rmdir(file.getPath());
 			} else
 				channel.rm(file.getPath());
@@ -276,13 +285,15 @@ public class SFTP implements Closeable
 	public boolean exists(File file)throws IOException
 	{
 		checkArguments(file);
+		SftpFile sfile = getFile(file.getPath());
 		try {
-			if(file instanceof SftpFile f)
-				f.getIsDirectory();
-			else
-				getValue(isDirectory,file);
-			return true;
+                        if(sfile.getIsDirectory() == null)
+                                listFile(sfile);
+                        Log.d(TAG, "getIsDirectory of "+file+"="+
+                              sfile.getIsDirectory());
+                        return sfile.getIsDirectory() != null;
 		} catch(FileNotFoundException e) {
+			Log.d(TAG, "file "+file+" not found on server");
 			return false;
 		}
 	}
@@ -310,30 +321,28 @@ public class SFTP implements Closeable
 			throw getException(e);
 		}
 	}
-	public static File getFile(Uri uri)
+	public SftpFile getFile(Uri uri)
 	{
 		Objects.requireNonNull(uri);
-		return new File(uri.getPath());
+                var path = uri.getPath();
+                return getFile(path);
+        }
+
+        private SftpFile getFile(String path) {
+                SftpFile cachedFile = files.get(path);
+                if(cachedFile == null) {
+                        Log.d(TAG, "File "+path+" not found in cache");
+                        cachedFile = new SftpFile(path);
+                        files.put(path, cachedFile);
+                } else {
+                        Log.d(TAG, "File "+path+" found in cache");
+                }
+                return cachedFile;
 	}
 	public Uri getUri(File file)
 	{
 		Objects.requireNonNull(file);
 		return Uri.parse(SCHEME+uri.getAuthority()+file.getPath());
-	}
-	public synchronized void get(File from,File to)throws IOException
-	{
-		checkArguments(from,to);
-		try {
-			Log.d(SFTPProvider.TAG, String.format("Get server file %s to %s", from.getAbsolutePath(), to.getAbsolutePath()));
-			reconnectIfNeeded();
-			channel.get(from.getPath(),to.getPath());
-			long lastModified = lastModified(from);
-			to.setLastModified(lastModified);
-		} catch(JSchException e) {
-			throw getException(e);
-		} catch(SftpException e) {
-			throw getException(e);
-		}
 	}
 	public synchronized void copy(File from,File to)throws IOException
 	{
@@ -352,7 +361,7 @@ public class SFTP implements Closeable
 			throw getException(e);
 		}
 	}
-	public String getMimeType(File file)throws IOException
+	public String getMimeType(SftpFile file)throws IOException
 	{
 		Objects.requireNonNull(file);
 		if(isDirectory(file)) {

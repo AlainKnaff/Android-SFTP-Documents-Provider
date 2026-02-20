@@ -4,7 +4,7 @@ import java.io.File;
 import com.jcraft.jsch.SftpATTRS;
 
 public class SftpFile extends File {
-    private long lastModified;
+    private long lastModified=-1;
 
     /**
      * Gets lastModified. LastModified is the last modified time of file
@@ -14,7 +14,7 @@ public class SftpFile extends File {
 	return lastModified;
     }
 
-    private long size;
+    private long size=-1;
 
     /**
      * Gets size. Size is the size of the file
@@ -24,20 +24,26 @@ public class SftpFile extends File {
 	return size;
     }
 
-    private boolean isDirectory;
+    private Boolean isDirectory=null;
 
     /**
      * Gets isDirectory. IsDirectory is a boolean indicating whether this is a directory
      * @return the isDirectory
      */
-    public boolean getIsDirectory() {
+    public Boolean getIsDirectory() {
 	return isDirectory;
     }
 
-    public SftpFile(File parent, String filename, SftpATTRS attributes) {
+    SftpFile(File parent, String filename, SftpATTRS attributes) {
 	super(parent, filename);
+        setAttrs(attributes);
+    }
+    void setAttrs(SftpATTRS attributes) {
 	isDirectory=attributes.isDir();
 	lastModified=attributes.getMTime()*1000L;
 	size=attributes.getSize();
+    }
+    SftpFile(String filename) {
+        super(filename);
     }
 }

@@ -3,7 +3,6 @@ package com.island.androidsftpdocumentsprovider.provider
 import java.io.OutputStream
 import java.io.IOException
 import java.io.InputStream
-import java.io.File
 import java.util.function.Consumer
 
 import android.util.Log
@@ -17,13 +16,14 @@ import android.os.storage.StorageManager
 import com.jcraft.jsch.ChannelSftp
 
 import com.island.sftp.SFTP
+import com.island.sftp.SftpFile
 
 /**
  * This version of the class is single threaded, and depends on running on
  * one handler
  */
 class Proxy private constructor(val sftp: SFTP,
-                                val file: File,
+                                val file: SftpFile,
                                 val accessMode : Int,
                                 var recycler: Consumer<SFTP>?
 ) : ProxyFileDescriptorCallback() {
@@ -54,10 +54,10 @@ class Proxy private constructor(val sftp: SFTP,
     companion object {
         @JvmStatic
         fun open(context: Context,
-                 sftp: SFTP, file: File,
+                 sftp: SFTP, file: SftpFile,
                  mode: String,
                  recycler: Consumer<SFTP>) : ParcelFileDescriptor {
-            val accessMode=ParcelFileDescriptor.parseMode(mode);
+            val accessMode=ParcelFileDescriptor.parseMode(mode)
             val proxy = Proxy(sftp, file, accessMode, recycler)
             var storageManager = context
                 .getSystemService(StorageManager::class.java)
