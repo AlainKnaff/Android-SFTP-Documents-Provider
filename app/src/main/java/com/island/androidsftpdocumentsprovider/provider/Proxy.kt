@@ -29,11 +29,7 @@ class Proxy private constructor(val sftp: SFTP,
 ) : ProxyFileDescriptorCallback() {
     val TAG = "Proxy"
 
-    // first write ever is 0 (OVERWRITE or APPEND) to make sure file is
-    // truncated initially, and from then on 3 (Neither OVERWRITE nor
-    // RESUME nor APPEND) to make sure new data is added rather than
-    // re-truncating file over and over again
-    var mode = 0
+    var sftpMode = 0
 
     private val ioThread = HandlerThread(javaClass.simpleName).apply { start() }
     private val ioHandler = Handler(ioThread.looper)
@@ -44,10 +40,14 @@ class Proxy private constructor(val sftp: SFTP,
                 throw UnsupportedOperationException("Read + append not supported ${Integer.toHexString(accessMode)}")
             }
             Log.d(TAG, "Using append mode for ${Integer.toHexString(accessMode)}")
-            mode = ChannelSftp.APPEND
+            sftpMode = ChannelSftp.APPEND
+        } else if(accessMode and ParcelFileDescriptor.MODE_TRUNCATE != 0) {
+            Log.d(TAG, "Truncating size of file to 0 for ${Integer.toHexString(accessMode)}")
+            file.truncateSize()
+            sftpMode = ChannelSftp.OVERWRITE
         } else {
             Log.d(TAG, "Using default mode for ${Integer.toHexString(accessMode)}")
-            mode = ChannelSftp.OVERWRITE
+            sftpMode = 3
         }
     }
 
@@ -135,9 +135,12 @@ class Proxy private constructor(val sftp: SFTP,
     override fun onWrite(offset: Long, size: Int, data: ByteArray): Int {
         if(outStr == null || offset != outPos) {
             closeCurrentStreams()
-            Log.d(TAG, "Writing with ${mode} to ${offset}")
-            outStr = sftp.write(file, mode, offset)
-            mode = 3
+            Log.d(TAG, "Writing with ${sftpMode} to ${offset}")
+            outStr = sftp.write(file, sftpMode, offset)
+            // after first write, set sftpMode to 3 (neither APPEND nor
+            // OVERWRITE) to ensure that file is not truncated if a
+            // position change (seek) is needed
+            sftpMode = 3
             outPos = offset
         }
 
@@ -149,6 +152,8 @@ class Proxy private constructor(val sftp: SFTP,
             closeCurrentStreams()
         }
         outPos += size
+        if(accessMode and ParcelFileDescriptor.MODE_APPEND == 0)
+            file.extendSize(outPos)
         return size
     }
 

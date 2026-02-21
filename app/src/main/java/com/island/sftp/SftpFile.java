@@ -24,6 +24,23 @@ public class SftpFile extends File {
 	return size;
     }
 
+    /**
+     * Set size to 0 (invoked when writing file in truncate mode
+     */
+    public void truncateSize() {
+        size=0;
+    }
+
+    /**
+     * Extend size (invoked when writing data to file
+     */
+    public void extendSize(long newSize) {
+        if(size==-1)
+            return; // current size unknown => do nothing
+        if(newSize > size)
+            size = newSize;
+    }
+
     private Boolean isDirectory=null;
 
     /**
