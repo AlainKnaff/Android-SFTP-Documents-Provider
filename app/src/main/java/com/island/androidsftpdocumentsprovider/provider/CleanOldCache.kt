@@ -1,4 +1,4 @@
-package com.island.androidsftpdocumentsprovider.provider;
+package com.island.androidsftpdocumentsprovider.provider
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -14,11 +14,11 @@ class CleanOldCache : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
         if (intent?.action != Intent.ACTION_MY_PACKAGE_REPLACED) {
             Log.e(TAG, "Ignoring action ${intent?.action}")
-            return;
+            return
         }
 
         Log.d(TAG, "Cleaning old cache")
-        val cacheDir = context.getCacheDir();
+        val cacheDir = context.getCacheDir()
         if(cacheDir == null) {
             Log.e(TAG, "Cachedir is null")
             return
@@ -31,7 +31,7 @@ class CleanOldCache : BroadcastReceiver() {
         for(subdir in subdirs) {
             if(subdir.name.length < 44) {
                 Log.d(TAG, "Skipping "+subdir.name)
-                continue;
+                continue
             }
             val files = subdir.listFiles()
             if(files != null)

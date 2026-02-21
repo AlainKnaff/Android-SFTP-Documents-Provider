@@ -1,4 +1,4 @@
-package com.island.sftp;
+package com.island.sftp
 
 // from https://www.geeksforgeeks.org/android/services-in-android-with-example/
 

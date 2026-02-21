@@ -1,6 +1,6 @@
-package com.island.sftp;
+package com.island.sftp
 
-import android.util.Log;
+import android.util.Log
 
 import com.jcraft.jsch.Logger.DEBUG
 import com.jcraft.jsch.Logger.INFO
@@ -12,7 +12,7 @@ class Logger : com.jcraft.jsch.Logger {
     val TAG = "Jssh"
 
     override fun isEnabled(level: Int): Boolean {
-        return true;
+        return true
     }
 
     override fun log(level: Int, message: String) {
