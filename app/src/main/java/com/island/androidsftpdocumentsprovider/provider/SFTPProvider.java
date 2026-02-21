@@ -74,6 +74,29 @@ public class SFTPProvider extends DocumentsProvider
 	cursors.remove(documentId, cursor);
     }
 
+    private void refreshCursorFor(Uri documentId, SFTP sftp, SftpFile file)
+        throws IOException
+    {
+        MC mc = cursors.get(documentId);
+        if(mc != null) {
+            if(file != null)
+                putFileInfo(mc.newRow(), sftp, file);
+            mc.onChange(false);
+        }
+    }
+
+    private void refreshCursorForParent(Uri documentId,
+                                        SFTP sftp, SftpFile file)
+        throws IOException
+    {
+        String uriStr = documentId.toString();
+        int idx = uriStr.lastIndexOf('/');
+        if(idx >= 0)
+            uriStr = uriStr.substring(0, idx);
+        Log.d(TAG, "Parent dir="+uriStr);
+        refreshCursorFor(Uri.parse(uriStr), sftp, file);
+    }
+
     @Override
     public boolean onCreate()
     {
@@ -240,11 +263,7 @@ public class SFTPProvider extends DocumentsProvider
 		    }
 		    if(Document.MIME_TYPE_DIR.equals(mimeType)) {
 			sftp.mkdirs(file);
-			MC mc = cursors.get(parentDocumentId);
-			if(mc != null) {
-			    putFileInfo(mc.newRow(), sftp, file);
-			    mc.onChange(false);
-			}
+                        refreshCursorFor(parentDocumentId, sftp, file);
 		    } else
 			sftp.newFile(file);
 		    return documentId.toString();
@@ -269,6 +288,7 @@ public class SFTPProvider extends DocumentsProvider
 	    SFTP sftp=getSFTP(documentId);
 	    try {
 		sftp.delete(sftp.getFile(documentId));
+                refreshCursorForParent(documentId, sftp, null);
 	    }
 	    catch(SocketException e) {
 		remove(sftp);
@@ -317,6 +337,7 @@ public class SFTPProvider extends DocumentsProvider
 		File parent=source.getParentFile();
 		File destination=uniqueFile(sftp,parent,displayName);
 		sftp.renameTo(source,destination);
+                refreshCursorForParent(documentId, sftp, null);
 		return sftp.getUri(destination).toString();
 	    } catch(SocketException e) {
 		remove(sftp);
@@ -345,6 +366,7 @@ public class SFTPProvider extends DocumentsProvider
 	    try {
 		File destination=uniqueFile(sftp,sftp.getFile(Uri.parse(targetParentUri)),source.getName());
 		sftp.renameTo(source,destination);
+                refreshCursorForParent(sourceDocumentId, sftp, null);
 		return sftp.getUri(destination).toString();
 	    } catch(SocketException e) {
 		remove(sftp);
@@ -368,8 +390,12 @@ public class SFTPProvider extends DocumentsProvider
 	    SFTP sftp=getSFTP(sourceDocumentId);
 	    File source=sftp.getFile(sourceDocumentId);
 	    try {
-		File destination=uniqueFile(sftp,sftp.getFile(Uri.parse(targetParentUri)),source.getName());
+                Uri targetDirId = Uri.parse(targetParentUri);
+		SftpFile destination=uniqueFile(sftp,sftp.getFile(targetDirId),
+                                                source.getName());
 		sftp.copy(source,destination);
+                refreshCursorForParent(sourceDocumentId, sftp, null);
+                refreshCursorForParent(targetDirId, sftp, destination);
 		return sftp.getUri(destination).toString();
 	    } catch(SocketException e) {
 		remove(sftp);
@@ -499,7 +525,7 @@ public class SFTPProvider extends DocumentsProvider
 	}
     }
 
-    private File uniqueFile(SFTP sftp, File parent, String displayName)
+    private SftpFile uniqueFile(SFTP sftp, File parent, String displayName)
 	throws IOException
     {
 	assert sftp!=null;
@@ -518,7 +544,7 @@ public class SFTPProvider extends DocumentsProvider
 	    displayName=name+"."+extension;
 	    destination=new File(parent,displayName);
 	}
-	return destination;
+	return sftp.getFile(destination.toString());
     }
 
     private FileNotFoundException exception(Exception e,

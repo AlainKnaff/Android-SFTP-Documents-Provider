@@ -44,7 +44,6 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 
-import com.island.androidsftpdocumentsprovider.provider.SFTPProvider;
 import com.island.util.ErrorNotification;
 
 public class SFTP implements Closeable
@@ -328,7 +327,7 @@ public class SFTP implements Closeable
                 return getFile(path);
         }
 
-        private SftpFile getFile(String path) {
+        public SftpFile getFile(String path) {
                 SftpFile cachedFile = files.get(path);
                 if(cachedFile == null) {
                         Log.d(TAG, "File "+path+" not found in cache");
