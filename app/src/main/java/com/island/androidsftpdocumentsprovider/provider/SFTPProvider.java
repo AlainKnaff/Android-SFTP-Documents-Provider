@@ -245,29 +245,15 @@ public class SFTPProvider extends DocumentsProvider
 		}
 		int cnt=0;
 		SftpFile parent = sftp.getFile(parentDocumentId);
-		while(true) {
-		    String seq;
-		    if(cnt==0)
-			seq="";
-		    else
-			seq="_"+cnt;
-		    Uri documentId=sftp
-			.getUri(new File(parent, base+seq+extension));
-		    SftpFile file=sftp.getFile(documentId);
-		    try {
-			sftp.lastModified(file);
-			cnt++;
-			continue;
-		    } catch(FileNotFoundException e) {
-			// file does not exist yet => ok
-		    }
-		    if(Document.MIME_TYPE_DIR.equals(mimeType)) {
-			sftp.mkdirs(file);
-                        refreshCursorFor(parentDocumentId, sftp, file);
-		    } else
-			sftp.newFile(file);
-		    return documentId.toString();
-		}
+                Uri[] documentId = new Uri[1];
+                SftpFile file = uniqueFile(sftp,parent,displayName,
+                                           documentId);
+                if(Document.MIME_TYPE_DIR.equals(mimeType)) {
+                    sftp.mkdirs(file);
+                    refreshCursorFor(parentDocumentId, sftp, file);
+                } else
+                    sftp.newFile(file);
+                return documentId[0].toString();
 	    } catch(SocketException e) {
 		    remove(sftp);
 		    throw e;
@@ -528,23 +514,46 @@ public class SFTPProvider extends DocumentsProvider
     private SftpFile uniqueFile(SFTP sftp, File parent, String displayName)
 	throws IOException
     {
+        return uniqueFile(sftp, parent, displayName, null);
+    }
+
+    private SftpFile uniqueFile(SFTP sftp, File parent, String displayName,
+                                Uri[] documentIdP)
+	throws IOException
+    {
 	assert sftp!=null;
 	assert parent!=null;
 	assert displayName!=null;
-	File destination=new File(parent,displayName);
-	while(sftp.exists(destination)) {
-	    int lastDot=displayName.lastIndexOf('.');
-	    String name,extension;
-	    if(lastDot>=0) {
-		name=displayName.substring(0,lastDot);
-		extension=displayName.substring(lastDot+1);
-	    } else
-		name=extension=null;
-	    name+=" 2";
-	    displayName=name+"."+extension;
-	    destination=new File(parent,displayName);
-	}
-	return sftp.getFile(destination.toString());
+
+        String base;
+        String extension;
+        int dotIdx=displayName.lastIndexOf('.');
+        if(dotIdx >= 0) {
+            base = displayName.substring(0, dotIdx);
+            extension = displayName.substring(dotIdx);
+        } else {
+            base=displayName;
+            extension = "";
+        }
+        int cnt=0;
+        while(true) {
+            String seq;
+            if(cnt==0)
+                seq="";
+            else
+                seq="_"+cnt;
+            Uri documentId=sftp.getUri(new File(parent, base+seq+extension));
+            SftpFile file=sftp.getFile(documentId);
+            try {
+                sftp.lastModified(file);
+                cnt++;
+                continue;
+            } catch(FileNotFoundException e) {
+                if(documentIdP != null)
+                    documentIdP[0] = documentId;
+                return file;
+            }
+        }
     }
 
     private FileNotFoundException exception(Exception e,
