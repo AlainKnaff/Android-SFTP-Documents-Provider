@@ -44,6 +44,21 @@ public class SftpFile extends File {
     private Boolean isDirectory=null;
 
     /**
+     * Mark file as newly created directory
+     */
+    public void markAsNewDirectory() {
+        isDirectory = true;
+    }
+
+    /**
+     * Mark file as newly created file (of size 0)
+     */
+    public void markAsNewFile() {
+        isDirectory = false;
+        size = 0;
+    }
+
+    /**
      * Gets isDirectory. IsDirectory is a boolean indicating whether this is a directory
      * @return the isDirectory
      */

@@ -228,12 +228,13 @@ public class SFTP implements Closeable
 			throw getException(e);
 		}
 	}
-	public synchronized void newFile(File file)throws IOException
+	public synchronized void newFile(SftpFile file)throws IOException
 	{
 		checkArguments(file);
 		try {
 			reconnectIfNeeded();
 			channel.put(file.getPath()).close();
+                        file.markAsNewFile();
 		} catch(JSchException e) {
 			throw getException(e);
 		} catch(SftpException e) {
@@ -269,12 +270,13 @@ public class SFTP implements Closeable
 			throw getException(e);
 		}
 	}
-	public synchronized void mkdirs(File file)throws IOException
+	public synchronized void mkdirs(SftpFile file)throws IOException
 	{
 		checkArguments(file);
 		try {
 			reconnectIfNeeded();
 			channel.mkdir(file.getPath());
+                        file.markAsNewDirectory();
 		} catch(JSchException e) {
 			throw getException(e);
 		} catch(SftpException e) {
