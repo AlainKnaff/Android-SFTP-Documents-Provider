@@ -28,7 +28,9 @@ class SftpService : Service() {
 
     // execution of service will start
     // on calling this method
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+    //
+    // on Huawei, this may be started with a null intent...
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "Service (re)started")
 
         // returns the status

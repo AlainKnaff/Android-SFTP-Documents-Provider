@@ -1,0 +1,2 @@
+- Allow Intent to be null on call to SftpService.onStartCommand
+  Apparently, this may happen on Huawei phones
