@@ -71,7 +71,7 @@ dependencies {
     // https://mvnrepository.com/artifact/commons-net/commons-net
     //compile 'commons-net:commons-net:+'
     // https://mvnrepository.com/artifact/it.sauronsoftware/ftp4j
-    implementation 'com.github.mwiede:jsch:2.27.7'
+    implementation 'com.github.mwiede:jsch:2.27.8'
     implementation 'org.bouncycastle:bcpkix-jdk18on:1.83'
     implementation 'org.bouncycastle:bcprov-jdk18on:1.83'
 
