@@ -323,7 +323,7 @@ public class SFTPProvider extends DocumentsProvider
 		File parent=source.getParentFile();
 		File destination=uniqueFile(sftp,parent,displayName);
 		sftp.renameTo(source,destination);
-                refreshCursorForParent(documentId, sftp, null);
+		refreshCursorForParent(documentId, sftp, null);
 		return sftp.getUri(destination).toString();
 	    } catch(SocketException e) {
 		remove(sftp);
@@ -352,7 +352,7 @@ public class SFTPProvider extends DocumentsProvider
 	    try {
 		File destination=uniqueFile(sftp,sftp.getFile(Uri.parse(targetParentUri)),source.getName());
 		sftp.renameTo(source,destination);
-                refreshCursorForParent(sourceDocumentId, sftp, null);
+		refreshCursorForParent(sourceDocumentId, sftp, null);
 		return sftp.getUri(destination).toString();
 	    } catch(SocketException e) {
 		remove(sftp);
@@ -380,8 +380,8 @@ public class SFTPProvider extends DocumentsProvider
 		SftpFile destination=uniqueFile(sftp,sftp.getFile(targetDirId),
                                                 source.getName());
 		sftp.copy(source,destination);
-                refreshCursorForParent(sourceDocumentId, sftp, null);
-                refreshCursorForParent(targetDirId, sftp, destination);
+		refreshCursorForParent(sourceDocumentId, sftp, null);
+		refreshCursorForParent(targetDirId, sftp, destination);
 		return sftp.getUri(destination).toString();
 	    } catch(SocketException e) {
 		remove(sftp);
