@@ -1,7 +1,7 @@
 package com.island.androidsftpdocumentsprovider.account;
 
 /* This file is part of SFTP-SAF, an Android app to access sftp servers via Storage access framework
-   Copyright (C) 2025,2026      Alain Knaff
+   Copyright (C) 2026      Alain Knaff
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
@@ -10,17 +10,29 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Query
+import androidx.room.Insert
+import androidx.room.Delete
+import androidx.room.Update
 
-@Entity(tableName = "roots")
-data class Account(@PrimaryKey(autoGenerate = true) val id: Int?,
-	           @ColumnInfo(name="name") var name: String?,
-	           @ColumnInfo(name="host_name") var hostName: String,
-	           @ColumnInfo(name="port")var port: Int,
-	           @ColumnInfo(name="user_name") var userName: String?,
-	           @ColumnInfo(name="password") var password: String?,
-	           @ColumnInfo(name="directory",
-		               defaultValue="") var directory: String) {
+@Dao
+interface Dao {
+    @Query("SELECT * FROM roots")
+    fun getAllAccounts(): MutableList<Account>
+
+    @Query("SELECT * FROM roots WHERE id = :id")
+    fun readAccountById(id: Int): Account?
+
+    @Query("SELECT * FROM roots WHERE name = :name")
+    fun readAccountByName(name: String): Account?
+
+    @Insert
+    fun insertAll(vararg targets: Account)
+
+    @Update
+    fun update(target: Account)
+
+    @Delete
+    fun delete(user: Account)
 }

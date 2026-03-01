@@ -30,7 +30,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 import com.island.androidsftpdocumentsprovider.provider.ProviderActivity
 import com.island.androidsftpdocumentsprovider.account.Account
-import com.island.androidsftpdocumentsprovider.account.DBHandler
+import com.island.androidsftpdocumentsprovider.account.TheDatabase
 import com.island.androidsftpdocumentsprovider.account.AuthenticationActivity
 
 import lu.knaff.alain.saf_sftp.R
@@ -40,7 +40,7 @@ class MainActivity : ProviderActivity()
 {
     private val TAG="MainActivity"
 
-    private val dbHandler: DBHandler by lazy { DBHandler(this) }
+    private val dao by lazy { TheDatabase.getDao(applicationContext) }
 
     private fun fixButtonState() {
 	val share: Button  = findViewById(R.id.share_public_key)
@@ -96,7 +96,7 @@ class MainActivity : ProviderActivity()
     fun editSftpAccount(view:View, account:Account)
     {
 	val intent:Intent = Intent(this, AuthenticationActivity::class.java)
-	intent.putExtra(DBHandler.ID_COL, account.id)
+	intent.putExtra(AuthenticationActivity.ID_COL, account.id)
 	startActivity(intent)
     }
 
@@ -147,7 +147,7 @@ class MainActivity : ProviderActivity()
     inner class SFTPAdapter(private val activity:Activity):RecyclerView.Adapter<SFTPAdapter.ViewHolder>()
     {
 	private val TAG="SFTPAdapter"
-	private var accounts =dbHandler.readAccounts()
+	private var accounts =dao.getAllAccounts()
 	inner class ViewHolder(view:View):RecyclerView.ViewHolder(view),
 					  View.OnClickListener
 	{
@@ -183,7 +183,7 @@ class MainActivity : ProviderActivity()
 	    @Suppress("deprecation")
 	    {
 		val oldName=account.name
-		dbHandler.removeAccount(account.id)
+		dao.delete(account)
 		var flags=0
 		if(Build.VERSION.SDK_INT>=30)
 		    flags = flags or ContentResolver.NOTIFY_DELETE
@@ -199,7 +199,7 @@ class MainActivity : ProviderActivity()
 
 	fun updateData()
 	{
-	    accounts=dbHandler.readAccounts()
+	    accounts=dao.getAllAccounts()
 	    @SuppressLint("NotifyDataSetChanged")
 	    // not a huge list, and sometimes we cannot indeed
 	    // describe which position has changed exactly, such as

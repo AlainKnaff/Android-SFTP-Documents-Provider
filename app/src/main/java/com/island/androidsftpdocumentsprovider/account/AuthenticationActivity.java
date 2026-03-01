@@ -24,16 +24,20 @@ import lu.knaff.alain.saf_sftp.R;
 
 public class AuthenticationActivity extends ProviderActivity
 {
-	private DBHandler dbHandler;
+	private Dao dao;
 	private Account account = null;
+
+	// id field name for intents
+	public static final String ID_COL = "id";
 
 	@Override
 	protected void onCreate(Bundle icicle)
 	{
 		super.onCreate(icicle);
-		dbHandler = new DBHandler(this);
+		dao = TheDatabase.getDao(getApplicationContext());
 		setContentView(R.layout.authentication_activity);
-		int accountId=getIntent().getIntExtra(DBHandler.ID_COL,-1);
+		int accountId=getIntent()
+			.getIntExtra(AuthenticationActivity.ID_COL,-1);
 
 		findViewById(R.id.add_account)
 		    .setVisibility(accountId == -1 ? View.VISIBLE : View.GONE);
@@ -42,7 +46,7 @@ public class AuthenticationActivity extends ProviderActivity
 
 		if(accountId != -1)
 		{
-			account=dbHandler.readAccountById(accountId);
+			account=dao.readAccountById(accountId);
 			EditText host=findViewById(R.id.host);
 			EditText port=findViewById(R.id.port);
 			EditText user=findViewById(R.id.user);
@@ -97,8 +101,9 @@ public class AuthenticationActivity extends ProviderActivity
 
 		String name = userName+"@"+hostName+":"+port;
 		if(account == null) {
-			dbHandler.addNewAccount(name, hostName, port,
-						userName, password, directory);
+			dao.insertAll(new Account(0, name, hostName, port,
+						  userName, password,
+						  directory));
 			int flags=0;
 			if(Build.VERSION.SDK_INT>=30)
 			    flags |= ContentResolver.NOTIFY_INSERT;
@@ -108,10 +113,7 @@ public class AuthenticationActivity extends ProviderActivity
 			// update existing account
 			if(password.isEmpty())
 				password=account.getPassword();
-			dbHandler.updateAccount(account.getId(),
-						name, hostName, port,
-						userName, password,
-						directory);
+			dao.update(account);
 			int flags=0;
 			if(Build.VERSION.SDK_INT>=30)
 			    flags |= ContentResolver.NOTIFY_UPDATE;

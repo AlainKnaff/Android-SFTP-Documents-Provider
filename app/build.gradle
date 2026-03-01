@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'com.google.devtools.ksp'
 }
 
 android {
@@ -20,6 +21,12 @@ android {
 	versionCode = 215
         versionName = "0.2.15"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+	javaCompileOptions {
+ 	   annotationProcessorOptions {
+             arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
+           }
+        }
     }
     buildTypes {
         release {
@@ -34,7 +41,6 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_21
     }
-
     lintOptions {
         checkAllWarnings = true // Checks all lint warnings
         // warningsAsErrors = true // Treats all warnings as errors
@@ -68,6 +74,9 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "androidx.room:room-runtime:2.8.4"
+    ksp "androidx.room:room-compiler:2.8.4"
+
     // https://mvnrepository.com/artifact/commons-net/commons-net
     //compile 'commons-net:commons-net:+'
     // https://mvnrepository.com/artifact/it.sauronsoftware/ftp4j

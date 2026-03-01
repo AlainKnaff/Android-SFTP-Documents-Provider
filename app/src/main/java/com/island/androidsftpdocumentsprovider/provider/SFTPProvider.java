@@ -37,7 +37,8 @@ import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsContract.Document;
 import android.util.Log;
 
-import com.island.androidsftpdocumentsprovider.account.DBHandler;
+import com.island.androidsftpdocumentsprovider.account.TheDatabase;
+import com.island.androidsftpdocumentsprovider.account.Dao;
 import com.island.androidsftpdocumentsprovider.account.Account;
 import com.island.sftp.SFTP;
 import com.island.sftp.SftpFile;
@@ -62,7 +63,7 @@ public class SFTPProvider extends DocumentsProvider
 
 
     private final static Set<String> uploadingFiles = new CopyOnWriteArraySet<>();
-    private DBHandler dbHandler;
+    private Dao dao;
 
     private Map<Uri,MC> cursors = new HashMap<>();
 
@@ -100,7 +101,7 @@ public class SFTPProvider extends DocumentsProvider
     @Override
     public boolean onCreate()
     {
-	dbHandler = new DBHandler(getContext());
+	dao = TheDatabase.getDao(getContext());
 	return true;
     }
     @Override
@@ -110,7 +111,7 @@ public class SFTPProvider extends DocumentsProvider
 	Log.d(SFTPProvider.TAG,String.format("SFTPProvider queryRoots %s",Arrays.toString(projection)));
 	try {
 	    MatrixCursor result=new MatrixCursor(resolveRootProjection(projection));
-	    List<Account> accounts=dbHandler.readAccounts();
+	    List<Account> accounts=dao.getAllAccounts();
 	    for(Account account:accounts) {
 		Uri uri=SFTP.parseUri(account.getName());
 		MatrixCursor.RowBuilder row=result.newRow();
@@ -413,9 +414,9 @@ public class SFTPProvider extends DocumentsProvider
     {
 	Objects.requireNonNull(context);
 	Objects.requireNonNull(documentId);
-	DBHandler dbHandler = new DBHandler(context);
+	Dao dao = TheDatabase.getDao(context);
 	String accountName=documentId.getAuthority();
-	Account account = dbHandler.readAccountByName(accountName);
+	Account account = dao.readAccountByName(accountName);
 	if(account == null) {
 	    throw new FileNotFoundException(documentId.toString());
 	}
