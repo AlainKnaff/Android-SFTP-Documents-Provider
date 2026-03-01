@@ -468,8 +468,7 @@ public class SFTPProvider extends DocumentsProvider
 	throws IOException
     {
 	Account account = getAccountInfo(getContext(), documentId);
-	return new SFTP(getContext(), documentId,
-			account.getPassword(), account.getId());
+	return new SFTP(getContext(), documentId, account);
     }
 
     private void putFileInfo(MatrixCursor.RowBuilder row, Uri uri)

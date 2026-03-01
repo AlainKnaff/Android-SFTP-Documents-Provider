@@ -43,7 +43,9 @@ import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
+import com.jcraft.jsch.ProxySOCKS5;
 
+import com.island.androidsftpdocumentsprovider.account.Account;
 import com.island.util.ErrorNotification;
 
 public class SFTP implements Closeable
@@ -53,7 +55,7 @@ public class SFTP implements Closeable
 	private static final int BUFFER=1024;
 	public static final String SCHEME="sftp://";
 	public  Uri uri;
-	private String password;
+	private Account account;
 	private Session session;
 	private ChannelSftp channel;
 	private Context context;
@@ -66,12 +68,12 @@ public class SFTP implements Closeable
 		return Uri.parse(SFTP.SCHEME+name);
 	}
 
-        public SFTP(Context ctx, Uri uri, String password, int id)
+        public SFTP(Context ctx, Uri uri, Account account)
                 throws ConnectException
         {
                 BouncyCastle.trigger();
-                init(ctx, uri, password);
-                this.id = id;
+                init(ctx, uri, account);
+                this.id = account.getId();
         }
 
 	public int getId() {
@@ -80,12 +82,12 @@ public class SFTP implements Closeable
 
 	private JSch jsch;
 
-	protected void init(Context ctx, Uri uri, String password) throws ConnectException {
+	protected void init(Context ctx, Uri uri, Account account) throws ConnectException {
                 Log.d(TAG,String.format("Created new connection for %s",uri.getAuthority()));
                 this.context=ctx;
-                checkArguments(uri,password);
+                checkArguments(uri,account);
                 this.uri=uri;
-                this.password=password;
+                this.account=account;
                 String privKey = Keygen.readPrivateKey(ctx);
                 jsch=new JSch();
                 jsch.setLogger(new Logger());
@@ -110,6 +112,24 @@ public class SFTP implements Closeable
 		config.put("StrictHostKeyChecking","no");
 		session.setConfig(config);
 
+		String socksProxy = account.getSocksProxy();
+		if(socksProxy != null && !socksProxy.isEmpty()) {
+			int socksPort;
+			String socksHost;
+			int idx = socksProxy.lastIndexOf(':');
+			if(idx == -1) {
+				socksHost=socksProxy;
+				socksPort = 1080;
+			} else {
+				socksHost = socksProxy.substring(0,idx);
+				socksPort = Integer.parseInt(socksProxy.substring(idx+1));
+			}
+			ProxySOCKS5 proxy = new ProxySOCKS5(socksHost,
+							    socksPort);
+			session.setProxy(proxy);
+		}
+
+		String password = account.getPassword();
 		if(password != null && !password.isEmpty())
 			session.setPassword(password);
 

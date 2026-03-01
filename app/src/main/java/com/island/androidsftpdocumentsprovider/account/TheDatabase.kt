@@ -13,21 +13,31 @@ You should have received a copy of the GNU General Public License along with thi
 import androidx.room.Room
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import android.content.Context
 
-@Database(entities = [Account::class], version = 2, exportSchema = true)
+@Database(entities = [Account::class], version = 3, exportSchema = true)
 abstract class TheDatabase : RoomDatabase() {
     abstract fun dao(): Dao
 
     // https://stackoverflow.com/questions/72048899/how-can-you-use-android-room-in-an-app-with-several-activities
     companion object {
         private var instance: TheDatabase? = null
+
+        val MIGRATION_2_3 = object: Migration(2,3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `roots` ADD COLUMN socks_proxy TEXT NOT NULL DEFAULT ''");
+            }
+        }
+
         fun getInstance(context: Context): TheDatabase {
             if (instance == null) {
                 instance = Room.databaseBuilder(context,
 						TheDatabase::class.java,
 						"roots")
                     .allowMainThreadQueries()
+                    .addMigrations(MIGRATION_2_3)
                     .build()
             }
             return instance as TheDatabase

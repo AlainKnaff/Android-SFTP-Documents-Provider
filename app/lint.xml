@@ -12,6 +12,10 @@
     <!-- low priority, too many of them to fix. Some of them will be
 	 suppressed entirely -->
 
+    <issue id="KaptUsageInsteadOfKsp" severity="ignore" />
+    <!-- KSP does not actually works, and crashes if DB Migrations are
+         specified -->
+
     <issue id="SyntheticAccessor" severity="ignore" />
     <!-- important for large apps running up against the 64K method
 	 handle limit, not important in small projects -->

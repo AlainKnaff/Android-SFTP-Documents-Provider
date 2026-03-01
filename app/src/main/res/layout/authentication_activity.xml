@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_height="match_parent"
 	android:layout_width="match_parent"
+	android:fitsSystemWindows="true"
+	android:fillViewport="true">
+  <LinearLayout
+	android:layout_height="wrap_content"
+	android:layout_width="match_parent"
 	android:orientation="vertical"
 	android:gravity="center"
-	android:fitsSystemWindows="true"
 	>
 
 	<TextView
@@ -14,13 +18,13 @@
 		android:textAppearance="?android:attr/textAppearanceLarge"
 		android:text="@string/host"
 		android:layout_weight="1.0"
-		android:gravity="center"/>
+		android:gravity="bottom"/>
 
 	<RelativeLayout
 		android:layout_height="wrap_content"
 		android:layout_width="wrap_content"
-		android:layout_weight="1.0"
-		android:gravity="center">
+		android:layout_weight="2.0"
+		android:gravity="top">
 
 		<EditText
 			android:inputType="text"
@@ -40,13 +44,13 @@
 		android:text="@string/username"
 		android:textAppearance="?android:attr/textAppearanceLarge"
 		android:layout_weight="1.0"
-		android:gravity="center"/>
+		android:gravity="bottom"/>
 
 	<RelativeLayout
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_weight="1.0"
-		android:gravity="center">
+		android:layout_weight="2.0"
+		android:gravity="top">
 
 		<EditText
 			android:inputType="text"
@@ -64,13 +68,13 @@
 		android:text="@string/password"
 		android:textAppearance="?android:attr/textAppearanceLarge"
 		android:layout_weight="1.0"
-		android:gravity="center"/>
+		android:gravity="bottom"/>
 
 	<RelativeLayout
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_weight="1.0"
-		android:gravity="center">
+		android:layout_weight="2.0"
+		android:gravity="top">
 
 		<EditText
 			android:inputType="textPassword"
@@ -89,13 +93,13 @@
 		android:textAppearance="?android:attr/textAppearanceLarge"
 		android:text="@string/port"
 		android:layout_weight="1.0"
-		android:gravity="center"/>
+		android:gravity="bottom"/>
 
 	<RelativeLayout
 		android:layout_height="wrap_content"
 		android:layout_width="wrap_content"
-		android:layout_weight="1.0"
-		android:gravity="center">
+		android:layout_weight="2.0"
+		android:gravity="top">
 
 		<EditText
 			android:inputType="number"
@@ -115,13 +119,13 @@
 		android:textAppearance="?android:attr/textAppearanceLarge"
 		android:text="@string/start_directory"
 		android:layout_weight="1.0"
-		android:gravity="center"/>
+		android:gravity="bottom"/>
 
 	<RelativeLayout
 		android:layout_height="wrap_content"
 		android:layout_width="wrap_content"
-		android:layout_weight="1.0"
-		android:gravity="center">
+		android:layout_weight="2.0"
+		android:gravity="top">
 
 		<EditText
 			android:inputType="text"
@@ -130,6 +134,33 @@
 			android:ems="10"
 			android:autofillHints="Start directory"
 			android:id="@+id/start_directory"
+			android:gravity="center"
+			/>
+
+	</RelativeLayout>
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:textAppearance="?android:attr/textAppearanceLarge"
+		android:text="@string/socks_proxy"
+		android:layout_weight="1.0"
+		android:gravity="bottom"/>
+
+	<RelativeLayout
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:layout_weight="2.0"
+		android:gravity="top">
+
+		<EditText
+			android:inputType="text"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:ems="10"
+			android:autofillHints="SOCKS proxy"
+			android:hint="host:port"
+			android:id="@+id/socks_proxy"
 			android:gravity="center"
 			/>
 
@@ -158,3 +189,4 @@
 
 </LinearLayout>
 
+</ScrollView>

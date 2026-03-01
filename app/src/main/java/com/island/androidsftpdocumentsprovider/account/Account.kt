@@ -22,5 +22,7 @@ data class Account(@PrimaryKey(autoGenerate = true) val id: Int?,
 	           @ColumnInfo(name="user_name") var userName: String?,
 	           @ColumnInfo(name="password") var password: String?,
 	           @ColumnInfo(name="directory",
-		               defaultValue="") var directory: String) {
+		               defaultValue="") var directory: String,
+                   @ColumnInfo(name="socks_proxy",
+                               defaultValue="") var socksProxy: String) {
 }

@@ -51,10 +51,12 @@ public class AuthenticationActivity extends ProviderActivity
 			EditText port=findViewById(R.id.port);
 			EditText user=findViewById(R.id.user);
 			EditText directory=findViewById(R.id.start_directory);
+			EditText socksProxy=findViewById(R.id.socks_proxy);
 			host.setText(account.getHostName());
 			user.setText(account.getUserName());
 			port.setText(String.valueOf(account.getPort()));
 			directory.setText(String.valueOf(account.getDirectory()));
+			socksProxy.setText(String.valueOf(account.getSocksProxy()));
 		}
 	}
 
@@ -78,6 +80,8 @@ public class AuthenticationActivity extends ProviderActivity
 			.getText().toString();
 		String directory=((EditText)findViewById(R.id.start_directory))
 			.getText().toString();
+		String socksProxy=((EditText)findViewById(R.id.socks_proxy))
+			.getText().toString();
 
 		if(hostName.isEmpty()||portString.isEmpty()||userName.isEmpty())
 			return;
@@ -90,7 +94,8 @@ public class AuthenticationActivity extends ProviderActivity
 			   userName.equals(account.getUserName()) &&
 			   port == account.getPort() &&
 			   password.isEmpty() &&
-			   directory.equals(account.getDirectory())) {
+			   directory.equals(account.getDirectory()) &&
+                           socksProxy.equals(account.getSocksProxy()) ) {
 				Toast.makeText(this,
 					       R.string.nothing_changed,
 					       Toast.LENGTH_SHORT)
@@ -103,7 +108,7 @@ public class AuthenticationActivity extends ProviderActivity
 		if(account == null) {
 			dao.insertAll(new Account(0, name, hostName, port,
 						  userName, password,
-						  directory));
+						  directory, socksProxy));
 			int flags=0;
 			if(Build.VERSION.SDK_INT>=30)
 			    flags |= ContentResolver.NOTIFY_INSERT;
@@ -111,9 +116,15 @@ public class AuthenticationActivity extends ProviderActivity
 		} else {
 			String oldName = account.getName();
 			// update existing account
-			if(password.isEmpty())
-				password=account.getPassword();
-			dao.update(account);
+			account.setName(name);
+			account.setHostName(hostName);
+			account.setPort(port);
+			account.setUserName(userName);
+			if(!password.isEmpty())
+				account.setPassword(password);
+			account.setDirectory(directory);
+			account.setSocksProxy(socksProxy);
+		dao.update(account);
 			int flags=0;
 			if(Build.VERSION.SDK_INT>=30)
 			    flags |= ContentResolver.NOTIFY_UPDATE;
