@@ -15,8 +15,7 @@ import androidx.room.PrimaryKey
 import androidx.room.ColumnInfo
 
 @Entity(tableName = "roots")
-data class Account(@PrimaryKey(autoGenerate = true) val id: Int?,
-	           @ColumnInfo(name="name") var name: String?,
+data class Account(@ColumnInfo(name="name") var name: String?,
 	           @ColumnInfo(name="host_name") var hostName: String,
 	           @ColumnInfo(name="port")var port: Int,
 	           @ColumnInfo(name="user_name") var userName: String?,
@@ -25,4 +24,5 @@ data class Account(@PrimaryKey(autoGenerate = true) val id: Int?,
 		               defaultValue="") var directory: String,
                    @ColumnInfo(name="socks_proxy",
                                defaultValue="") var socksProxy: String) {
+    @PrimaryKey(autoGenerate = true) var id: Int? = null
 }

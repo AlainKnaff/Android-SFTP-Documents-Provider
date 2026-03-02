@@ -106,7 +106,7 @@ public class AuthenticationActivity extends ProviderActivity
 
 		String name = userName+"@"+hostName+":"+port;
 		if(account == null) {
-			dao.insertAll(new Account(0, name, hostName, port,
+			dao.insertAll(new Account(name, hostName, port,
 						  userName, password,
 						  directory, socksProxy));
 			int flags=0;
