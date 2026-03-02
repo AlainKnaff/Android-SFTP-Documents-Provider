@@ -1,0 +1,2 @@
+- Possibility to use a Socks5 proxy
+- Host key verification: all new keys are allowed, all key changes are forbidden
