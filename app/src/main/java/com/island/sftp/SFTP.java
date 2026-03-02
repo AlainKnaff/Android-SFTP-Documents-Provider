@@ -91,7 +91,11 @@ public class SFTP implements Closeable
                 String privKey = Keygen.readPrivateKey(ctx);
                 jsch=new JSch();
                 jsch.setLogger(new Logger());
+
                 try {
+			File dir = ctx.getFilesDir();
+			jsch.setKnownHosts(new File(dir,"known_hosts")
+					   .toString());
                         if(privKey != null)
                                 jsch.addIdentity(privKey);
                         makeSession();
@@ -109,8 +113,9 @@ public class SFTP implements Closeable
 	private void makeSession() throws JSchException {
 		session=jsch.getSession(uri.getUserInfo(),uri.getHost(),uri.getPort());
 		Properties config=new Properties();
-		config.put("StrictHostKeyChecking","no");
+		config.put("StrictHostKeyChecking","ask");
 		session.setConfig(config);
+		session.setUserInfo(new UserInfo());
 
 		String socksProxy = account.getSocksProxy();
 		if(socksProxy != null && !socksProxy.isEmpty()) {
