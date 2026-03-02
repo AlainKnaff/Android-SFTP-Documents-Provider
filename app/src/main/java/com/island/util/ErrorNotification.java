@@ -37,7 +37,7 @@ public class ErrorNotification {
 					String title, Throwable t) {
 	while(true) {
 	    Throwable c = t.getCause();
-	    if(c == null)
+	    if(c == null || c instanceof android.system.ErrnoException)
 		break;
 	    t=c;
 	}
