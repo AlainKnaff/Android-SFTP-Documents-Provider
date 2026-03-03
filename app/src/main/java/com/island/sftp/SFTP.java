@@ -48,6 +48,8 @@ import com.jcraft.jsch.ProxySOCKS5;
 import com.island.androidsftpdocumentsprovider.account.Account;
 import com.island.util.ErrorNotification;
 
+import com.jcraft.jsch.UserInfo;
+
 public class SFTP implements Closeable
 {
 	private static final String TAG = "SFTP";
@@ -60,7 +62,6 @@ public class SFTP implements Closeable
 	private ChannelSftp channel;
 	private Context context;
 	private boolean disconnected;
-	private int id;
 
 	private Map<String,SftpFile> files = new HashMap<>();
 
@@ -70,22 +71,26 @@ public class SFTP implements Closeable
 
         public SFTP(Context ctx, Uri uri, Account account)
                 throws ConnectException
+	{
+		this(ctx, uri, account, null);
+	}
+
+        public SFTP(Context ctx, Uri uri,
+		    Account account, UserInfo userInfo)
+                throws ConnectException
         {
                 BouncyCastle.trigger();
-                init(ctx, uri, account);
-                this.id = account.getId();
+                init(ctx, uri, account, userInfo);
         }
-
-	public int getId() {
-		return id;
-	}
 
 	private JSch jsch;
 
-	protected void init(Context ctx, Uri uri, Account account) throws ConnectException {
-                Log.d(TAG,String.format("Created new connection for %s",uri.getAuthority()));
+	protected void init(Context ctx, Uri uri,
+			    Account account, UserInfo userInfo)
+		throws ConnectException {
+                Log.d(TAG,String.format("Created new connection for %s",account.getHostName()));
                 this.context=ctx;
-                checkArguments(uri,account);
+                checkArguments(account);
                 this.uri=uri;
                 this.account=account;
                 String privKey = Keygen.readPrivateKey(ctx);
@@ -98,24 +103,25 @@ public class SFTP implements Closeable
 					   .toString());
                         if(privKey != null)
                                 jsch.addIdentity(privKey);
-                        makeSession();
+                        makeSession(userInfo);
                 } catch(JSchException e) {
                         Log.e(TAG, "JschException during init: "+e, e);
-                        ErrorNotification.sendNotification(ctx,
-                                                           String.valueOf(uri),
-                                                           e);
                         ConnectException exception=new ConnectException(String.format("Can't connect to %s",uri));
                         exception.initCause(e);
                         throw exception;
                 }
         }
 
-	private void makeSession() throws JSchException {
-		session=jsch.getSession(uri.getUserInfo(),uri.getHost(),uri.getPort());
+	private void makeSession(UserInfo userInfo) throws JSchException {
+		if(userInfo == null)
+			userInfo = new com.island.sftp.UserInfo();
+		session=jsch.getSession(account.getUserName(),
+					account.getHostName(),
+					account.getPort());
 		Properties config=new Properties();
 		config.put("StrictHostKeyChecking","ask");
 		session.setConfig(config);
-		session.setUserInfo(new UserInfo());
+		session.setUserInfo(userInfo);
 
 		String socksProxy = account.getSocksProxy();
 		if(socksProxy != null && !socksProxy.isEmpty()) {
@@ -154,7 +160,7 @@ public class SFTP implements Closeable
 				// https://stackoverflow.com/questions/16127200/jsch-how-to-keep-the-session-alive-and-up
 				Log.d(TAG,
 				      "Session unusable, create a new one");
-				makeSession();
+				makeSession(null);
 			}
 		}
 		if(!channel.isConnected()) {

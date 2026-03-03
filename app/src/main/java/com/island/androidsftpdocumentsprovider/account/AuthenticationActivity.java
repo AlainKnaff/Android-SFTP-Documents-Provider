@@ -11,6 +11,8 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+import java.io.IOException;
+import java.net.ConnectException;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.Build;
@@ -18,8 +20,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+import com.island.sftp.SFTP;
+import com.island.sftp.InteractiveUserInfo;
 import com.island.androidsftpdocumentsprovider.provider.ProviderActivity;
 
+import com.island.util.ErrorDialog;
 import lu.knaff.alain.saf_sftp.R;
 
 public class AuthenticationActivity extends ProviderActivity
@@ -41,6 +46,8 @@ public class AuthenticationActivity extends ProviderActivity
 
 		findViewById(R.id.add_account)
 		    .setVisibility(accountId == -1 ? View.VISIBLE : View.GONE);
+		findViewById(R.id.add_account)
+		    .setEnabled(false);
 		findViewById(R.id.update_account)
 		    .setVisibility(accountId != -1 ? View.VISIBLE : View.GONE);
 
@@ -64,6 +71,58 @@ public class AuthenticationActivity extends ProviderActivity
 		Intent result=new Intent();
 		setResult(RESULT_CANCELED,result);
 		finish();
+	}
+
+	public void checkHostKey(View view) {
+		findViewById(R.id.check_host_key)
+		    .setEnabled(false);
+
+		String hostName=((EditText)findViewById(R.id.host))
+			.getText().toString();
+
+		String portString=((EditText)findViewById(R.id.port))
+			.getText().toString();
+
+		String userName=((EditText)findViewById(R.id.user))
+			.getText().toString();
+
+		String password=((EditText)findViewById(R.id.password))
+			.getText().toString();
+		String directory=((EditText)findViewById(R.id.start_directory))
+			.getText().toString();
+		String socksProxy=((EditText)findViewById(R.id.socks_proxy))
+			.getText().toString();
+		int port = Integer.parseInt(portString);
+		Account account = new Account("test", hostName, port,
+					      userName, password,
+					      directory, socksProxy);
+
+		new Thread(() -> {
+			SFTP sftp=null;
+			try {
+				sftp = new SFTP(this, null, account,
+						new InteractiveUserInfo(this));
+			} catch(ConnectException e) {
+				ErrorDialog.showError(this,
+						      getString(R.string.test_connect_err),
+						      e);
+			}
+			boolean success = sftp != null;
+			if(sftp != null)
+				try {
+					sftp.close();
+				} catch(IOException e) {
+					// Problems during close can
+					// safely be ignored
+				}
+			runOnUiThread(()->{
+					findViewById(R.id.check_host_key)
+						.setEnabled(true);
+					if(success)
+						findViewById(R.id.add_account)
+							.setEnabled(true);
+				});
+		}).start();
 	}
 
 	public void confirm(View view) {

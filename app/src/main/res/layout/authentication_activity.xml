@@ -166,11 +166,26 @@
 
 	</RelativeLayout>
 
+        <LinearLayout
+	    android:layout_height="wrap_content"
+	    android:layout_width="match_parent"
+	    android:orientation="horizontal"
+	    android:layout_weight="1.0"
+	    android:gravity="center"
+	    >
+
+          <!--
 	<RelativeLayout
 		android:layout_height="wrap_content"
 		android:layout_width="wrap_content"
-		android:layout_weight="1.0"
 		android:gravity="center">
+                -->
+		<Button
+			android:id="@+id/check_host_key"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="@string/check_host_key"
+			android:onClick="checkHostKey"/>
 
 		<Button
 			android:id="@+id/add_account"
@@ -185,7 +200,7 @@
 			android:text="@string/update_account"
 			android:onClick="confirm"/>
 
-	</RelativeLayout>
+	</LinearLayout>
 
 </LinearLayout>
 

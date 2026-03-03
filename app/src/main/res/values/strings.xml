@@ -28,9 +28,12 @@
 	<string name="start_directory">Start directory</string>
 	<string name="socks_proxy">SOCKS proxy</string>
 	<string name="socks_proxy_hint">host:port</string>
+	<string name="check_host_key">Check Host Key</string>
 	<string name="add_account">Add account</string>
 	<string name="update_account">Update account</string>
 	<string name="nothing_changed">Nothing changed</string>
+
+        <string name="test_connect_err">Error during test connection</string>
 
 	<!-- key management -->
 	<string name="generate_key">Generate key</string>

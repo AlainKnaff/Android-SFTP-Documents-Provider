@@ -22,6 +22,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.io.File;
 import java.io.IOException;
 import java.io.FileNotFoundException;
+import java.net.ConnectException;
 import java.net.SocketException;
 
 import android.content.Context;
@@ -37,6 +38,7 @@ import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsContract.Document;
 import android.util.Log;
 
+import com.island.util.ErrorNotification;
 import com.island.androidsftpdocumentsprovider.account.TheDatabase;
 import com.island.androidsftpdocumentsprovider.account.Dao;
 import com.island.androidsftpdocumentsprovider.account.Account;
@@ -468,7 +470,14 @@ public class SFTPProvider extends DocumentsProvider
 	throws IOException
     {
 	Account account = getAccountInfo(getContext(), documentId);
-	return new SFTP(getContext(), documentId, account);
+        try {
+            return new SFTP(getContext(), documentId, account);
+        } catch(ConnectException e) {
+            ErrorNotification.sendNotification(getContext(),
+                                               String.valueOf(documentId),
+                                               e);
+            throw e;
+        }
     }
 
     private void putFileInfo(MatrixCursor.RowBuilder row, Uri uri)
