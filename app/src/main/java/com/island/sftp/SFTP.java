@@ -43,7 +43,6 @@ import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
-import com.jcraft.jsch.ProxySOCKS5;
 
 import com.island.androidsftpdocumentsprovider.account.Account;
 import com.island.util.ErrorNotification;
