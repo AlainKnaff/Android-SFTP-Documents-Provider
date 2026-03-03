@@ -29,4 +29,10 @@
 	 actually want: -->
     <issue id="ThreadConstraint" severity="warning" />
     <issue id="WrongThreadInterprocedural" severity="warning" />
+
+    <issue id="TrustAllX509TrustManager" severity="ignore" />
+    <!-- we now do verify SSH host keys. It's not done the same way as
+    X509 certificate verfiications, so Lint doesn't notice it's
+    actually there. Ignore the warning-->
+
 </lint>

@@ -1,0 +1,10 @@
+- In ProxySOCKS5 don't propose to the server to supply username and
+  password if we actually don't have any (we never have). Indeed, the
+  server might take us up on that offer, even though they actually
+  don't need authentication
+- Interactive verification of SSH Host Key when a new account is
+  defined. "Add Account" button only becomes active after "Check Host
+  Key" has been successfully used.
+  If ever ssh server key changes, you need to recheck its key using
+  the same button in edit account
+
