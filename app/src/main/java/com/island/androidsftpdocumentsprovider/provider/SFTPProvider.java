@@ -153,13 +153,31 @@ public class SFTPProvider extends DocumentsProvider
 	throws FileNotFoundException
     {
 	cancelStrictMode();
-	Log.d(SFTPProvider.TAG,String.format("SFTPProvider queryDocuments %s %s",uri,Arrays.toString(projection)));
+	Log.d(SFTPProvider.TAG,String.format("SFTPProvider queryDocument %s %s",uri,Arrays.toString(projection)));
 	try {
 	    Objects.requireNonNull(uri);
 	    MatrixCursor result=new MatrixCursor(resolveDocumentProjection(projection));
 	    Uri documentId=Uri.parse(uri);
-	    putFileInfo(result.newRow(),documentId);
-	    return result;
+            boolean needSftp=false;
+            if(projection != null) {
+                for(String column: projection)
+                    if(Document.COLUMN_DOCUMENT_ID.equals(column) ||
+                       Document.COLUMN_SIZE.equals(column) ||
+                       Document.COLUMN_LAST_MODIFIED.equals(column) ||
+                       Document.COLUMN_MIME_TYPE.equals(column) ||
+                       Document.COLUMN_FLAGS.equals(column)) {
+                        needSftp=true;
+                        break;
+                    }
+            } else
+                needSftp=true;
+            MatrixCursor.RowBuilder mc = result.newRow();
+            if(needSftp) {
+                SFTP sftp=getSFTP(documentId);
+                putFileInfo(mc,sftp,sftp.getFile(documentId));
+            } else
+                putFileInfo(mc,documentId);
+            return result;
 	} catch(Exception e) {
 	    throw exception(e,"QueryDocument",uri);
 	}
@@ -480,13 +498,9 @@ public class SFTPProvider extends DocumentsProvider
         }
     }
 
-    private void putFileInfo(MatrixCursor.RowBuilder row, Uri uri)
-	throws IOException
-    {
-	assert row!=null;
-	assert uri!=null;
-	SFTP sftp=getSFTP(uri);
-	putFileInfo(row, sftp, sftp.getFile(uri));
+    private void putFileInfo(MatrixCursor.RowBuilder row, Uri uri) {
+        String name = uri.getLastPathSegment();
+        row.add(Document.COLUMN_DISPLAY_NAME,name);
     }
 
     private void putFileInfo(MatrixCursor.RowBuilder row, SFTP sftp,
