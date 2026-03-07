@@ -169,7 +169,7 @@ class Proxy private constructor(val sftp: SFTP,
     }
 
     override fun onRelease() {
-        Log.d(TAG, "On release")
+        Log.d(TAG, "On release $inPos")
         closeCurrentStreams()
         ioThread.quitSafely()
         val _recycler = recycler
