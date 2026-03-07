@@ -4,6 +4,7 @@ package com.island.sftp
 
 import android.util.Log
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 
@@ -24,7 +25,18 @@ import android.os.IBinder
  */
 
 class SftpService : Service() {
-    val TAG = "Service"
+    companion object {
+	val TAG = "Service"
+
+	@JvmStatic
+	fun start(context: Context) {
+            try {
+		context.startService(Intent(context, SftpService::class.java));
+            } catch(e: Exception) {
+		Log.i(TAG, "Could not start service: "+ e);
+            }
+	}
+    }
 
     // execution of service will start
     // on calling this method

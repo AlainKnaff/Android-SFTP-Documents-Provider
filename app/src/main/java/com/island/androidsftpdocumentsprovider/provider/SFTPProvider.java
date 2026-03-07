@@ -26,7 +26,6 @@ import java.net.ConnectException;
 import java.net.SocketException;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
@@ -449,12 +448,7 @@ public class SFTPProvider extends DocumentsProvider
 	throws IOException
     {
 	assert documentId!=null;
-        // Start the service, but don't bother if it doesn't work out
-        try {
-            getContext().startService(new Intent(getContext(), SftpService.class ) );
-        } catch(Exception e) {
-            Log.i(TAG, "Could not start service: "+ e);
-        }
+	SftpService.start(getContext());
 	SFTP sftp=null;
         Set<SFTP> toRemove = new HashSet<>();
         for(SFTP connection:connections) {
