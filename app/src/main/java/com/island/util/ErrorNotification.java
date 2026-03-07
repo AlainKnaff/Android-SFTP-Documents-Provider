@@ -42,9 +42,7 @@ public class ErrorNotification {
 	    t=c;
 	}
 
-	String message = t.getMessage();
-	if(message==null)
-	    message=t.toString();
+	String message = t.toString();
 
 	createChannel(ctx);
 	Notification.Builder notificationBuilder =
