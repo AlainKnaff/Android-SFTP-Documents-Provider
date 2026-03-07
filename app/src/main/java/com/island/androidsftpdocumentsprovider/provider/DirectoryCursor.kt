@@ -5,12 +5,12 @@ import java.util.concurrent.FutureTask
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutionException
 
-import android.util.Log
 import android.net.Uri
 import android.provider.DocumentsContract.Document;
 import android.database.ContentObserver;
 import android.database.AbstractCursor
 
+import com.island.util.ErrorNotification;
 import com.island.sftp.SFTP;
 import com.island.sftp.SftpFile;
 
@@ -52,9 +52,9 @@ class DirectoryCursor(val provider: SFTPProvider,
         try {
             files = f.get()
         } catch(e: ExecutionException) {
-            val t = e.cause
-            Log.e(TAG, "Exception "+t+" during fetch", t)
-            files = arrayOf()
+            ErrorNotification.sendNotification(provider.context,
+                                               documentId.toString(),e.cause);
+            throw e;
         }
     }
 
