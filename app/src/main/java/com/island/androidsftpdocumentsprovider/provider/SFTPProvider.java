@@ -453,7 +453,7 @@ public class SFTPProvider extends DocumentsProvider
         try {
             getContext().startService(new Intent(getContext(), SftpService.class ) );
         } catch(Exception e) {
-            Log.i(TAG, "Error trying to start service", e);
+            Log.i(TAG, "Could not start service: "+ e);
         }
 	SFTP sftp=null;
         Set<SFTP> toRemove = new HashSet<>();
