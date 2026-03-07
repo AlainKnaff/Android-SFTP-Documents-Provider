@@ -11,6 +11,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+import java.util.concurrent.CompletableFuture;
 import java.util.List;
 import java.util.Objects;
 import java.util.Arrays;
@@ -44,6 +45,7 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 
+import com.island.androidsftpdocumentsprovider.provider.Unlocked;
 import com.island.androidsftpdocumentsprovider.account.Account;
 
 import com.jcraft.jsch.UserInfo;
@@ -143,9 +145,42 @@ public class SFTP implements Closeable
 			session.setPassword(password);
 
 		session.setTimeout(TIMEOUT);
-		session.connect();
+		retrySessionConnect();
 		channel=(ChannelSftp)session.openChannel("sftp");
 		channel.connect();
+	}
+
+	private void retrySessionConnect()
+		throws JSchException
+	{
+		CompletableFuture<Boolean> wfu=null;
+		for(int i=0; i<15; i++) {
+			if(i==1)
+				wfu = Unlocked.getWfu(context);
+			else if(i == 2)
+				Unlocked.waitForUnlock(wfu, 10);
+			else if(i > 2) {
+				Log.d(TAG, "Waiting for "+10000+" milliseconds");
+				Unlocked.waitForUnlock(wfu, 10000);
+				Log.d(TAG, "Waiting for "+10+" extra milliseconds");
+				try {
+					Thread.sleep(10);
+				} catch(Exception e) {
+				}
+			}
+			try {
+				Log.d(TAG, this + " connecting session");
+				session.connect();
+				break;
+			} catch(JSchException e) {
+				Log.i(TAG, "Exception while connecting "+e+
+				      " "+i);
+				if(i == 14) {
+					Log.e(TAG, "Giving up");
+					throw e;
+				}
+			}
+		}
 	}
 
 	private synchronized void reconnectIfNeeded() throws JSchException {
@@ -154,7 +189,7 @@ public class SFTP implements Closeable
 		if(!session.isConnected()) {
 			try {
 				Log.d(TAG,"Reconnecting session");
-				session.connect();
+				retrySessionConnect();
 			} catch(JSchException e) {
 				// if it fails, just re-create the session from scratch
 				// https://stackoverflow.com/questions/16127200/jsch-how-to-keep-the-session-alive-and-up
