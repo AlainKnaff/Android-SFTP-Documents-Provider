@@ -7,7 +7,7 @@ import android.database.MatrixCursor;
 /**
  * "Notifiable" Matrix cursor, with exposed onChange
  */
-public class MC extends MatrixCursor {
+public class MC extends MatrixCursor implements RefreshableCursor {
     public static final String TAG="MC";
 
     private SFTPProvider provider;
