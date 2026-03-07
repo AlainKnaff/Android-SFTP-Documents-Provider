@@ -1,0 +1,7 @@
+- Allow click on "Browse files" button to open multiple file browser
+  windows, so that we can be in different directories in each
+- Refactoring to avoid doing network operations while we are being
+  called from the main thread (UI thread) of another applications
+- If reconnection is triggered by phone unlock (because a directory
+  view was showing when phone was locked), wait until phone fully
+  unlocked to do network operations
