@@ -78,4 +78,13 @@ public class SftpFile extends File {
     SftpFile(String filename) {
         super(filename);
     }
+    /**
+     * Make SftpFile that is a directory
+     */
+    static SftpFile makeDirectory(String filename) {
+        SftpFile dir = new SftpFile(filename);
+        dir.isDirectory=true;
+        dir.lastModified=0L;
+        return dir;
+    }
 }

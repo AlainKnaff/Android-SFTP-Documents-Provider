@@ -61,6 +61,8 @@ public class SFTP implements Closeable
 	private ChannelSftp channel;
 	private Context context;
 	private boolean disconnected;
+	private JSch jsch;
+
 
 	private Map<String,SftpFile> files = new HashMap<>();
 
@@ -78,16 +80,8 @@ public class SFTP implements Closeable
 		    Account account, UserInfo userInfo)
                 throws ConnectException
         {
-                BouncyCastle.trigger();
-                init(ctx, uri, account, userInfo);
-        }
-
-	private JSch jsch;
-
-	protected void init(Context ctx, Uri uri,
-			    Account account, UserInfo userInfo)
-		throws ConnectException {
                 Log.d(TAG,String.format("Created new connection for %s",account.getHostName()));
+                BouncyCastle.trigger();
                 this.context=ctx;
                 checkArguments(account);
                 this.uri=uri;
@@ -95,6 +89,11 @@ public class SFTP implements Closeable
                 String privKey = Keygen.readPrivateKey(ctx);
                 jsch=new JSch();
                 jsch.setLogger(new Logger());
+		String startDirectory = account.getDirectory();
+		if(startDirectory==null || startDirectory.length()==0)
+			startDirectory="/";
+		files.put(startDirectory,
+			  SftpFile.makeDirectory(startDirectory));
 
                 try {
 			File dir = ctx.getFilesDir();
@@ -102,7 +101,8 @@ public class SFTP implements Closeable
 					   .toString());
                         if(privKey != null)
                                 jsch.addIdentity(privKey);
-                        makeSession(userInfo);
+                        if(userInfo != null)
+                                makeSession(userInfo);
                 } catch(JSchException e) {
                         Log.e(TAG, "JschException during init: "+e, e);
                         ConnectException exception=new ConnectException(String.format("Can't connect to %s",uri));
@@ -150,6 +150,8 @@ public class SFTP implements Closeable
 	}
 
 	private synchronized void reconnectIfNeeded() throws JSchException {
+		if(session==null)
+			makeSession(null);
 		if(!session.isConnected()) {
 			try {
 				Log.d(TAG,"Reconnecting session");
@@ -191,8 +193,10 @@ public class SFTP implements Closeable
 	@Override
 	public synchronized void close() throws IOException
 	{
-		session.disconnect();
-		channel.quit();
+		if(session != null)
+			session.disconnect();
+		if(channel != null)
+			channel.quit();
 		disconnected=true;
 	}
         public synchronized void listFile(SftpFile file)
