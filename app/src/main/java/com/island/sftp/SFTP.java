@@ -45,7 +45,6 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 
 import com.island.androidsftpdocumentsprovider.account.Account;
-import com.island.util.ErrorNotification;
 
 import com.jcraft.jsch.UserInfo;
 
@@ -455,7 +454,6 @@ public class SFTP implements Closeable
 	{
 		assert cause!=null;
 
-		ErrorNotification.sendNotification(context,"sftp",cause);
 		if(cause.getCause()!=null) {
 			SocketException exception=new SocketException("Connection closed");
 			exception.initCause(cause);
