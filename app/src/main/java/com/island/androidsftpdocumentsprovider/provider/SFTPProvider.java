@@ -193,22 +193,19 @@ public class SFTPProvider extends DocumentsProvider
 	try {
 	    Objects.requireNonNull(parentUri);
 	    Uri parentDocumentId=Uri.parse(parentUri);
-	    SFTP sftp=getSFTP(parentDocumentId);
-	    try {
-		SftpFile[]files=sftp.listFiles(sftp.getFile(parentDocumentId));
-		MC result=new MC(this, parentDocumentId,
-				 resolveDocumentProjection(projection), files.length);
-		for(SftpFile file:files) {
-		    putFileInfo(result.newRow(), sftp, file);
-		}
-		return result;
-	    } catch(SocketException e) {
-		remove(sftp);
-		throw e;
-	    }
+	    SFTP sftp=getSFTP(parentDocumentId, true);
+            SftpFile parent = sftp.getFile(parentDocumentId);
+            return
+                new DirectoryCursor(this,
+                                    parentDocumentId,
+                                    sftp)
+                .start(()-> { var files = sftp.listFiles(parent);
+                        connections.add(sftp);
+                        return files;
+                });
 	} catch(Exception e) {
 	    throw exception(e,"QueryChildDocuments",parentUri);
-	}
+        }
     }
 
     @Override
