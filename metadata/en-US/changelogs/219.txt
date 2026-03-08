@@ -1,0 +1,1 @@
+- Do not retry for minutes when establishing SFTP connection if this is when pressing "Check Host Key" button

@@ -113,8 +113,12 @@ public class SFTP implements Closeable
         }
 
 	private void makeSession(UserInfo userInfo) throws JSchException {
-		if(userInfo == null)
+		boolean noRetry=false;
+		if(userInfo == null) {
 			userInfo = new com.island.sftp.UserInfo();
+		} else {
+			noRetry = true;
+		}
 		session=jsch.getSession(account.getUserName(),
 					account.getHostName(),
 					account.getPort());
@@ -145,7 +149,10 @@ public class SFTP implements Closeable
 			session.setPassword(password);
 
 		session.setTimeout(TIMEOUT);
-		retrySessionConnect();
+		if(noRetry)
+			session.connect();
+		else
+			retrySessionConnect();
 		channel=(ChannelSftp)session.openChannel("sftp");
 		channel.connect();
 	}
