@@ -36,7 +36,7 @@ However, you may also compile it yourself:
 
 - Optionally generate an SSH key pair, share the public key (to
   e-mail, for example), and place into the
-  <code>~/.ssh/autorized_keys</code> file on the SFTP server.
+  <code>~/.ssh/authorized_keys</code> file on the SFTP server.
 
 - Up to Android 11: Open the Android default file manager and on the left
   panel you should now see the sftp section where you can connect to
