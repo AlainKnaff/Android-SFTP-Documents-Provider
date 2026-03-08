@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.TimeUnit;
+import com.island.sftp.SftpService;
 
 /**
  * Get notification when mobile is unlocked
@@ -69,14 +70,17 @@ class Unlocked : BroadcastReceiver() {
             Log.e(TAG, "Ignoring action ${intent?.action}")
             return
         }
-
+        var waiting = false
         synchronized(this) {
             var wfu = waitForUnlockFuture
             if(wfu != null) {
                 wfu.complete(true);
+                waiting=true
                 Log.i(TAG, "Mobile unlocked");
             }
             waitForUnlockFuture = null;
         }
+        if(waiting)
+            SftpService.start(context)
     }
 }
