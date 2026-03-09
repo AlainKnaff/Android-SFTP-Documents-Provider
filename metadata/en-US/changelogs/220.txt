@@ -1,0 +1,1 @@
+- Faster connection startup: eliminate unused, but slow-to-check key exchange algorithms from JSch's CheckKexes list

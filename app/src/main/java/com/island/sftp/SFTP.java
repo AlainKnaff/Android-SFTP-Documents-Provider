@@ -125,12 +125,13 @@ public class SFTP implements Closeable
 		Properties config=new Properties();
 		config.put("StrictHostKeyChecking","ask");
 
-		// do not check kexes. Intended to find Key exchange
-		// algorithms that cannot be instantiated, and remove
-		// these from the kex list. However, this should not
-		// happen as app is linked with a known Bouncy Castle
-		// version
-		config.put("CheckKexes","");
+		// check only Kexes that are actually proposed in
+		// config.get("kex")
+		// this eliminates the very slow to check
+		// sntrup761x25519 KEXes without any ill effect
+		// On Pixel7a, checkKexes now only take 23
+		// milliseconds rather than 1300!
+		config.put("CheckKexes","mlkem768x25519-sha256,curve25519-sha256,curve25519-sha256@libssh.org");
 
 		session.setConfig(config);
 		session.setUserInfo(userInfo);
