@@ -124,6 +124,14 @@ public class SFTP implements Closeable
 					account.getPort());
 		Properties config=new Properties();
 		config.put("StrictHostKeyChecking","ask");
+
+		// do not check kexes. Intended to find Key exchange
+		// algorithms that cannot be instantiated, and remove
+		// these from the kex list. However, this should not
+		// happen as app is linked with a known Bouncy Castle
+		// version
+		config.put("CheckKexes","");
+
 		session.setConfig(config);
 		session.setUserInfo(userInfo);
 
