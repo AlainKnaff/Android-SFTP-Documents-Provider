@@ -19,7 +19,7 @@ android {
 	// as no leading zeroes are represented, 200 is what we get for
 	// 0.2
         versionCode = 220
-        versionName = "0.2.220"
+        versionName = "0.2.20"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
 	javaCompileOptions {
