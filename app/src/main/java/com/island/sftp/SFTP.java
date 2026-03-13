@@ -44,6 +44,7 @@ import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
+import com.jcraft.jsch.ProxySOCKS5;
 
 import com.island.androidsftpdocumentsprovider.provider.Unlocked;
 import com.island.androidsftpdocumentsprovider.account.Account;
@@ -124,14 +125,6 @@ public class SFTP implements Closeable
 					account.getPort());
 		Properties config=new Properties();
 		config.put("StrictHostKeyChecking","ask");
-
-		// check only Kexes that are actually proposed in
-		// config.get("kex")
-		// this eliminates the very slow to check
-		// sntrup761x25519 KEXes without any ill effect
-		// On Pixel7a, checkKexes now only take 23
-		// milliseconds rather than 1300!
-		config.put("CheckKexes","mlkem768x25519-sha256,curve25519-sha256,curve25519-sha256@libssh.org");
 
 		session.setConfig(config);
 		session.setUserInfo(userInfo);
