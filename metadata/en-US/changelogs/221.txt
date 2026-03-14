@@ -1,0 +1,2 @@
+- Upgraded to JSch 2.27.9 and removed previous workarounds
+- Simplified logging
