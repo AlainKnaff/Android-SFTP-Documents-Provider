@@ -90,7 +90,7 @@ public class SFTP implements Closeable
                 this.account=account;
                 String privKey = Keygen.readPrivateKey(ctx);
                 jsch=new JSch();
-                jsch.setLogger(new Logger());
+                //jsch.setLogger(new Logger());
 		String startDirectory = account.getDirectory();
 		if(startDirectory==null || startDirectory.length()==0)
 			startDirectory="/";
@@ -169,23 +169,19 @@ public class SFTP implements Closeable
 			else if(i == 2)
 				Unlocked.waitForUnlock(wfu, 10);
 			else if(i > 2) {
-				Log.d(TAG, "Waiting for "+10000+" milliseconds");
 				Unlocked.waitForUnlock(wfu, 10000);
-				Log.d(TAG, "Waiting for "+10+" extra milliseconds");
 				try {
 					Thread.sleep(10);
 				} catch(Exception e) {
 				}
 			}
 			try {
-				Log.d(TAG, this + " connecting session");
 				session.connect();
+				Log.d(TAG, this + " session connected");
 				break;
 			} catch(JSchException e) {
-				Log.i(TAG, "Exception while connecting "+e+
-				      " "+i);
 				if(i == 14) {
-					Log.e(TAG, "Giving up");
+					Log.e(TAG, "Giving up "+e);
 					throw e;
 				}
 			}
