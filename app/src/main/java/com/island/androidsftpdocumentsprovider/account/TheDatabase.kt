@@ -13,11 +13,16 @@ You should have received a copy of the GNU General Public License along with thi
 import androidx.room.Room
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.room.AutoMigration
 import android.content.Context
 
-@Database(entities = [Account::class], version = 3, exportSchema = true)
+@Database(entities = [Account::class], version = 4,
+	  exportSchema = true,
+	  autoMigrations = [
+	      AutoMigration (from = 2, to = 3),
+	      AutoMigration (from = 3, to = 4)
+	  ]
+)
 abstract class TheDatabase : RoomDatabase() {
     abstract fun dao(): Dao
 
@@ -25,11 +30,6 @@ abstract class TheDatabase : RoomDatabase() {
     companion object {
         private var instance: TheDatabase? = null
 
-        val MIGRATION_2_3 = object: Migration(2,3) {
-            override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("ALTER TABLE `roots` ADD COLUMN socks_proxy TEXT NOT NULL DEFAULT ''");
-            }
-        }
 
         fun getInstance(context: Context): TheDatabase {
             if (instance == null) {
@@ -37,7 +37,6 @@ abstract class TheDatabase : RoomDatabase() {
 						TheDatabase::class.java,
 						"roots")
                     .allowMainThreadQueries()
-                    .addMigrations(MIGRATION_2_3)
                     .build()
             }
             return instance as TheDatabase

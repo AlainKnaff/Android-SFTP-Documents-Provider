@@ -11,7 +11,6 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import java.util.concurrent.CompletableFuture;
 import java.util.List;
 import java.util.Objects;
 import java.util.Arrays;
@@ -19,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Vector;
-import java.util.Properties;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -41,30 +39,21 @@ import android.webkit.MimeTypeMap;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpATTRS;
-import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
-import com.jcraft.jsch.ProxySOCKS5;
 
-import com.island.androidsftpdocumentsprovider.provider.Unlocked;
 import com.island.androidsftpdocumentsprovider.account.Account;
 
 import com.jcraft.jsch.UserInfo;
 
-public class SFTP implements Closeable
+public class SFTP extends SSH implements Closeable
 {
 	private static final String TAG = "SFTP";
-	private static final int TIMEOUT=20000;
 	private static final int BUFFER=1024;
 	public static final String SCHEME="sftp://";
 	public  Uri uri;
-	private Account account;
-	private Session session;
 	private ChannelSftp channel;
-	private Context context;
 	private boolean disconnected;
-	private JSch jsch;
-
 
 	private Map<String,SftpFile> files = new HashMap<>();
 
@@ -82,125 +71,36 @@ public class SFTP implements Closeable
 		    Account account, UserInfo userInfo)
                 throws ConnectException
         {
-                Log.d(TAG,String.format("Created new connection for %s",account.getHostName()));
-                BouncyCastle.trigger();
-                this.context=ctx;
-                checkArguments(account);
-                this.uri=uri;
-                this.account=account;
-                String privKey = Keygen.readPrivateKey(ctx);
-                jsch=new JSch();
-                //jsch.setLogger(new Logger());
+		super(ctx, account, userInfo);
+		this.uri=uri;
 		String startDirectory = account.getDirectory();
 		if(startDirectory==null || startDirectory.length()==0)
 			startDirectory="/";
 		files.put(startDirectory,
 			  SftpFile.makeDirectory(startDirectory));
 
-                try {
-			File dir = ctx.getFilesDir();
-			jsch.setKnownHosts(new File(dir,"known_hosts")
-					   .toString());
-                        if(privKey != null)
-                                jsch.addIdentity(privKey);
-                        if(userInfo != null)
-                                makeSession(userInfo);
-                } catch(JSchException e) {
-                        Log.e(TAG, "JschException during init: "+e, e);
-                        ConnectException exception=new ConnectException(String.format("Can't connect to %s",uri));
-                        exception.initCause(e);
-                        throw exception;
-                }
         }
 
-	private void makeSession(UserInfo userInfo) throws JSchException {
-		boolean noRetry=false;
-		if(userInfo == null) {
-			userInfo = new com.island.sftp.UserInfo();
-		} else {
-			noRetry = true;
-		}
-		session=jsch.getSession(account.getUserName(),
-					account.getHostName(),
-					account.getPort());
-		Properties config=new Properties();
-		config.put("StrictHostKeyChecking","ask");
-
-		session.setConfig(config);
-		session.setUserInfo(userInfo);
-
-		String socksProxy = account.getSocksProxy();
-		if(socksProxy != null && !socksProxy.isEmpty()) {
-			int socksPort;
-			String socksHost;
-			int idx = socksProxy.lastIndexOf(':');
-			if(idx == -1) {
-				socksHost=socksProxy;
-				socksPort = 1080;
-			} else {
-				socksHost = socksProxy.substring(0,idx);
-				socksPort = Integer.parseInt(socksProxy.substring(idx+1));
-			}
-			ProxySOCKS5 proxy = new ProxySOCKS5(socksHost,
-							    socksPort);
-			session.setProxy(proxy);
-		}
-
-		String password = account.getPassword();
-		if(password != null && !password.isEmpty())
-			session.setPassword(password);
-
-		session.setTimeout(TIMEOUT);
-		if(noRetry)
-			session.connect();
-		else
-			retrySessionConnect();
+	protected Session makeSession() throws JSchException {
+		Session session = super.makeSession();
 		channel=(ChannelSftp)session.openChannel("sftp");
 		channel.connect();
-	}
-
-	private void retrySessionConnect()
-		throws JSchException
-	{
-		CompletableFuture<Boolean> wfu=null;
-		for(int i=0; i<15; i++) {
-			if(i==1)
-				wfu = Unlocked.getWfu(context);
-			else if(i == 2)
-				Unlocked.waitForUnlock(wfu, 10);
-			else if(i > 2) {
-				Unlocked.waitForUnlock(wfu, 10000);
-				try {
-					Thread.sleep(10);
-				} catch(Exception e) {
-				}
-			}
-			try {
-				session.connect();
-				Log.d(TAG, this + " session connected");
-				break;
-			} catch(JSchException e) {
-				if(i == 14) {
-					Log.e(TAG, "Giving up "+e);
-					throw e;
-				}
-			}
-		}
+		return session;
 	}
 
 	private synchronized void reconnectIfNeeded() throws JSchException {
-		if(session==null)
-			makeSession(null);
-		if(!session.isConnected()) {
+		if(getSession()==null)
+			makeSession();
+		if(!getSession().isConnected()) {
 			try {
 				Log.d(TAG,"Reconnecting session");
-				retrySessionConnect();
+				retrySessionConnect(getSession());
 			} catch(JSchException e) {
 				// if it fails, just re-create the session from scratch
 				// https://stackoverflow.com/questions/16127200/jsch-how-to-keep-the-session-alive-and-up
 				Log.d(TAG,
 				      "Session unusable, create a new one");
-				makeSession(null);
+				makeSession();
 			}
 		}
 		if(!channel.isConnected()) {
@@ -232,8 +132,8 @@ public class SFTP implements Closeable
 	@Override
 	public synchronized void close() throws IOException
 	{
-		if(session != null)
-			session.disconnect();
+		if(getSession() != null)
+			getSession().disconnect();
 		if(channel != null)
 			channel.quit();
 		disconnected=true;

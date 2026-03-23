@@ -12,9 +12,16 @@ You should have received a copy of the GNU General Public License along with thi
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.ForeignKey
 import androidx.room.ColumnInfo
+import androidx.room.Index
 
-@Entity(tableName = "roots")
+@Entity(tableName = "roots",
+	foreignKeys = [ForeignKey(entity = Account::class,
+				  parentColumns = ["id"],
+				  childColumns = ["jump_host"])],
+	indices = [ Index(value= [ "jump_host" ]) ]
+)
 data class Account(@ColumnInfo(name="name") var name: String?,
 	           @ColumnInfo(name="host_name") var hostName: String,
 	           @ColumnInfo(name="port")var port: Int,
@@ -23,6 +30,11 @@ data class Account(@ColumnInfo(name="name") var name: String?,
 	           @ColumnInfo(name="directory",
 		               defaultValue="") var directory: String,
                    @ColumnInfo(name="socks_proxy",
-                               defaultValue="") var socksProxy: String) {
+                               defaultValue="") var socksProxy: String,
+                   @ColumnInfo(name="jump_host")var jumpHostId: Int?,
+) {
     @PrimaryKey(autoGenerate = true) var id: Int? = null
+    override fun toString() : String {
+	return name ?: "null"
+    }
 }

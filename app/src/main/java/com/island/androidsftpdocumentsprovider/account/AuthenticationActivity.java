@@ -11,6 +11,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+import java.util.List;
 import java.io.IOException;
 import java.net.ConnectException;
 import android.content.ContentResolver;
@@ -18,8 +19,11 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.widget.Spinner;
+import android.widget.ArrayAdapter;
 import com.island.sftp.SFTP;
 import com.island.sftp.InteractiveUserInfo;
 import com.island.androidsftpdocumentsprovider.provider.ProviderActivity;
@@ -32,8 +36,17 @@ public class AuthenticationActivity extends ProviderActivity
 	private Dao dao;
 	private Account account = null;
 
+	private final String TAG = "AuthenticationActivity";
+
 	// id field name for intents
 	public static final String ID_COL = "id";
+
+	private static final int PROXY_TYPE_NONE = 0;
+	private static final int PROXY_TYPE_SOCKS = 1;
+	private static final int PROXY_TYPE_JUMP_HOST = 2;
+
+	private int proxyType=0;
+	private Integer jumpHostAccountId = null;
 
 	@Override
 	protected void onCreate(Bundle icicle)
@@ -51,6 +64,35 @@ public class AuthenticationActivity extends ProviderActivity
 		findViewById(R.id.update_account)
 		    .setVisibility(accountId != -1 ? View.VISIBLE : View.GONE);
 
+		Spinner proxyTypeSpinner =
+			(Spinner) findViewById(R.id.proxy_type);
+		// Create an ArrayAdapter using the string array and a
+		// default spinner layout.
+		ArrayAdapter<CharSequence> adapter = ArrayAdapter
+			.createFromResource(this,
+					    R.array.proxy_type_array,
+					    android.R.layout.simple_spinner_item);
+		// Specify the layout to use when the list of choices appears.
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		// Apply the adapter to the spinner.
+		proxyTypeSpinner.setAdapter(adapter);
+		proxyTypeSpinner.setOnItemSelectedListener(proxyTypeListener);
+
+		List<Account> accounts = dao.getAllAccounts();
+		Spinner jumpHostSpinner =
+			(Spinner) findViewById(R.id.jump_host);
+		// Create an ArrayAdapter using the string array and a
+		// default spinner layout.
+		ArrayAdapter<Account> jumpHostAdapter =
+			new ArrayAdapter<>(this,
+					   android.R.layout.simple_spinner_item,
+					   accounts);
+		// Specify the layout to use when the list of choices appears.
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		// Apply the adapter to the spinner.
+		jumpHostSpinner.setAdapter(jumpHostAdapter);
+		jumpHostSpinner.setOnItemSelectedListener(jumpHostListener);
+
 		if(accountId != -1)
 		{
 			account=dao.readAccountById(accountId);
@@ -63,7 +105,17 @@ public class AuthenticationActivity extends ProviderActivity
 			user.setText(account.getUserName());
 			port.setText(String.valueOf(account.getPort()));
 			directory.setText(String.valueOf(account.getDirectory()));
-			socksProxy.setText(String.valueOf(account.getSocksProxy()));
+			String socksProxyString = account.getSocksProxy();
+			jumpHostAccountId = account.getJumpHostId();
+			if(! "".equals(socksProxyString)) {
+				proxyTypeSpinner.setSelection(PROXY_TYPE_SOCKS);
+				socksProxy.setText(String.valueOf(socksProxyString));
+			} else if(jumpHostAccountId != null) {
+				proxyTypeSpinner.setSelection(PROXY_TYPE_JUMP_HOST);
+			} else {
+				proxyTypeSpinner.setSelection(PROXY_TYPE_NONE);
+			}
+			//proxyTypeSpinner.setSpinner();
 		}
 	}
 
@@ -82,6 +134,7 @@ public class AuthenticationActivity extends ProviderActivity
 
 		String portString=((EditText)findViewById(R.id.port))
 			.getText().toString();
+		int port = Integer.parseInt(portString);
 
 		String userName=((EditText)findViewById(R.id.user))
 			.getText().toString();
@@ -92,10 +145,12 @@ public class AuthenticationActivity extends ProviderActivity
 			.getText().toString();
 		String socksProxy=((EditText)findViewById(R.id.socks_proxy))
 			.getText().toString();
-		int port = Integer.parseInt(portString);
+
 		Account account = new Account("test", hostName, port,
 					      userName, password,
-					      directory, socksProxy);
+					      directory,
+					      (proxyType==PROXY_TYPE_SOCKS) ? socksProxy : "",
+					      (proxyType==PROXY_TYPE_JUMP_HOST) ? jumpHostAccountId : null);
 
 		new Thread(() -> {
 			SFTP sftp=null;
@@ -125,6 +180,45 @@ public class AuthenticationActivity extends ProviderActivity
 		}).start();
 	}
 
+	private AdapterView.OnItemSelectedListener proxyTypeListener =
+		new AdapterView.OnItemSelectedListener() {
+			public void onItemSelected(AdapterView<?> parent,
+						    View view,
+						    int position, long id) {
+				proxyType = position;
+				if(position == PROXY_TYPE_SOCKS)
+					findViewById(R.id.socks_proxy)
+						.setVisibility(View.VISIBLE);
+				else
+					findViewById(R.id.socks_proxy)
+						.setVisibility(View.GONE);
+
+				if(position == PROXY_TYPE_JUMP_HOST)
+					findViewById(R.id.jump_host)
+						.setVisibility(View.VISIBLE);
+				else
+					findViewById(R.id.jump_host)
+						.setVisibility(View.GONE);
+
+			}
+			public void onNothingSelected(AdapterView<?> parent) {
+			}
+		};
+
+	private AdapterView.OnItemSelectedListener jumpHostListener =
+		new AdapterView.OnItemSelectedListener() {
+			public void onItemSelected(AdapterView<?> parent,
+						   View view,
+						   int position, long id) {
+				Account acct= (Account)parent
+					.getItemAtPosition(position);
+				jumpHostAccountId=acct.getId();
+			}
+			public void onNothingSelected(AdapterView<?> parent) {
+				jumpHostAccountId=null;
+			}
+		};
+
 	public void confirm(View view) {
 		String hostName=((EditText)findViewById(R.id.host))
 			.getText().toString();
@@ -141,7 +235,6 @@ public class AuthenticationActivity extends ProviderActivity
 			.getText().toString();
 		String socksProxy=((EditText)findViewById(R.id.socks_proxy))
 			.getText().toString();
-
 		if(hostName.isEmpty()||portString.isEmpty()||userName.isEmpty())
 			return;
 		int port = Integer.parseInt(portString);
@@ -154,7 +247,8 @@ public class AuthenticationActivity extends ProviderActivity
 			   port == account.getPort() &&
 			   password.isEmpty() &&
 			   directory.equals(account.getDirectory()) &&
-                           socksProxy.equals(account.getSocksProxy()) ) {
+                           socksProxy.equals(account.getSocksProxy()) &&
+			   jumpHostAccountId ==  account.getJumpHostId()) {
 				Toast.makeText(this,
 					       R.string.nothing_changed,
 					       Toast.LENGTH_SHORT)
@@ -167,7 +261,9 @@ public class AuthenticationActivity extends ProviderActivity
 		if(account == null) {
 			dao.insertAll(new Account(name, hostName, port,
 						  userName, password,
-						  directory, socksProxy));
+						  directory,
+						  (proxyType==PROXY_TYPE_SOCKS)?socksProxy:"",
+						  (proxyType==PROXY_TYPE_JUMP_HOST)?jumpHostAccountId:null));
 			int flags=0;
 			if(Build.VERSION.SDK_INT>=30)
 			    flags |= ContentResolver.NOTIFY_INSERT;
@@ -182,7 +278,8 @@ public class AuthenticationActivity extends ProviderActivity
 			if(!password.isEmpty())
 				account.setPassword(password);
 			account.setDirectory(directory);
-			account.setSocksProxy(socksProxy);
+			account.setSocksProxy((proxyType==PROXY_TYPE_SOCKS)?socksProxy:"");
+			account.setJumpHostId((proxyType==PROXY_TYPE_JUMP_HOST)?jumpHostAccountId:null);
 		dao.update(account);
 			int flags=0;
 			if(Build.VERSION.SDK_INT>=30)

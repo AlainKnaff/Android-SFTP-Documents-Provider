@@ -22,7 +22,7 @@ interface Dao {
     fun getAllAccounts(): MutableList<Account>
 
     @Query("SELECT * FROM roots WHERE id = :id")
-    fun readAccountById(id: Int): Account?
+    fun readAccountById(id: Int): Account
 
     @Query("SELECT * FROM roots WHERE name = :name")
     fun readAccountByName(name: String): Account?
