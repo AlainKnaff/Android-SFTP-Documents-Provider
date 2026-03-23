@@ -1,4 +1,4 @@
-package com.island.androidsftpdocumentsprovider.account;
+package com.island.androidsftpdocumentsprovider.account
 
 /* This file is part of SFTP-SAF, an Android app to access sftp servers via Storage access framework
    Copyright (C) 2026      Alain Knaff

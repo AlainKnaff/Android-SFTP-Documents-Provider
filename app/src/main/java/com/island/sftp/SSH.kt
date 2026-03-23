@@ -12,7 +12,7 @@ import com.jcraft.jsch.JSchException
 import com.jcraft.jsch.Session
 import com.jcraft.jsch.ProxySOCKS5
 import com.island.androidsftpdocumentsprovider.provider.Unlocked
-import com.island.androidsftpdocumentsprovider.account.TheDatabase;
+import com.island.androidsftpdocumentsprovider.account.TheDatabase
 import com.island.androidsftpdocumentsprovider.account.Account
 
 /**
@@ -80,7 +80,7 @@ abstract class SSH(val context: Context,
 	    val proxy = ProxySOCKS5(socksHost, socksPort)
 	    session.setProxy(proxy)
 	} else if(jumpHostId != null) {
-	    val dao = TheDatabase.getDao(context);
+	    val dao = TheDatabase.getDao(context)
 	    val jumpAccount = dao.readAccountById(jumpHostId)
 	    val proxy = ProxyJumpHost(context, jumpAccount, userInfo)
 	    session.setProxy(proxy)

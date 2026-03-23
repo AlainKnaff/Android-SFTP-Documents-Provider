@@ -31,9 +31,9 @@ class SftpService : Service() {
 	@JvmStatic
 	fun start(context: Context) {
             try {
-		context.startService(Intent(context, SftpService::class.java));
+		context.startService(Intent(context, SftpService::class.java))
             } catch(e: Exception) {
-		Log.i(TAG, "Could not start service: "+ e);
+		Log.i(TAG, "Could not start service: "+ e)
             }
 	}
     }

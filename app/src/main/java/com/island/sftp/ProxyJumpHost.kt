@@ -3,11 +3,11 @@ package com.island.sftp
 import java.io.OutputStream
 import java.io.InputStream
 
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.PipedInputStream
+import java.io.PipedOutputStream
 
 import java.net.Socket
-import android.util.Log;
+import android.util.Log
 import android.content.Context
 import com.island.androidsftpdocumentsprovider.account.Account
 
@@ -32,7 +32,7 @@ class ProxyJumpHost(context: Context,
 			 timeout: Int) {
 	Log.i(TAG, "Connect to "+host+":"+port+" via Jump host")
 	val sess = getSshSession()
-	channel = sess.openChannel("direct-tcpip") as ChannelDirectTCPIP;
+	channel = sess.openChannel("direct-tcpip") as ChannelDirectTCPIP
 	channel.setHost(host)
 	channel.setPort(port)
 	channel.setOrgIPAddress("0.0.0.0") // bind to default appropriate for target
@@ -46,7 +46,7 @@ class ProxyJumpHost(context: Context,
 	channel.inputStream = toServer
 	channel.outputStream = fromServer
 
-	channel.connect(timeout);
+	channel.connect(timeout)
     }
 
     override fun getInputStream(): InputStream {
@@ -59,7 +59,7 @@ class ProxyJumpHost(context: Context,
 
     override fun getSocket(): Socket? {
 	// will only be used for timeout configuration
-	return null;
+	return null
     }
 
     override fun close(): Unit {

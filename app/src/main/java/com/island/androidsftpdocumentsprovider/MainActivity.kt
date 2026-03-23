@@ -28,7 +28,7 @@ import androidx.core.net.toUri
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-import com.island.util.ErrorDialog;
+import com.island.util.ErrorDialog
 import com.island.androidsftpdocumentsprovider.provider.ProviderActivity
 import com.island.androidsftpdocumentsprovider.account.Account
 import com.island.androidsftpdocumentsprovider.account.TheDatabase
@@ -76,7 +76,7 @@ class MainActivity : ProviderActivity()
 		intent.setData(("content://"+getAuthority()+
 				    "/root").toUri())
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or
-				Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+				Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
 		startActivity(intent)
 		return
 	    } catch(e: Exception) {

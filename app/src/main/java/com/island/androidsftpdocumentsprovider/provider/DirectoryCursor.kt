@@ -1,4 +1,4 @@
-package com.island.androidsftpdocumentsprovider.provider;
+package com.island.androidsftpdocumentsprovider.provider
 
 import java.util.concurrent.Executors
 import java.util.concurrent.FutureTask
@@ -6,13 +6,13 @@ import java.util.concurrent.Callable
 import java.util.concurrent.ExecutionException
 
 import android.net.Uri
-import android.provider.DocumentsContract.Document;
-import android.database.ContentObserver;
+import android.provider.DocumentsContract.Document
+import android.database.ContentObserver
 import android.database.AbstractCursor
 
-import com.island.util.ErrorNotification;
-import com.island.sftp.SFTP;
-import com.island.sftp.SftpFile;
+import com.island.util.ErrorNotification
+import com.island.sftp.SFTP
+import com.island.sftp.SftpFile
 
 class DirectoryCursor(val provider: SFTPProvider,
                       val documentId: Uri,
@@ -29,14 +29,14 @@ class DirectoryCursor(val provider: SFTPProvider,
             Document.COLUMN_LAST_MODIFIED,
             Document.COLUMN_MIME_TYPE,
             Document.COLUMN_FLAGS
-        );
+        )
 
-        val DOCUMENT_ID_IDX   = 0;
-        val SIZE_IDX          = 1;
-        val DISPLAY_NAME_IDX  = 2;
-        val LAST_MODIFIED_IDX = 3;
-        val MIME_TYPE_IDX     = 4;
-        val FLAGS_IDX         = 5;
+        val DOCUMENT_ID_IDX   = 0
+        val SIZE_IDX          = 1
+        val DISPLAY_NAME_IDX  = 2
+        val LAST_MODIFIED_IDX = 3
+        val MIME_TYPE_IDX     = 4
+        val FLAGS_IDX         = 5
     }
 
     lateinit var files : Array<SftpFile>
@@ -53,8 +53,8 @@ class DirectoryCursor(val provider: SFTPProvider,
             files = f.get()
         } catch(e: ExecutionException) {
             ErrorNotification.sendNotification(provider.context,
-                                               documentId.toString(),e.cause);
-            throw e;
+                                               documentId.toString(),e.cause)
+            throw e
         }
     }
 
@@ -78,9 +78,9 @@ class DirectoryCursor(val provider: SFTPProvider,
     private fun getFlags(file: SftpFile) : Int {
         var flags : Int
         if(sftp.isDirectory(file))
-            flags=Document.FLAG_DIR_SUPPORTS_CREATE;
+            flags=Document.FLAG_DIR_SUPPORTS_CREATE
         else
-            flags=Document.FLAG_SUPPORTS_WRITE;
+            flags=Document.FLAG_SUPPORTS_WRITE
         flags = flags or
         Document.FLAG_SUPPORTS_DELETE or
 	Document.FLAG_SUPPORTS_COPY or
@@ -91,7 +91,7 @@ class DirectoryCursor(val provider: SFTPProvider,
 
     override fun getInt(i: Int) : Int {
         fetch()
-        val file = files[getPosition()];
+        val file = files[getPosition()]
         when(i) {
             FLAGS_IDX -> return getFlags(file)
             else -> return getLong(i).toInt()
@@ -104,7 +104,7 @@ class DirectoryCursor(val provider: SFTPProvider,
 
     override fun getLong(i: Int) : Long {
         fetch()
-        val file = files[getPosition()];
+        val file = files[getPosition()]
         when(i) {
             SIZE_IDX -> return file.getSize()
             LAST_MODIFIED_IDX -> return file.getSftpLastModified()
@@ -119,7 +119,7 @@ class DirectoryCursor(val provider: SFTPProvider,
 
     override fun getString(i: Int) : String {
         fetch()
-        val file = files[getPosition()];
+        val file = files[getPosition()]
         when(i) {
             DOCUMENT_ID_IDX -> return sftp.getUri(file).toString()
             DISPLAY_NAME_IDX -> return file.getName()
@@ -141,20 +141,20 @@ class DirectoryCursor(val provider: SFTPProvider,
     }
 
     override fun isNull(column: Int) : Boolean {
-        return false;
+        return false
     }
 
     override fun onChange(selfChange: Boolean) {
-	super.onChange(selfChange);
+	super.onChange(selfChange)
     }
 
     override fun registerContentObserver(observer: ContentObserver) {
-	super.registerContentObserver(observer);
-	provider.registerCursor(this, documentId);
+	super.registerContentObserver(observer)
+	provider.registerCursor(this, documentId)
     }
 
     override fun unregisterContentObserver(observer: ContentObserver) {
-	super.unregisterContentObserver(observer);
-	provider.unregisterCursor(this, documentId);
+	super.unregisterContentObserver(observer)
+	provider.unregisterCursor(this, documentId)
     }
 }
