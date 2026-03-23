@@ -28,6 +28,7 @@ import androidx.core.net.toUri
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
+import com.island.util.ErrorDialog;
 import com.island.androidsftpdocumentsprovider.provider.ProviderActivity
 import com.island.androidsftpdocumentsprovider.account.Account
 import com.island.androidsftpdocumentsprovider.account.TheDatabase
@@ -184,13 +185,19 @@ class MainActivity : ProviderActivity()
 	    @SuppressLint("ImplicitSamInstance")
 	    @Suppress("deprecation")
 	    {
-		val oldName=account.name
-		dao.delete(account)
-		var flags=0
-		if(Build.VERSION.SDK_INT>=30)
-		    flags = flags or ContentResolver.NOTIFY_DELETE
-		notifyChange(flags)
-		updateData()
+		try {
+		    val oldName=account.name
+		    dao.delete(account)
+		    var flags=0
+		    if(Build.VERSION.SDK_INT>=30)
+			flags = flags or ContentResolver.NOTIFY_DELETE
+		    notifyChange(flags)
+		    updateData()
+		} catch(e: Exception) {
+		    ErrorDialog.showError(this@MainActivity,
+					  "Error removing account",
+					  e)
+		}
 	    }
 	}
 
