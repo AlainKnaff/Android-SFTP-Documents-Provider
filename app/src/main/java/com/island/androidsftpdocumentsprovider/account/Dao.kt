@@ -27,6 +27,9 @@ interface Dao {
     @Query("SELECT * FROM roots WHERE name = :name")
     fun readAccountByName(name: String): Account?
 
+    @Query("WITH RECURSIVE jhp AS ( SELECT jump_host jh FROM roots WHERE id = :child UNION select a.jump_host jh FROM roots a JOIN jhp r on a.id=r.jh ) SELECT COUNT(*) > 0 FROM jhp WHERE jh = :ancestor")
+    fun isDescendant(child: Int, ancestor: Int) : Boolean
+
     @Insert
     fun insertAll(vararg targets: Account)
 

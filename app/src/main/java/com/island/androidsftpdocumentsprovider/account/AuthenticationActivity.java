@@ -220,6 +220,14 @@ public class AuthenticationActivity extends ProviderActivity
 		};
 
 	public void confirm(View view) {
+		try {
+			_confirm(view);
+		} catch(Exception e) {
+			ErrorDialog.showError(this, "Error saving account", e);
+		}
+	}
+
+	private void _confirm(View view) {
 		String hostName=((EditText)findViewById(R.id.host))
 			.getText().toString();
 
@@ -279,8 +287,16 @@ public class AuthenticationActivity extends ProviderActivity
 				account.setPassword(password);
 			account.setDirectory(directory);
 			account.setSocksProxy((proxyType==PROXY_TYPE_SOCKS)?socksProxy:"");
+			if(proxyType==PROXY_TYPE_JUMP_HOST) {
+				if(dao.isDescendant(jumpHostAccountId, account.getId()))
+					throw new IllegalArgumentException("Would cause loop in jump hosts");
+				if(jumpHostAccountId==account.getId())
+					throw new IllegalArgumentException("Account cannot be jumphost for itself");
+			}
+
 			account.setJumpHostId((proxyType==PROXY_TYPE_JUMP_HOST)?jumpHostAccountId:null);
-		dao.update(account);
+
+			dao.update(account);
 			int flags=0;
 			if(Build.VERSION.SDK_INT>=30)
 			    flags |= ContentResolver.NOTIFY_UPDATE;
