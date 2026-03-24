@@ -28,6 +28,7 @@
 	<string name="start_directory">Start directory</string>
 	<string name="proxy">Proxy</string>
 	<string name="socks_proxy_hint">host:port</string>
+	<string name="hide_from_list">Hide from fs root list</string>
 	<string name="check_host_key">Check Host Key</string>
 	<string name="add_account">Add account</string>
 	<string name="update_account">Update account</string>

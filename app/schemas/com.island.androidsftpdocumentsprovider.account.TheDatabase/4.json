@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "58dce46790ec179b8b77c2953ab65bbd",
+    "identityHash": "b5a992e565c621cc0aba463dd9525ed6",
     "entities": [
       {
         "tableName": "roots",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT, `host_name` TEXT NOT NULL, `port` INTEGER NOT NULL, `user_name` TEXT, `password` TEXT, `directory` TEXT NOT NULL DEFAULT '', `socks_proxy` TEXT NOT NULL DEFAULT '', `jump_host` INTEGER, `id` INTEGER PRIMARY KEY AUTOINCREMENT, FOREIGN KEY(`jump_host`) REFERENCES `roots`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT, `host_name` TEXT NOT NULL, `port` INTEGER NOT NULL, `user_name` TEXT, `password` TEXT, `directory` TEXT NOT NULL DEFAULT '', `socks_proxy` TEXT NOT NULL DEFAULT '', `jump_host` INTEGER, `hide_from_list` INTEGER NOT NULL DEFAULT false, `id` INTEGER PRIMARY KEY AUTOINCREMENT, FOREIGN KEY(`jump_host`) REFERENCES `roots`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "name",
@@ -55,6 +55,13 @@
             "affinity": "INTEGER"
           },
           {
+            "fieldPath": "hideFromList",
+            "columnName": "hide_from_list",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "false"
+          },
+          {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "INTEGER"
@@ -94,7 +101,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '58dce46790ec179b8b77c2953ab65bbd')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b5a992e565c621cc0aba463dd9525ed6')"
     ]
   }
 }

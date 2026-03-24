@@ -31,7 +31,9 @@ data class Account(@ColumnInfo(name="name") var name: String?,
 		               defaultValue="") var directory: String,
                    @ColumnInfo(name="socks_proxy",
                                defaultValue="") var socksProxy: String,
-                   @ColumnInfo(name="jump_host")var jumpHostId: Int?,
+                   @ColumnInfo(name="jump_host") var jumpHostId: Int?,
+                   @ColumnInfo(name="hide_from_list",
+                               defaultValue="false") var hideFromList: Boolean
 ) {
     @PrimaryKey(autoGenerate = true) var id: Int? = null
     override fun toString() : String {

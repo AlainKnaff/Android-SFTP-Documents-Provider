@@ -111,7 +111,7 @@ public class SFTPProvider extends DocumentsProvider
 	Log.d(SFTPProvider.TAG,String.format("SFTPProvider queryRoots %s",Arrays.toString(projection)));
 	try {
 	    MatrixCursor result=new MatrixCursor(resolveRootProjection(projection));
-	    List<Account> accounts=dao.getAllAccounts();
+	    List<Account> accounts=dao.getAllVisibleAccounts();
 	    for(Account account:accounts) {
 		Uri uri=SFTP.parseUri(account.getName());
 		MatrixCursor.RowBuilder row=result.newRow();

@@ -148,44 +148,67 @@
 	    android:gravity="bottom"/>
 
 
-	  <LinearLayout
+	<LinearLayout
+	    android:layout_height="wrap_content"
+	    android:layout_width="match_parent"
+	    android:orientation="horizontal"
+	    android:layout_weight="2.0"
+	    android:gravity="center"
+	    >
+
+	  <Spinner
+	      android:id="@+id/proxy_type"
+	      android:layout_width="wrap_content"
 	      android:layout_height="wrap_content"
-	      android:layout_width="match_parent"
-	      android:orientation="horizontal"
-	      android:layout_weight="2.0"
+	      android:background="@android:drawable/btn_dropdown"
+	      android:spinnerMode="dropdown"
+	      />
+
+	  <EditText
+	      android:inputType="text"
+	      android:layout_height="wrap_content"
+	      android:layout_width="wrap_content"
+	      android:ems="10"
+	      android:autofillHints="SOCKS proxy"
+	      android:hint="@string/socks_proxy_hint"
+	      android:id="@+id/socks_proxy"
 	      android:gravity="center"
-	      >
+	      />
 
-	    <Spinner
-		android:id="@+id/proxy_type"
+	  <Spinner
+	      android:id="@+id/jump_host"
+	      android:layout_width="wrap_content"
+	      android:layout_height="wrap_content"
+	      android:background="@android:drawable/btn_dropdown"
+	      android:spinnerMode="dropdown"
+	      />
+
+	</LinearLayout>
+
+	<TextView
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:background="@android:drawable/btn_dropdown"
-		android:spinnerMode="dropdown"
-		/>
+		android:textAppearance="?android:attr/textAppearanceLarge"
+		android:text="@string/hide_from_list"
+		android:layout_weight="1.0"
+		android:gravity="bottom"/>
 
-	    <EditText
-		android:inputType="text"
+	<RelativeLayout
 		android:layout_height="wrap_content"
 		android:layout_width="wrap_content"
-		android:ems="10"
-		android:autofillHints="SOCKS proxy"
-		android:hint="@string/socks_proxy_hint"
-		android:id="@+id/socks_proxy"
-		android:gravity="center"
-		/>
+		android:layout_weight="2.0"
+		android:gravity="top">
 
-	    <Spinner
-		android:id="@+id/jump_host"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:background="@android:drawable/btn_dropdown"
-		android:spinnerMode="dropdown"
-		/>
+		<CheckBox
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:id="@+id/hide_from_list"
+			android:gravity="center"
+			/>
+	</RelativeLayout>
 
-	  </LinearLayout>
 
-        <LinearLayout
+	<LinearLayout
 	    android:layout_height="wrap_content"
 	    android:layout_width="match_parent"
 	    android:orientation="horizontal"
@@ -193,12 +216,6 @@
 	    android:gravity="center"
 	    >
 
-          <!--
-	<RelativeLayout
-		android:layout_height="wrap_content"
-		android:layout_width="wrap_content"
-		android:gravity="center">
-                -->
 		<Button
 			android:id="@+id/check_host_key"
 			android:layout_height="wrap_content"

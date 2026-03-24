@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.CheckBox;
 import android.widget.Toast;
 import android.widget.Spinner;
 import android.widget.ArrayAdapter;
@@ -101,6 +102,8 @@ public class AuthenticationActivity extends ProviderActivity
 			EditText user=findViewById(R.id.user);
 			EditText directory=findViewById(R.id.start_directory);
 			EditText socksProxy=findViewById(R.id.socks_proxy);
+			CheckBox hideFromList=findViewById(R.id.hide_from_list);
+
 			host.setText(account.getHostName());
 			user.setText(account.getUserName());
 			port.setText(String.valueOf(account.getPort()));
@@ -115,7 +118,8 @@ public class AuthenticationActivity extends ProviderActivity
 			} else {
 				proxyTypeSpinner.setSelection(PROXY_TYPE_NONE);
 			}
-			//proxyTypeSpinner.setSpinner();
+
+			hideFromList.setChecked(account.getHideFromList());
 		}
 	}
 
@@ -150,7 +154,8 @@ public class AuthenticationActivity extends ProviderActivity
 					      userName, password,
 					      directory,
 					      (proxyType==PROXY_TYPE_SOCKS) ? socksProxy : "",
-					      (proxyType==PROXY_TYPE_JUMP_HOST) ? jumpHostAccountId : null);
+					      (proxyType==PROXY_TYPE_JUMP_HOST) ? jumpHostAccountId : null,
+					      false);
 
 		new Thread(() -> {
 			SFTP sftp=null;
@@ -243,6 +248,8 @@ public class AuthenticationActivity extends ProviderActivity
 			.getText().toString();
 		String socksProxy=((EditText)findViewById(R.id.socks_proxy))
 			.getText().toString();
+		boolean hideFromList = ((CheckBox)findViewById(R.id.hide_from_list))
+			.isChecked();
 		if(hostName.isEmpty()||portString.isEmpty()||userName.isEmpty())
 			return;
 		int port = Integer.parseInt(portString);
@@ -256,7 +263,9 @@ public class AuthenticationActivity extends ProviderActivity
 			   password.isEmpty() &&
 			   directory.equals(account.getDirectory()) &&
                            socksProxy.equals(account.getSocksProxy()) &&
-			   jumpHostAccountId ==  account.getJumpHostId()) {
+			   jumpHostAccountId ==  account.getJumpHostId() &&
+			   hideFromList == account.getHideFromList()
+			   ) {
 				Toast.makeText(this,
 					       R.string.nothing_changed,
 					       Toast.LENGTH_SHORT)
@@ -271,7 +280,9 @@ public class AuthenticationActivity extends ProviderActivity
 						  userName, password,
 						  directory,
 						  (proxyType==PROXY_TYPE_SOCKS)?socksProxy:"",
-						  (proxyType==PROXY_TYPE_JUMP_HOST)?jumpHostAccountId:null));
+						  (proxyType==PROXY_TYPE_JUMP_HOST)?jumpHostAccountId:null,
+						  hideFromList
+						  ));
 			int flags=0;
 			if(Build.VERSION.SDK_INT>=30)
 			    flags |= ContentResolver.NOTIFY_INSERT;
@@ -295,7 +306,7 @@ public class AuthenticationActivity extends ProviderActivity
 			}
 
 			account.setJumpHostId((proxyType==PROXY_TYPE_JUMP_HOST)?jumpHostAccountId:null);
-
+			account.setHideFromList(hideFromList);
 			dao.update(account);
 			int flags=0;
 			if(Build.VERSION.SDK_INT>=30)

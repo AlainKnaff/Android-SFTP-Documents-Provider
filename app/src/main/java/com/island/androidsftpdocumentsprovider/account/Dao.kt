@@ -21,6 +21,9 @@ interface Dao {
     @Query("SELECT * FROM roots")
     fun getAllAccounts(): MutableList<Account>
 
+    @Query("SELECT * FROM roots WHERE NOT hide_from_list")
+    fun getAllVisibleAccounts(): MutableList<Account>
+
     @Query("SELECT * FROM roots WHERE id = :id")
     fun readAccountById(id: Int): Account
 
