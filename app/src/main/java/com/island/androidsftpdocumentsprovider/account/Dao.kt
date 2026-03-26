@@ -21,6 +21,9 @@ interface Dao {
     @Query("SELECT * FROM roots")
     fun getAllAccounts(): MutableList<Account>
 
+    @Query("SELECT * FROM `AccountWithRemove`")
+    fun getAllAccountsWithRemove(): MutableList<AccountWithRemove>
+
     @Query("SELECT * FROM roots WHERE NOT hide_from_list")
     fun getAllVisibleAccounts(): MutableList<Account>
 
@@ -50,4 +53,7 @@ interface Dao {
 
     @Delete
     fun delete(user: Account)
+
+    @Query("DELETE FROM roots WHERE id=:id")
+    fun deleteAccount(id: Int)
 }

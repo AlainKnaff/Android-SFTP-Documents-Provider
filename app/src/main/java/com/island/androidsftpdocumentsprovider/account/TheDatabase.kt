@@ -16,7 +16,9 @@ import androidx.room.RoomDatabase
 import androidx.room.AutoMigration
 import android.content.Context
 
-@Database(entities = [Account::class], version = 4,
+@Database(entities = [Account::class],
+	  views = [AccountWithRemove::class],
+	  version = 4,
 	  exportSchema = true,
 	  autoMigrations = [
 	      AutoMigration (from = 2, to = 3),

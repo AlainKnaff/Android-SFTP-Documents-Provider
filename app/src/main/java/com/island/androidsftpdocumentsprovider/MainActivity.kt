@@ -30,7 +30,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 import com.island.util.ErrorDialog
 import com.island.androidsftpdocumentsprovider.provider.ProviderActivity
-import com.island.androidsftpdocumentsprovider.account.Account
+import com.island.androidsftpdocumentsprovider.account.AccountWithRemove
 import com.island.androidsftpdocumentsprovider.account.TheDatabase
 import com.island.androidsftpdocumentsprovider.account.AuthenticationActivity
 
@@ -96,7 +96,7 @@ class MainActivity : ProviderActivity()
 	startActivity(intent)
     }
 
-    fun editSftpAccount(view:View, account:Account)
+    fun editSftpAccount(view:View, account:AccountWithRemove)
     {
 	val intent:Intent = Intent(this, AuthenticationActivity::class.java)
 	intent.putExtra(AuthenticationActivity.ID_COL, account.id)
@@ -150,14 +150,14 @@ class MainActivity : ProviderActivity()
     inner class SFTPAdapter(private val activity:Activity):RecyclerView.Adapter<SFTPAdapter.ViewHolder>()
     {
 	private val TAG="SFTPAdapter"
-	private var accounts =dao.getAllAccounts()
+	private var accounts =dao.getAllAccountsWithRemove()
 	inner class ViewHolder(view:View):RecyclerView.ViewHolder(view),
 					  View.OnClickListener
 	{
 	    private val TAG="SFTPAdapter.ViewHolder"
 	    val text:TextView = view.findViewById(R.id.text)
 	    val button:Button = view.findViewById(R.id.button)
-	    public lateinit var account:Account
+	    public lateinit var account:AccountWithRemove
 
 	    init {
 		view.setOnClickListener(this)
@@ -181,13 +181,15 @@ class MainActivity : ProviderActivity()
 	    val account=accounts[position]
 	    holder.text.text=account.name
 	    holder.account=account
+	    holder.button.setVisibility(if (account.canRemove)
+					View.VISIBLE else View.INVISIBLE)
 	    holder.button.setOnClickListener()
 	    @SuppressLint("ImplicitSamInstance")
 	    @Suppress("deprecation")
 	    {
 		try {
 		    val oldName=account.name
-		    dao.delete(account)
+		    dao.deleteAccount(account.id)
 		    var flags=0
 		    if(Build.VERSION.SDK_INT>=30)
 			flags = flags or ContentResolver.NOTIFY_DELETE
@@ -208,7 +210,7 @@ class MainActivity : ProviderActivity()
 
 	fun updateData()
 	{
-	    accounts=dao.getAllAccounts()
+	    accounts=dao.getAllAccountsWithRemove()
 	    @SuppressLint("NotifyDataSetChanged")
 	    // not a huge list, and sometimes we cannot indeed
 	    // describe which position has changed exactly, such as
