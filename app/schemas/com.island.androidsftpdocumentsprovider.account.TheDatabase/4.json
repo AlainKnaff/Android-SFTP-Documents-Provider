@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "b5a992e565c621cc0aba463dd9525ed6",
+    "identityHash": "fc89bea077c673ed787b5bb33b766482",
     "entities": [
       {
         "tableName": "roots",
@@ -99,9 +99,15 @@
         ]
       }
     ],
+    "views": [
+      {
+        "viewName": "AccountWithRemove",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT id,name,\n                  NOT EXISTS(SELECT 1 FROM roots i\n                             WHERE i.jump_host=o.id) can_remove\n\t          FROM roots o"
+      }
+    ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b5a992e565c621cc0aba463dd9525ed6')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fc89bea077c673ed787b5bb33b766482')"
     ]
   }
 }
