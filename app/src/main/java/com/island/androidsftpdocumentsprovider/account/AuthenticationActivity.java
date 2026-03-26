@@ -79,7 +79,7 @@ public class AuthenticationActivity extends ProviderActivity
 		proxyTypeSpinner.setAdapter(adapter);
 		proxyTypeSpinner.setOnItemSelectedListener(proxyTypeListener);
 
-		List<Account> accounts = dao.getAllAccounts();
+		List<Account> accounts = dao.getAllEligibleJumpHosts(accountId);
 		Spinner jumpHostSpinner =
 			(Spinner) findViewById(R.id.jump_host);
 		// Create an ArrayAdapter using the string array and a
