@@ -262,8 +262,8 @@ public class AuthenticationActivity extends ProviderActivity
 			   port == account.getPort() &&
 			   password.isEmpty() &&
 			   directory.equals(account.getDirectory()) &&
-                           socksProxy.equals(account.getSocksProxy()) &&
-			   jumpHostAccountId ==  account.getJumpHostId() &&
+			   (proxyType==PROXY_TYPE_SOCKS ? socksProxy : "").equals( account.getSocksProxy()) &&
+			   (proxyType==PROXY_TYPE_JUMP_HOST ? jumpHostAccountId : null) ==  account.getJumpHostId() &&
 			   hideFromList == account.getHideFromList()
 			   ) {
 				Toast.makeText(this,
