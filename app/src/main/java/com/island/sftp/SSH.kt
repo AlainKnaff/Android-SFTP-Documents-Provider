@@ -88,7 +88,7 @@ abstract class SSH(val context: Context,
 
 	val password = account.password
 	if(password != null && !password.isEmpty())
-	    session.setPassword(password)
+	    session.setPassword(password.toByteArray())
 
 	session.setTimeout(TIMEOUT)
 	if(userInfo != null)
