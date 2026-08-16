@@ -140,8 +140,18 @@ public class SFTPProvider extends DocumentsProvider
     @Override
     public boolean isChildDocument(String parentDocumentId, String documentId) {
 	cancelStrictMode();
+	parentDocumentId = normalize(parentDocumentId);
+	documentId = normalize(documentId);
 	Log.d(TAG, String.format("isChildDocument: parentDocumentId=%s, documentId=%s", parentDocumentId, documentId));
-	return normalize(documentId).startsWith(normalize(parentDocumentId));
+	if(!documentId.startsWith(parentDocumentId))
+	    return false;
+	int l = parentDocumentId.length();
+	if(documentId.length()==l)
+	    return true; // the 2 document ids have the same lenght => equal
+	if(documentId.charAt(l) == '/')
+	    return true; // child document has indeed a slash immediately after
+			 // parent part.
+	return false;
     }
 
     @Override
