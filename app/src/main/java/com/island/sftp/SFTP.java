@@ -11,6 +11,8 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.List;
 import java.util.Objects;
 import java.util.Arrays;
@@ -31,7 +33,6 @@ import java.net.ProtocolException;
 import java.net.ConnectException;
 
 import android.content.Context;
-import android.net.Uri;
 import android.util.Log;
 import android.provider.DocumentsContract;
 import android.webkit.MimeTypeMap;
@@ -50,29 +51,43 @@ public class SFTP extends SSH implements Closeable
 {
 	private static final String TAG = "SFTP";
 	private static final int BUFFER=1024;
-	public static final String SCHEME="sftp://";
-	public  Uri uri;
+	public  String documentId;
 	private ChannelSftp channel;
 	private boolean disconnected;
 
 	private Map<String,SftpFile> files = new HashMap<>();
 
-	public static Uri parseUri(String name) {
-		return Uri.parse(SFTP.SCHEME+name);
+	public static String accountToDocumentId(Account account) {
+	  	return account.getName();
 	}
 
-        public SFTP(Context ctx, Uri uri, Account account)
+        static Pattern accountPattern = Pattern.compile("(?:sftp://?)?([^/]*)(.*)");
+
+        public static String documentIdToAccount(String documentId) {
+                Matcher m = accountPattern.matcher(documentId);
+                if(m.matches())
+                        return m.group(1);
+                else
+                        return documentId;
+        }
+
+        // remove prefix of older scheme
+        public static String normalize(String documentId) {
+                return documentId.replaceAll("^sftp://", "");
+        }
+
+        public SFTP(Context ctx, String documentId, Account account)
                 throws ConnectException
 	{
-		this(ctx, uri, account, null);
+		this(ctx, documentId, account, null);
 	}
 
-        public SFTP(Context ctx, Uri uri,
+        public SFTP(Context ctx, String documentId,
 		    Account account, UserInfo userInfo)
                 throws ConnectException
         {
 		super(ctx, account, userInfo);
-		this.uri=uri;
+		this.documentId=documentId;
 		String startDirectory = account.getDirectory();
 		if(startDirectory==null || startDirectory.length()==0)
 			startDirectory="/";
@@ -125,8 +140,9 @@ public class SFTP extends SSH implements Closeable
         public boolean isDirectory(SftpFile file)throws IOException
         {
                 checkArguments(file);
-                if(file.getIsDirectory() == null)
+                if(file.getIsDirectory() == null) {
                         listFile(file);
+                }
                 return file.getIsDirectory();
         }
 	@Override
@@ -259,7 +275,7 @@ public class SFTP extends SSH implements Closeable
 	public boolean exists(File file)throws IOException
 	{
 		checkArguments(file);
-		SftpFile sfile = getFile(file.getPath());
+		SftpFile sfile = getFileForPath(file.getPath());
 		try {
                         if(sfile.getIsDirectory() == null)
                                 listFile(sfile);
@@ -295,14 +311,22 @@ public class SFTP extends SSH implements Closeable
 			throw getException(e);
 		}
 	}
-	public SftpFile getFile(Uri uri)
-	{
-		Objects.requireNonNull(uri);
-                var path = uri.getPath();
-                return getFile(path);
+
+        public SftpFile getFile(String documentId)
+        {
+                Objects.requireNonNull(documentId);
+                Matcher m = accountPattern.matcher(documentId);
+                String path;
+                if(m.matches())
+                        path = m.group(2);
+                else
+                        path = "";
+                if(path.length() == 0 || path.charAt(0) != '/')
+                        path = getAccount().getDirectory()+"/"+path;
+                return getFileForPath(path);
         }
 
-        public SftpFile getFile(String path) {
+        private SftpFile getFileForPath(String path) {
                 SftpFile cachedFile = files.get(path);
                 if(cachedFile == null) {
                         Log.d(TAG, "File "+path+" not found in cache");
@@ -313,10 +337,10 @@ public class SFTP extends SSH implements Closeable
                 }
                 return cachedFile;
 	}
-	public Uri getUri(File file)
+	public String getDocumentId(File file)
 	{
 		Objects.requireNonNull(file);
-		return Uri.parse(SCHEME+uri.getAuthority()+file.getPath());
+		return documentIdToAccount(documentId)+file.getPath();
 	}
 	public synchronized void copy(File from,File to)throws IOException
 	{
@@ -399,7 +423,7 @@ public class SFTP extends SSH implements Closeable
 			exception.initCause(cause);
 			return exception;
 		} else {
-			ProtocolException exception=new ProtocolException(uri.getScheme());
+			ProtocolException exception=new ProtocolException("sftp");
 			exception.initCause(cause);
 			return exception;
 		}

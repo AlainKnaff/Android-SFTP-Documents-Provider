@@ -14,6 +14,7 @@ You should have received a copy of the GNU General Public License along with thi
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -28,11 +29,11 @@ import java.net.SocketException;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.MatrixCursor;
-import android.net.Uri;
 import android.os.StrictMode;
 import android.os.ParcelFileDescriptor;
 import android.os.CancellationSignal;
 import android.provider.DocumentsProvider;
+import android.provider.DocumentsContract.Path;
 import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsContract.Document;
 import android.util.Log;
@@ -42,6 +43,7 @@ import com.island.androidsftpdocumentsprovider.account.TheDatabase;
 import com.island.androidsftpdocumentsprovider.account.Dao;
 import com.island.androidsftpdocumentsprovider.account.Account;
 import com.island.sftp.SFTP;
+import static com.island.sftp.SFTP.normalize;
 import com.island.sftp.SftpFile;
 import com.island.sftp.SftpService;
 
@@ -66,19 +68,19 @@ public class SFTPProvider extends DocumentsProvider
     private final static Set<String> uploadingFiles = new CopyOnWriteArraySet<>();
     private Dao dao;
 
-    private Map<Uri,RefreshableCursor> cursors = new HashMap<>();
+    private Map<String,RefreshableCursor> cursors = new HashMap<>();
 
     @SuppressWarnings("LambdaLast")
-    public void registerCursor(RefreshableCursor cursor, Uri documentId) {
+    public void registerCursor(RefreshableCursor cursor, String documentId) {
 	cursors.put(documentId, cursor);
     }
 
     @SuppressWarnings("LambdaLast")
-    public void unregisterCursor(RefreshableCursor cursor, Uri documentId) {
+    public void unregisterCursor(RefreshableCursor cursor, String documentId) {
 	cursors.remove(documentId, cursor);
     }
 
-    private void refreshCursorFor(Uri documentId)
+    private void refreshCursorFor(String documentId)
         throws IOException
     {
         RefreshableCursor mc = cursors.get(documentId);
@@ -87,15 +89,13 @@ public class SFTPProvider extends DocumentsProvider
         }
     }
 
-    private void refreshCursorForParent(Uri documentId)
+    private void refreshCursorForParent(String documentId)
         throws IOException
     {
-        String uriStr = documentId.toString();
-        int idx = uriStr.lastIndexOf('/');
+        int idx = documentId.lastIndexOf('/');
         if(idx >= 0)
-            uriStr = uriStr.substring(0, idx);
-        Log.d(TAG, "Parent dir="+uriStr);
-        refreshCursorFor(Uri.parse(uriStr));
+            documentId = documentId.substring(0, idx);
+        refreshCursorFor(documentId);
     }
 
     @Override
@@ -113,14 +113,9 @@ public class SFTPProvider extends DocumentsProvider
 	    MatrixCursor result=new MatrixCursor(resolveRootProjection(projection));
 	    List<Account> accounts=dao.getAllVisibleAccounts();
 	    for(Account account:accounts) {
-		Uri uri=SFTP.parseUri(account.getName());
+		String documentId=SFTP.accountToDocumentId(account);
 		MatrixCursor.RowBuilder row=result.newRow();
-		row.add(Root.COLUMN_ROOT_ID,uri.toString());
-		String documentId=uri.toString();
-		String directory = account.getDirectory();
-		if(directory == null || directory.isEmpty())
-		    directory="/";
-		documentId+=directory;
+		row.add(Root.COLUMN_ROOT_ID,documentId);
 		row.add(Root.COLUMN_DOCUMENT_ID,documentId);
 		int icon=R.drawable.ic_launcher;
 		row.add(Root.COLUMN_ICON,icon);
@@ -129,7 +124,12 @@ public class SFTPProvider extends DocumentsProvider
 			Root.FLAG_SUPPORTS_IS_CHILD);
 		String title=getContext().getString(R.string.sftp);
 		row.add(Root.COLUMN_TITLE,title);
-		row.add(Root.COLUMN_SUMMARY,uri.getAuthority());
+		String directory = account.getDirectory();
+		if(directory == null || directory.isEmpty())
+		    directory="/";
+		documentId+=directory;
+		row.add(Root.COLUMN_SUMMARY,
+			SFTP.documentIdToAccount(documentId));
 	    }
 	    return result;
 	} catch(Exception e) {
@@ -141,21 +141,18 @@ public class SFTPProvider extends DocumentsProvider
     public boolean isChildDocument(String parentDocumentId, String documentId) {
 	cancelStrictMode();
 	Log.d(TAG, String.format("isChildDocument: parentDocumentId=%s, documentId=%s", parentDocumentId, documentId));
-	final String parentUri = parentDocumentId;
-	final String childUri = documentId;
-	return childUri.startsWith(parentUri);
+	return normalize(documentId).startsWith(normalize(parentDocumentId));
     }
 
     @Override
-    public Cursor queryDocument(String uri,String[]projection)
+    public Cursor queryDocument(String documentId,String[]projection)
 	throws FileNotFoundException
     {
 	cancelStrictMode();
-	Log.d(SFTPProvider.TAG,String.format("SFTPProvider queryDocument %s %s",uri,Arrays.toString(projection)));
+	Log.d(SFTPProvider.TAG,String.format("SFTPProvider queryDocument %s %s",documentId,Arrays.toString(projection)));
 	try {
-	    Objects.requireNonNull(uri);
+	    Objects.requireNonNull(documentId);
 	    MatrixCursor result=new MatrixCursor(resolveDocumentProjection(projection));
-	    Uri documentId=Uri.parse(uri);
             boolean needSftp=false;
             if(projection != null) {
                 for(String column: projection)
@@ -177,21 +174,20 @@ public class SFTPProvider extends DocumentsProvider
                 putFileInfo(mc,documentId);
             return result;
 	} catch(Exception e) {
-	    throw exception(e,"QueryDocument",uri);
+	    throw exception(e,"QueryDocument",documentId);
 	}
     }
 
     @Override
-    public Cursor queryChildDocuments(String parentUri,
-				      String[]projection,
+    public Cursor queryChildDocuments(String parentDocumentId,
+				      String[] projection,
 				      String sortOrder)
 	throws FileNotFoundException
     {
 	cancelStrictMode();
-	Log.d(SFTPProvider.TAG,String.format("SFTPProvider queryChildDocuments %s %s %s",parentUri,Arrays.toString(projection),Arrays.toString(projection)));
+	Log.d(SFTPProvider.TAG,String.format("SFTPProvider queryChildDocuments %s %s %s",parentDocumentId,Arrays.toString(projection),Arrays.toString(projection)));
 	try {
-	    Objects.requireNonNull(parentUri);
-	    Uri parentDocumentId=Uri.parse(parentUri);
+	    Objects.requireNonNull(parentDocumentId);
 	    SFTP sftp=getSFTP(parentDocumentId, true);
             SftpFile parent = sftp.getFile(parentDocumentId);
             return
@@ -203,19 +199,18 @@ public class SFTPProvider extends DocumentsProvider
                         return files;
                 });
 	} catch(Exception e) {
-	    throw exception(e,"QueryChildDocuments",parentUri);
+	    throw exception(e,"QueryChildDocuments",parentDocumentId);
         }
     }
 
     @Override
-    public ParcelFileDescriptor openDocument(String uri,String mode,CancellationSignal signal)throws FileNotFoundException
+    public ParcelFileDescriptor openDocument(String documentId,String mode,CancellationSignal signal)throws FileNotFoundException
     {
 	cancelStrictMode();
-	Log.d(SFTPProvider.TAG,String.format("SFTPProvider openDocument %s %s %s",uri,mode,signal));
+	Log.d(SFTPProvider.TAG,String.format("SFTPProvider openDocument %s %s %s",documentId,mode,signal));
 	try {
-	    Objects.requireNonNull(uri);
+	    Objects.requireNonNull(documentId);
 	    Objects.requireNonNull(mode);
-	    final Uri documentId=Uri.parse(uri);
 	    SFTP sftp=getSFTP(documentId, true);
 	    SftpFile serverFile = sftp.getFile(documentId);
 
@@ -230,23 +225,22 @@ public class SFTPProvider extends DocumentsProvider
 		throw new FileNotFoundException(serverFile.getPath());
 	    }
 	} catch(Exception e) {
-	    throw exception(e,"openDocument",uri);
+	    throw exception(e,"openDocument",documentId);
 	}
     }
 
     @Override
-    public String createDocument(String parentUri,
+    public String createDocument(String parentDocumentId,
 				 String mimeType,
 				 String displayName)
 	throws FileNotFoundException
     {
 	cancelStrictMode();
-	Log.d(SFTPProvider.TAG,String.format("SFTPProvider createDocument %s %s %s",parentUri,mimeType,displayName));
+	Log.d(SFTPProvider.TAG,String.format("SFTPProvider createDocument %s %s %s",parentDocumentId,mimeType,displayName));
 	try {
-	    Objects.requireNonNull(parentUri);
+	    Objects.requireNonNull(parentDocumentId);
 	    Objects.requireNonNull(mimeType);
 	    Objects.requireNonNull(displayName);
-	    Uri parentDocumentId=Uri.parse(parentUri);
 	    SFTP sftp=getSFTP(parentDocumentId);
 	    try {
 		String base;
@@ -261,7 +255,7 @@ public class SFTPProvider extends DocumentsProvider
 		}
 		int cnt=0;
 		SftpFile parent = sftp.getFile(parentDocumentId);
-                Uri[] documentId = new Uri[1];
+                String[] documentId = new String[1];
                 SftpFile file = uniqueFile(sftp,parent,displayName,
                                            documentId);
                 if(Document.MIME_TYPE_DIR.equals(mimeType)) {
@@ -269,24 +263,23 @@ public class SFTPProvider extends DocumentsProvider
                     refreshCursorFor(parentDocumentId);
                 } else
                     sftp.newFile(file);
-                return documentId[0].toString();
+                return documentId[0];
 	    } catch(SocketException e) {
 		    remove(sftp);
 		    throw e;
 	    }
 	} catch(Exception e) {
-	    throw exception(e,"CreateDocument",parentUri);
+	    throw exception(e,"CreateDocument",parentDocumentId);
 	}
     }
     @Override
-    public void deleteDocument(String uri)
+    public void deleteDocument(String documentId)
 	throws FileNotFoundException
     {
 	cancelStrictMode();
-	Log.d(SFTPProvider.TAG,String.format("SFTPProvider deleteDocument %s",uri));
+	Log.d(SFTPProvider.TAG,String.format("SFTPProvider deleteDocument %s",documentId));
 	try {
-	    Objects.requireNonNull(uri);
-	    Uri documentId=Uri.parse(uri);
+	    Objects.requireNonNull(documentId);
 	    SFTP sftp=getSFTP(documentId);
 	    try {
 		sftp.delete(sftp.getFile(documentId));
@@ -297,19 +290,18 @@ public class SFTPProvider extends DocumentsProvider
 		throw e;
 	    }
 	} catch(Exception e) {
-	    throw exception(e,"DeleteDocument",uri);
+	    throw exception(e,"DeleteDocument",documentId);
 	}
     }
 
     @Override
-    public String getDocumentType(String uri)
+    public String getDocumentType(String documentId)
 	throws FileNotFoundException
     {
 	cancelStrictMode();
-	Log.d(SFTPProvider.TAG,String.format("SFTPProvider getDocumentType %s",uri));
+	Log.d(SFTPProvider.TAG,String.format("SFTPProvider getDocumentType %s",documentId));
 	try {
-	    Objects.requireNonNull(uri);
-	    Uri documentId=Uri.parse(uri);
+	    Objects.requireNonNull(documentId);
 	    SFTP sftp=getSFTP(documentId);
 	    try {
 		String mimeType=sftp.getMimeType(sftp.getFile(documentId));
@@ -319,20 +311,19 @@ public class SFTPProvider extends DocumentsProvider
 		throw e;
 	    }
 	} catch(Exception e) {
-	    throw exception(e,"GetDocumentType",uri);
+	    throw exception(e,"GetDocumentType",documentId);
 	}
     }
 
     @Override
-    public String renameDocument(String uri, String displayName)
+    public String renameDocument(String documentId, String displayName)
 	throws FileNotFoundException
     {
 	cancelStrictMode();
-	Log.d(SFTPProvider.TAG,String.format("SFTPProvider renameDocument %s %s",uri,displayName));
+	Log.d(SFTPProvider.TAG,String.format("SFTPProvider renameDocument %s %s",documentId,displayName));
 	try {
-	    Objects.requireNonNull(uri);
+	    Objects.requireNonNull(documentId);
 	    Objects.requireNonNull(displayName);
-	    Uri documentId=Uri.parse(uri);
 	    SFTP sftp=getSFTP(documentId);
 	    try {
 		File source=sftp.getFile(documentId);
@@ -340,72 +331,100 @@ public class SFTPProvider extends DocumentsProvider
 		File destination=uniqueFile(sftp,parent,displayName);
 		sftp.renameTo(source,destination);
 		refreshCursorForParent(documentId);
-		return sftp.getUri(destination).toString();
+		return sftp.getDocumentId(destination);
 	    } catch(SocketException e) {
 		remove(sftp);
 		throw e;
 	    }
 	} catch(Exception e) {
-	    throw exception(e,"RenameDocument",uri);
+	    throw exception(e,"RenameDocument",documentId);
 	}
     }
 
     @Override
-    public String moveDocument(String sourceUri,
-			       String sourceParentUri,
-			       String targetParentUri)
+    public String moveDocument(String sourceDocumentId,
+			       String sourceParentDocumentId,
+			       String targetParentDocumentId)
 	throws FileNotFoundException
     {
 	cancelStrictMode();
-	Log.d(SFTPProvider.TAG,String.format("SFTPProvider moveDocument %s %s %s",sourceUri,sourceParentUri,targetParentUri));
+	Log.d(SFTPProvider.TAG,String.format("SFTPProvider moveDocument %s %s %s",sourceDocumentId,sourceParentDocumentId,targetParentDocumentId));
 	try {
-	    Objects.requireNonNull(sourceUri);
-	    Objects.requireNonNull(sourceParentUri);
-	    Objects.requireNonNull(targetParentUri);
-	    Uri sourceDocumentId=Uri.parse(sourceUri);
+	    Objects.requireNonNull(sourceDocumentId);
+	    Objects.requireNonNull(sourceParentDocumentId);
+	    Objects.requireNonNull(targetParentDocumentId);
 	    SFTP sftp=getSFTP(sourceDocumentId);
 	    File source=sftp.getFile(sourceDocumentId);
 	    try {
-		File destination=uniqueFile(sftp,sftp.getFile(Uri.parse(targetParentUri)),source.getName());
+		File destination=uniqueFile(sftp,
+					    sftp.getFile(targetParentDocumentId),
+					    source.getName());
 		sftp.renameTo(source,destination);
 		refreshCursorForParent(sourceDocumentId);
-		return sftp.getUri(destination).toString();
+		return sftp.getDocumentId(destination);
 	    } catch(SocketException e) {
 		remove(sftp);
 		throw e;
 	    }
 	} catch(Exception e) {
-	    throw exception(e,"MoveDocument",sourceUri,targetParentUri);
+	    throw exception(e,"MoveDocument",sourceDocumentId,targetParentDocumentId);
 	}
     }
 
     @Override
-    public String copyDocument(String sourceUri,String targetParentUri)
+    public String copyDocument(String sourceDocumentId,String targetParentDocumentId)
 	throws FileNotFoundException
     {
 	cancelStrictMode();
-	Log.d(SFTPProvider.TAG,String.format("SFTPProvider copyDocument %s %s",sourceUri,targetParentUri));
+	Log.d(SFTPProvider.TAG,String.format("SFTPProvider copyDocument %s %s",sourceDocumentId,targetParentDocumentId));
 	try {
-	    Objects.requireNonNull(sourceUri);
-	    Objects.requireNonNull(targetParentUri);
-	    Uri sourceDocumentId=Uri.parse(sourceUri);
+	    Objects.requireNonNull(sourceDocumentId);
+	    Objects.requireNonNull(targetParentDocumentId);
 	    SFTP sftp=getSFTP(sourceDocumentId);
 	    File source=sftp.getFile(sourceDocumentId);
 	    try {
-                Uri targetDirId = Uri.parse(targetParentUri);
-		SftpFile destination=uniqueFile(sftp,sftp.getFile(targetDirId),
+		SftpFile destination=uniqueFile(sftp,
+						sftp.getFile(targetParentDocumentId),
                                                 source.getName());
 		sftp.copy(source,destination);
 		refreshCursorForParent(sourceDocumentId);
-		refreshCursorForParent(targetDirId);
-		return sftp.getUri(destination).toString();
+		refreshCursorForParent(targetParentDocumentId);
+		return sftp.getDocumentId(destination);
 	    } catch(SocketException e) {
 		remove(sftp);
 		throw e;
 	    }
 	} catch(Exception e) {
-	    throw exception(e,"CopyDocument",sourceUri,targetParentUri);
+	    throw exception(e,"CopyDocument",sourceDocumentId,targetParentDocumentId);
 	}
+    }
+
+    @Override
+    public Path findDocumentPath(String parentDocId, String childDocId)
+            throws FileNotFoundException {
+
+	// TODO: handle non-null parentDocId
+
+	final String rootId = SFTP.documentIdToAccount(childDocId);
+
+	// Skip legacy sftp:// prefix
+	int start = childDocId.indexOf(rootId);
+
+	// TODO: handle start directory at non root
+
+	// Split path along slashed
+	List<String> children = new ArrayList<>();
+	int i=start; // index of next slash
+	int length = childDocId.length();
+	while(i<length) {
+	    i = childDocId.indexOf('/',i);
+	    if(i==-1)
+		break;
+	    children.add( childDocId.substring(start,i));
+	    i=i+1;
+	}
+	children.add(childDocId);
+	return new Path(rootId, children);
     }
 
     private static String[]resolveDocumentProjection(String[]projection) {
@@ -418,33 +437,34 @@ public class SFTPProvider extends DocumentsProvider
 	else return projection;
     }
 
-    public static String getToken(Context context,Uri documentId)
+    public static String getToken(Context context,String documentId)
 	throws IOException
     {
 	return getAccountInfo(context, documentId).getPassword();
     }
 
-    public static Account getAccountInfo(Context context,Uri documentId)
+
+    private static Account getAccountInfo(Context context, String documentId)
 	throws IOException
     {
 	Objects.requireNonNull(context);
 	Objects.requireNonNull(documentId);
 	Dao dao = TheDatabase.getDao(context);
-	String accountName=documentId.getAuthority();
+	String accountName = SFTP.documentIdToAccount(documentId);
 	Account account = dao.readAccountByName(accountName);
 	if(account == null) {
-	    throw new FileNotFoundException(documentId.toString());
+	    throw new FileNotFoundException(documentId);
 	}
 	return account;
     }
 
-    private SFTP getSFTP(Uri documentId)
+    private SFTP getSFTP(String documentId)
 	throws IOException
     {
         return getSFTP(documentId, false);
     }
 
-    private SFTP getSFTP(Uri documentId, boolean needsFresh)
+    private SFTP getSFTP(String documentId, boolean needsFresh)
 	throws IOException
     {
 	assert documentId!=null;
@@ -452,7 +472,8 @@ public class SFTPProvider extends DocumentsProvider
 	SFTP sftp=null;
         Set<SFTP> toRemove = new HashSet<>();
         for(SFTP connection:connections) {
-            if(connection.uri.getAuthority().equals(documentId.getAuthority())){
+            if(SFTP.documentIdToAccount(connection.documentId)
+	       .equals(SFTP.documentIdToAccount(documentId))){
                 if(!connection.isConnected()) {
                     Log.d(TAG, "Connection closed, cleaning");
                     toRemove.add(connection);
@@ -474,7 +495,7 @@ public class SFTPProvider extends DocumentsProvider
         return sftp;
     }
 
-    private SFTP createSftp(Uri documentId)
+    private SFTP createSftp(String documentId)
 	throws IOException
     {
 	Account account = getAccountInfo(getContext(), documentId);
@@ -482,14 +503,14 @@ public class SFTPProvider extends DocumentsProvider
             return new SFTP(getContext(), documentId, account);
         } catch(ConnectException e) {
             ErrorNotification.sendNotification(getContext(),
-                                               String.valueOf(documentId),
+                                               documentId,
                                                e);
             throw e;
         }
     }
 
-    private void putFileInfo(MatrixCursor.RowBuilder row, Uri uri) {
-        String name = uri.getLastPathSegment();
+    private void putFileInfo(MatrixCursor.RowBuilder row, String documentId) {
+        String name = documentId.replaceAll("^.*/","");
         row.add(Document.COLUMN_DISPLAY_NAME,name);
     }
 
@@ -514,7 +535,7 @@ public class SFTPProvider extends DocumentsProvider
 	    row.add(Document.COLUMN_MIME_TYPE,mimeType);
 	    String name=file.getName();
 	    row.add(Document.COLUMN_DISPLAY_NAME,name);
-	    String documentId=sftp.getUri(file).toString();
+	    String documentId=sftp.getDocumentId(file);
 	    row.add(Document.COLUMN_DOCUMENT_ID,documentId);
 	    long lastModified=sftp.lastModified(file);
 	    row.add(Document.COLUMN_LAST_MODIFIED,lastModified);
@@ -531,7 +552,7 @@ public class SFTPProvider extends DocumentsProvider
     }
 
     private SftpFile uniqueFile(SFTP sftp, File parent, String displayName,
-                                Uri[] documentIdP)
+                                String[] documentIdP)
 	throws IOException
     {
 	assert sftp!=null;
@@ -555,7 +576,8 @@ public class SFTPProvider extends DocumentsProvider
                 seq="";
             else
                 seq="_"+cnt;
-            Uri documentId=sftp.getUri(new File(parent, base+seq+extension));
+            String documentId=sftp.getDocumentId(new File(parent,
+							  base+seq+extension));
             SftpFile file=sftp.getFile(documentId);
             try {
                 sftp.lastModified(file);

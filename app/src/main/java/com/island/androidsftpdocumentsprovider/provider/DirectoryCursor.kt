@@ -5,7 +5,6 @@ import java.util.concurrent.FutureTask
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutionException
 
-import android.net.Uri
 import android.provider.DocumentsContract.Document
 import android.database.ContentObserver
 import android.database.AbstractCursor
@@ -15,7 +14,7 @@ import com.island.sftp.SFTP
 import com.island.sftp.SftpFile
 
 class DirectoryCursor(val provider: SFTPProvider,
-                      val documentId: Uri,
+                      val documentId: String,
                       val sftp: SFTP) : AbstractCursor(), RefreshableCursor {
     val TAG = "DirectoryCursor"
 
@@ -53,7 +52,7 @@ class DirectoryCursor(val provider: SFTPProvider,
             files = f.get()
         } catch(e: ExecutionException) {
             ErrorNotification.sendNotification(provider.context,
-                                               documentId.toString(),e.cause)
+                                               documentId, e.cause)
             throw e
         }
     }
@@ -121,7 +120,7 @@ class DirectoryCursor(val provider: SFTPProvider,
         fetch()
         val file = files[getPosition()]
         when(i) {
-            DOCUMENT_ID_IDX -> return sftp.getUri(file).toString()
+            DOCUMENT_ID_IDX -> return sftp.getDocumentId(file)
             DISPLAY_NAME_IDX -> return file.getName()
             MIME_TYPE_IDX -> return sftp.getMimeType(file)
             else -> throw unsupported(i)

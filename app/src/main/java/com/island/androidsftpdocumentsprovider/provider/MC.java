@@ -1,6 +1,5 @@
 package com.island.androidsftpdocumentsprovider.provider;
 
-import android.net.Uri;
 import android.database.ContentObserver;
 import android.database.MatrixCursor;
 
@@ -12,9 +11,9 @@ public class MC extends MatrixCursor implements RefreshableCursor {
 
     private SFTPProvider provider;
 
-    private Uri documentId;
+    private String documentId;
 
-    public MC(SFTPProvider provider, Uri documentId,
+    public MC(SFTPProvider provider, String documentId,
 	      String[] columns, int initialCapacity) {
 	super(columns, initialCapacity);
 	this.documentId=documentId;
