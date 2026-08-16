@@ -403,18 +403,26 @@ public class SFTPProvider extends DocumentsProvider
     public Path findDocumentPath(String parentDocId, String childDocId)
             throws FileNotFoundException {
 
-	// TODO: handle non-null parentDocId
+	// TODO: handle non-null parentDocId. Right now we have no test case
+	if(parentDocId != null)
+	    throw new UnsupportedOperationException("Non-null parentDocId not yet supported due to lack of test case");
 
 	final String rootId = SFTP.documentIdToAccount(childDocId);
 
-	// Skip legacy sftp:// prefix
-	int start = childDocId.indexOf(rootId);
+	Account account = dao.readAccountByName(rootId);
+	String extendedRoot=rootId;
+	if(account != null) {
+	    extendedRoot+=account.getDirectory().replaceAll("/$","");
+	}
 
-	// TODO: handle start directory at non root
+	// Skip legacy sftp:// prefix
+	int start = childDocId.indexOf(extendedRoot);
+	if(start < 0)
+	    throw new FileNotFoundException(childDocId+" not below configured start directory");
 
 	// Split path along slashed
 	List<String> children = new ArrayList<>();
-	int i=start; // index of next slash
+	int i=start+extendedRoot.length(); // index of next slash
 	int length = childDocId.length();
 	while(i<length) {
 	    i = childDocId.indexOf('/',i);
