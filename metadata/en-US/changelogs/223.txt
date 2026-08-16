@@ -1,0 +1,4 @@
+- support for client launching a picker on a specific starting
+  directory
+- upgrade to newer versions of libraries
+- isChildDocument security fix
