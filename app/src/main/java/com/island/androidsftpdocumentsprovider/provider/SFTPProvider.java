@@ -114,22 +114,22 @@ public class SFTPProvider extends DocumentsProvider
 	    List<Account> accounts=dao.getAllVisibleAccounts();
 	    for(Account account:accounts) {
 		String documentId=SFTP.accountToDocumentId(account);
-		MatrixCursor.RowBuilder row=result.newRow();
-		row.add(Root.COLUMN_ROOT_ID,documentId);
-		row.add(Root.COLUMN_DOCUMENT_ID,documentId);
-		int icon=R.drawable.ic_launcher;
-		row.add(Root.COLUMN_ICON,icon);
-		row.add(Root.COLUMN_FLAGS,
-			Root.FLAG_SUPPORTS_CREATE |
-			Root.FLAG_SUPPORTS_IS_CHILD);
-		String title=getContext().getString(R.string.sftp);
-		row.add(Root.COLUMN_TITLE,title);
 		String directory = account.getDirectory();
 		if(directory == null || directory.isEmpty())
 		    directory="/";
-		documentId+=directory;
-		row.add(Root.COLUMN_SUMMARY,
-			SFTP.documentIdToAccount(documentId));
+		if(directory.length() > 1)
+		    directory = directory.replaceAll("/$","");
+		MatrixCursor.RowBuilder row=result.newRow();
+		row.add(Root.COLUMN_ROOT_ID, documentId);
+		row.add(Root.COLUMN_DOCUMENT_ID, documentId+directory);
+		row.add(Root.COLUMN_ICON, R.drawable.ic_launcher);
+		row.add(Root.COLUMN_FLAGS,
+			Root.FLAG_SUPPORTS_CREATE |
+			Root.FLAG_SUPPORTS_IS_CHILD);
+		row.add(Root.COLUMN_TITLE,
+			account.getName().replaceAll(":22$",""));
+		if(directory.length() > 1)
+		    row.add(Root.COLUMN_SUMMARY, directory);
 	    }
 	    return result;
 	} catch(Exception e) {

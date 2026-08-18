@@ -1,7 +1,6 @@
 <resources>
 	<!-- app stuff -->
 	<string name="app_name">SFTP Documents Provider</string>
-	<string name="sftp">SFTP</string>
 
 	<string name="authority">lu.knaff.alain.sftp.documents</string>
 
