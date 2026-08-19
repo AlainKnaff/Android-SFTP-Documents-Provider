@@ -74,6 +74,11 @@ android {
         includeInApk = false
         includeInBundle = false
     }
+    packaging {
+        resources {
+            excludes += "/META-INF/LICENSE.md"
+        }
+    }
 }
 
 dependencies {
@@ -84,8 +89,8 @@ dependencies {
     //compile "commons-net:commons-net:+"
     // https://mvnrepository.com/artifact/it.sauronsoftware/ftp4j
     implementation("com.github.mwiede:jsch:2.28.6")
-    implementation("org.bouncycastle:bcpkix-jdk18on:1.83")
-    implementation("org.bouncycastle:bcprov-jdk18on:1.83")
+    implementation("org.bouncycastle:bcpkix-jdk18on:1.85")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.85.2")
 
     implementation("com.google.android.material:material:1.14.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.2")
