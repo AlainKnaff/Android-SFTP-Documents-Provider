@@ -1,12 +1,12 @@
 plugins {
-    id 'com.android.application'
-    id 'kotlin-android'
-    id 'kotlin-kapt'
+    id("com.android.application")
+    id("kotlin-android")
+    id("kotlin-kapt")
 }
 
 android {
     compileSdk = 36
-    namespace='lu.knaff.alain.saf_sftp'
+    namespace="lu.knaff.alain.saf_sftp"
     defaultConfig {
         applicationId = "lu.knaff.alain.saf_sftp"
         minSdk = 26
@@ -23,49 +23,53 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
 	javaCompileOptions {
- 	   annotationProcessorOptions {
-             arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
-           }
+ 	    annotationProcessorOptions {
+		arguments += mapOf(
+		    "room.schemaLocation" to "$projectDir/schemas".toString()
+		)
+	    }
         }
     }
     buildTypes {
         release {
-            minifyEnabled = false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            isMinifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"),
+			  "proguard-rules.pro")
         }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_21
+    kotlin {
+	compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+	}
     }
-    lintOptions {
+    lint {
         checkAllWarnings = true // Checks all lint warnings
         // warningsAsErrors = true // Treats all warnings as errors
     }
-    gradle.projectsEvaluated{
-        tasks.withType(JavaCompile){
-            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
-        }
-    }
+    gradle.projectsEvaluated {
+	tasks.withType<JavaCompile>().configureEach {
+            options.compilerArgs.addAll(
+		listOf("-Xlint:unchecked", "-Xlint:deprecation")
+            )
+	}}
 
     signingConfigs {
-        release {
+        create("release") {
             storeFile = file("keystore.jks")
             storePassword = System.getenv("SIGNING_STORE_PASSWORD")
             keyAlias = System.getenv("SIGNING_KEY_ALIAS")
             keyPassword = System.getenv("SIGNING_KEY_PASSWORD")
         }
     }
-
     buildTypes {
-        release {
-            signingConfig = signingConfigs.release
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
         }
     }
-
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
@@ -73,18 +77,17 @@ android {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "androidx.room:room-runtime:2.8.4"
-    kapt "androidx.room:room-compiler:2.8.4"
+    implementation("androidx.room:room-runtime:2.8.4")
+    kapt("androidx.room:room-compiler:2.8.4")
 
     // https://mvnrepository.com/artifact/commons-net/commons-net
-    //compile 'commons-net:commons-net:+'
+    //compile "commons-net:commons-net:+"
     // https://mvnrepository.com/artifact/it.sauronsoftware/ftp4j
-    implementation 'com.github.mwiede:jsch:2.28.6'
-    implementation 'org.bouncycastle:bcpkix-jdk18on:1.83'
-    implementation 'org.bouncycastle:bcprov-jdk18on:1.83'
+    implementation("com.github.mwiede:jsch:2.28.6")
+    implementation("org.bouncycastle:bcpkix-jdk18on:1.83")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.83")
 
-    implementation 'com.google.android.material:material:1.14.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.2'
-    implementation 'androidx.work:work-runtime:2.11.2'
+    implementation("com.google.android.material:material:1.14.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.2")
+    implementation("androidx.work:work-runtime:2.11.2")
 }

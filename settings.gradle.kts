@@ -4,6 +4,8 @@ pluginManagement {
         google()
         mavenCentral()
     }
+
+    
 }
 
 dependencyResolutionManagement {
@@ -15,4 +17,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Android-SFTP-Documents-Provider"
-include ':app'
+include (":app")
