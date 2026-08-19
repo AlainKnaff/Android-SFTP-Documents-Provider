@@ -5,14 +5,14 @@ plugins {
 }
 
 android {
-    compileSdkVersion 36
+    compileSdk = 36
     namespace='lu.knaff.alain.saf_sftp'
     defaultConfig {
         applicationId = "lu.knaff.alain.saf_sftp"
-        minSdkVersion = 26
+        minSdk = 26
 	// Min SDK Version is greater than 24, in order to be able to disable v1 signing
 	// Min SDK Version is 26, for ProxyFileDescriptorCallback
-        targetSdkVersion = 36
+        targetSdk = 36
 
 	// version code is supposed to be 2 digits of major, 2 digits
 	// of minor, and 2 digits of 3rd part. As major is still 0, and
