@@ -5,13 +5,18 @@ import java.util.concurrent.FutureTask
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutionException
 
+import android.util.Log
 import android.provider.DocumentsContract.Document
 import android.database.ContentObserver
 import android.database.AbstractCursor
 
+import android.os.Bundle
+
 import com.island.util.ErrorNotification
 import com.island.sftp.SFTP
 import com.island.sftp.SftpFile
+
+import android.provider.DocumentsContract
 
 class DirectoryCursor(val provider: SFTPProvider,
                       val documentId: String,
@@ -41,6 +46,8 @@ class DirectoryCursor(val provider: SFTPProvider,
     lateinit var files : Array<SftpFile>
     lateinit var f : FutureTask<Array<SftpFile>>
 
+    var error : String? = null
+
     fun start(c: Callable<Array<SftpFile>>) : DirectoryCursor {
         f = FutureTask(c)
         executor.submit(f)
@@ -51,9 +58,19 @@ class DirectoryCursor(val provider: SFTPProvider,
         try {
             files = f.get()
         } catch(e: ExecutionException) {
-            ErrorNotification.sendNotification(provider.context,
-                                               documentId, e.cause)
-            throw e
+            // ErrorNotification.sendNotification(provider.context,
+            //                                   documentId, e.cause)
+            // throw e
+	    files = arrayOf<SftpFile>()
+	    Log.i(TAG, "Exception caught in fetch", e)
+	    var t : Throwable = e
+	    while(true) {
+		val c = t.cause
+		if(c == null)
+		    break
+		t = c
+	    }
+	    error = t.toString()
         }
     }
 
@@ -141,6 +158,17 @@ class DirectoryCursor(val provider: SFTPProvider,
 
     override fun isNull(column: Int) : Boolean {
         return false
+    }
+
+    override fun getExtras() : Bundle {
+	fetch()
+	var b = super.getExtras()
+	if(error != null) {
+	    if(b == Bundle.EMPTY)
+		b = Bundle()
+	    b.putCharSequence(DocumentsContract.EXTRA_ERROR, error)
+	}
+	return b
     }
 
     override fun onChange(selfChange: Boolean) {
