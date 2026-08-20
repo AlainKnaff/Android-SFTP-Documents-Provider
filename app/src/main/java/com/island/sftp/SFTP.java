@@ -195,15 +195,20 @@ public class SFTP extends SSH implements Closeable
 				SftpFile file;
 				SftpATTRS attrs=entry.getAttrs();
 				if(attrs.isLink()) {
+					continue;
+					/* Resolving links is excessively slow
+					   which poses problems on Sdk 37
 					File link = new File(directory,
 							     entry.getFilename());
 					try {
+						// stat takes 30 milliseconds on SDK 37
 						attrs=channel.stat(link.getPath());
 					} catch(Exception e) {
 						Log.e(TAG,
 						      "Could not read "+link.getPath());
 						continue;
 					}
+					*/
 				}
 				String fileName = entry.getFilename();
 				file=new SftpFile(directory, fileName, attrs);
