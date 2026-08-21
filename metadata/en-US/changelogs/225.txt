@@ -1,0 +1,4 @@
+- Upgrade bouncycastle (ssh library)
+- Do no longer resolve symlinks. Prohibitively slow on directories that have many symlinks because each symlink is a 30ms+ round-trip to the server
+- More userfriendly way of returning errors that occur during directory browsing
+(display error on top of directory listing rather than sending a notification)

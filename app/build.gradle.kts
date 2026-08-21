@@ -12,14 +12,16 @@ android {
         minSdk = 26
 	// Min SDK Version is greater than 24, in order to be able to disable v1 signing
 	// Min SDK Version is 26, for ProxyFileDescriptorCallback
+
         targetSdk = 36
+	// we cannot yet go to 37, due to problems with access to IPv6 hosts
 
 	// version code is supposed to be 2 digits of major, 2 digits
 	// of minor, and 2 digits of 3rd part. As major is still 0, and
 	// as no leading zeroes are represented, 200 is what we get for
 	// 0.2
-        versionCode = 224
-        versionName = "0.2.24"
+        versionCode = 225
+        versionName = "0.2.25"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
 	javaCompileOptions {
