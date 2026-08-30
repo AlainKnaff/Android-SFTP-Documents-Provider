@@ -450,7 +450,7 @@ public class SFTPProvider extends DocumentsProvider
 	else return projection;
     }
 
-    private static String[]resolveRootProjection(String[]projection) {
+    protected static String[]resolveRootProjection(String[]projection) {
 	if(projection==null)return DEFAULT_ROOT_PROJECTION;
 	else return projection;
     }

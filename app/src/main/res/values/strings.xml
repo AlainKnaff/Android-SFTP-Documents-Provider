@@ -2,7 +2,8 @@
 	<!-- app stuff -->
 	<string name="app_name">SFTP Documents Provider</string>
 
-	<string name="authority">lu.knaff.alain.sftp.documents</string>
+	<string name="authority">lu.knaff.alain.saf_sftp.documents</string>
+	<string name="old_authority">lu.knaff.alain.sftp.documents</string>
 
 	<!-- other items that are relevant globally -->
 	<string name="yes">Yes</string>

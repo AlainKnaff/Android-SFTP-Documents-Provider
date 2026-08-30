@@ -38,6 +38,16 @@
             <action android:name="android.content.action.DOCUMENTS_PROVIDER"/>
           </intent-filter>
 	</provider>
+	<provider
+            android:name="com.island.androidsftpdocumentsprovider.provider.SFTPProviderOld"
+            android:authorities="@string/old_authority"
+            android:grantUriPermissions="true"
+            android:exported="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS">
+          <intent-filter>
+            <action android:name="android.content.action.DOCUMENTS_PROVIDER"/>
+          </intent-filter>
+	</provider>
 	<service
 	    android:name="com.island.sftp.SftpService" />
         <receiver
