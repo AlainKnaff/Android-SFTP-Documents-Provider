@@ -1,7 +1,7 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
-    id("com.android.application")
-    id("kotlin-android")
-    id("kotlin-kapt")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -14,7 +14,9 @@ android {
 	// Min SDK Version is 26, for ProxyFileDescriptorCallback
 
         targetSdk = 36
-	// we cannot yet go to 37, due to problems with access to IPv6 hosts
+	// we cannot yet go to 37, due to additional permissions
+	// needed to access hosts on local network, and cumbersome
+	// error reporting associated with this
 
 	// version code is supposed to be 2 digits of major, 2 digits
 	// of minor, and 2 digits of 3rd part. As major is still 0, and
@@ -24,14 +26,10 @@ android {
         versionName = "0.2.25"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-	javaCompileOptions {
- 	    annotationProcessorOptions {
-		arguments += mapOf(
-		    "room.schemaLocation" to "$projectDir/schemas".toString()
-		)
-	    }
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
         }
-    }
+   }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -84,17 +82,13 @@ android {
 }
 
 dependencies {
-    implementation("androidx.room:room-runtime:2.8.4")
-    kapt("androidx.room:room-compiler:2.8.4")
+    implementation(libs.androidx.room.rt)
+    ksp(libs.androidx.room.ksp)
+    
+    implementation(libs.jsch)
+    implementation(libs.bcpkix.jdk18on)
+    implementation(libs.bcprov.jdk18on)
 
-    // https://mvnrepository.com/artifact/commons-net/commons-net
-    //compile "commons-net:commons-net:+"
-    // https://mvnrepository.com/artifact/it.sauronsoftware/ftp4j
-    implementation("com.github.mwiede:jsch:2.28.6")
-    implementation("org.bouncycastle:bcpkix-jdk18on:1.85")
-    implementation("org.bouncycastle:bcprov-jdk18on:1.85.2")
-
-    implementation("com.google.android.material:material:1.14.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.2.2")
-    implementation("androidx.work:work-runtime:2.11.2")
+    implementation(libs.material)
+    implementation(libs.androidx.constraintlayout)
 }
