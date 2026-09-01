@@ -178,11 +178,11 @@ class DirectoryCursor(val provider: SFTPProvider,
 
     override fun registerContentObserver(observer: ContentObserver) {
 	super.registerContentObserver(observer)
-	provider.registerCursor(this, documentId)
+	provider.registerCursor(documentId, this)
     }
 
     override fun unregisterContentObserver(observer: ContentObserver) {
 	super.unregisterContentObserver(observer)
-	provider.unregisterCursor(this, documentId)
+	provider.unregisterCursor(documentId, this)
     }
 }

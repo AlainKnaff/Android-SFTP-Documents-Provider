@@ -27,11 +27,11 @@ public class MC extends MatrixCursor implements RefreshableCursor {
 
     public void registerContentObserver(ContentObserver observer) {
 	super.registerContentObserver(observer);
-	provider.registerCursor(this, documentId);
+	provider.registerCursor(documentId, this);
     }
 
     public void unregisterContentObserver(ContentObserver observer) {
 	super.unregisterContentObserver(observer);
-	provider.unregisterCursor(this, documentId);
+	provider.unregisterCursor(documentId, this);
     }
 }

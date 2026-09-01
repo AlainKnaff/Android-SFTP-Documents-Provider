@@ -72,15 +72,13 @@ public class SFTPProvider extends DocumentsProvider
 
     private Map<String,RefreshableCursor> cursors = new HashMap<>();
 
-    @SuppressWarnings("LambdaLast")
-    public void registerCursor(@NonNull RefreshableCursor cursor,
-			       @NonNull String documentId) {
+    public void registerCursor(@NonNull String documentId,
+			       @NonNull RefreshableCursor cursor) {
 	cursors.put(documentId, cursor);
     }
 
-    @SuppressWarnings("LambdaLast")
-    public void unregisterCursor(@NonNull RefreshableCursor cursor,
-				 @NonNull String documentId) {
+    public void unregisterCursor(@NonNull String documentId,
+				 @NonNull RefreshableCursor cursor) {
 	cursors.remove(documentId, cursor);
     }
 
