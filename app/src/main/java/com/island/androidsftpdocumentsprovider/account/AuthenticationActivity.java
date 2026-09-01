@@ -25,6 +25,8 @@ import android.widget.CheckBox;
 import android.widget.Toast;
 import android.widget.Spinner;
 import android.widget.ArrayAdapter;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.island.sftp.SFTP;
 import com.island.sftp.InteractiveUserInfo;
 import com.island.androidsftpdocumentsprovider.provider.ProviderActivity;
@@ -50,7 +52,7 @@ public class AuthenticationActivity extends ProviderActivity
 	private Integer jumpHostAccountId = null;
 
 	@Override
-	protected void onCreate(Bundle icicle)
+	protected void onCreate(@Nullable Bundle icicle)
 	{
 		super.onCreate(icicle);
 		dao = TheDatabase.getDao(getApplicationContext());
@@ -129,7 +131,7 @@ public class AuthenticationActivity extends ProviderActivity
 		finish();
 	}
 
-	public void checkHostKey(View view) {
+	public void checkHostKey(@NonNull View view) {
 		findViewById(R.id.check_host_key)
 		    .setEnabled(false);
 
@@ -224,7 +226,7 @@ public class AuthenticationActivity extends ProviderActivity
 			}
 		};
 
-	public void confirm(View view) {
+	public void confirm(@NonNull View view) {
 		try {
 			_confirm(view);
 		} catch(Exception e) {

@@ -1,5 +1,6 @@
 package com.island.sftp;
 
+import androidx.annotation.Nullable;
 import java.io.File;
 import com.jcraft.jsch.SftpATTRS;
 
@@ -62,7 +63,7 @@ public class SftpFile extends File {
      * Gets isDirectory. IsDirectory is a boolean indicating whether this is a directory
      * @return the isDirectory
      */
-    public Boolean getIsDirectory() {
+    public @Nullable Boolean getIsDirectory() {
 	return isDirectory;
     }
 

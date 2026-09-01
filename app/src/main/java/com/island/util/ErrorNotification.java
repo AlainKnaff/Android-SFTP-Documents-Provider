@@ -11,6 +11,7 @@ You should have received a copy of the GNU General Public License along with thi
 */
 
 import lu.knaff.alain.saf_sftp.R;
+import androidx.annotation.NonNull;
 import android.app.NotificationChannel;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -33,8 +34,9 @@ public class ErrorNotification {
         isInitialized=true;
     }
 
-    public static void sendNotification(Context ctx,
-					String title, Throwable t) {
+    public static void sendNotification(@NonNull Context ctx,
+					@NonNull String title,
+					@NonNull Throwable t) {
 	while(true) {
 	    Throwable c = t.getCause();
 	    if(c == null || c instanceof android.system.ErrnoException)

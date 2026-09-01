@@ -26,6 +26,8 @@ import java.io.FileNotFoundException;
 import java.net.ConnectException;
 import java.net.SocketException;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -71,12 +73,14 @@ public class SFTPProvider extends DocumentsProvider
     private Map<String,RefreshableCursor> cursors = new HashMap<>();
 
     @SuppressWarnings("LambdaLast")
-    public void registerCursor(RefreshableCursor cursor, String documentId) {
+    public void registerCursor(@NonNull RefreshableCursor cursor,
+			       @NonNull String documentId) {
 	cursors.put(documentId, cursor);
     }
 
     @SuppressWarnings("LambdaLast")
-    public void unregisterCursor(RefreshableCursor cursor, String documentId) {
+    public void unregisterCursor(@NonNull RefreshableCursor cursor,
+				 @NonNull String documentId) {
 	cursors.remove(documentId, cursor);
     }
 
@@ -214,7 +218,10 @@ public class SFTPProvider extends DocumentsProvider
     }
 
     @Override
-    public ParcelFileDescriptor openDocument(String documentId,String mode,CancellationSignal signal)throws FileNotFoundException
+    public @NonNull ParcelFileDescriptor openDocument(@NonNull String documentId,
+						      @NonNull String mode,
+						      @Nullable CancellationSignal signal)
+	throws FileNotFoundException
     {
 	cancelStrictMode();
 	Log.d(SFTPProvider.TAG,String.format("SFTPProvider openDocument %s %s %s",documentId,mode,signal));
@@ -283,7 +290,7 @@ public class SFTPProvider extends DocumentsProvider
 	}
     }
     @Override
-    public void deleteDocument(String documentId)
+    public void deleteDocument(@NonNull String documentId)
 	throws FileNotFoundException
     {
 	cancelStrictMode();
@@ -305,7 +312,7 @@ public class SFTPProvider extends DocumentsProvider
     }
 
     @Override
-    public String getDocumentType(String documentId)
+    public @NonNull String getDocumentType(@NonNull String documentId)
 	throws FileNotFoundException
     {
 	cancelStrictMode();
@@ -326,7 +333,8 @@ public class SFTPProvider extends DocumentsProvider
     }
 
     @Override
-    public String renameDocument(String documentId, String displayName)
+    public @NonNull String renameDocument(@NonNull String documentId,
+					  @NonNull String displayName)
 	throws FileNotFoundException
     {
 	cancelStrictMode();
@@ -352,9 +360,9 @@ public class SFTPProvider extends DocumentsProvider
     }
 
     @Override
-    public String moveDocument(String sourceDocumentId,
-			       String sourceParentDocumentId,
-			       String targetParentDocumentId)
+    public @NonNull String moveDocument(@NonNull String sourceDocumentId,
+					@NonNull String sourceParentDocumentId,
+					@NonNull String targetParentDocumentId)
 	throws FileNotFoundException
     {
 	cancelStrictMode();
@@ -382,7 +390,8 @@ public class SFTPProvider extends DocumentsProvider
     }
 
     @Override
-    public String copyDocument(String sourceDocumentId,String targetParentDocumentId)
+    public @NonNull String copyDocument(@NonNull String sourceDocumentId,
+					@NonNull String targetParentDocumentId)
 	throws FileNotFoundException
     {
 	cancelStrictMode();
@@ -410,7 +419,8 @@ public class SFTPProvider extends DocumentsProvider
     }
 
     @Override
-    public Path findDocumentPath(String parentDocId, String childDocId)
+    public @NonNull Path findDocumentPath(@Nullable String parentDocId,
+					  @NonNull String childDocId)
             throws FileNotFoundException {
 
 	// TODO: handle non-null parentDocId. Right now we have no test case
@@ -445,17 +455,22 @@ public class SFTPProvider extends DocumentsProvider
 	return new Path(rootId, children);
     }
 
-    private static String[]resolveDocumentProjection(String[]projection) {
-	if(projection==null)return DEFAULT_DOCUMENT_PROJECTION;
+    private static @NonNull String[]
+	resolveDocumentProjection(@Nullable String[]projection) {
+	if(projection==null)
+	    return DEFAULT_DOCUMENT_PROJECTION;
 	else return projection;
     }
 
-    protected static String[]resolveRootProjection(String[]projection) {
-	if(projection==null)return DEFAULT_ROOT_PROJECTION;
+    protected static @NonNull String[]
+	resolveRootProjection(@Nullable String[]projection) {
+	if(projection==null)
+	    return DEFAULT_ROOT_PROJECTION;
 	else return projection;
     }
 
-    public static String getToken(Context context,String documentId)
+    public static @Nullable String getToken(@NonNull Context context,
+					    @NonNull String documentId)
 	throws IOException
     {
 	return getAccountInfo(context, documentId).getPassword();

@@ -32,6 +32,8 @@ import java.net.SocketException;
 import java.net.ProtocolException;
 import java.net.ConnectException;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import android.content.Context;
 import android.util.Log;
 import android.provider.DocumentsContract;
@@ -51,19 +53,19 @@ public class SFTP extends SSH implements Closeable
 {
 	private static final String TAG = "SFTP";
 	private static final int BUFFER=1024;
-	public  String documentId;
+	public  @NonNull String documentId;
 	private ChannelSftp channel;
 	private boolean disconnected;
 
 	private Map<String,SftpFile> files = new HashMap<>();
 
-	public static String accountToDocumentId(Account account) {
+	public static @NonNull String accountToDocumentId(@NonNull Account account) {
 	  	return account.getName();
 	}
 
         static Pattern accountPattern = Pattern.compile("(?:sftp://?)?([^/]*)(.*)");
 
-        public static String documentIdToAccount(String documentId) {
+        public static @NonNull String documentIdToAccount(@NonNull String documentId) {
                 Matcher m = accountPattern.matcher(documentId);
                 if(m.matches())
                         return m.group(1);
@@ -72,18 +74,22 @@ public class SFTP extends SSH implements Closeable
         }
 
         // remove prefix of older scheme
-        public static String normalize(String documentId) {
+        public static @NonNull String normalize(@NonNull String documentId) {
                 return documentId.replaceAll("^sftp://", "");
         }
 
-        public SFTP(Context ctx, String documentId, Account account)
+        public SFTP(@NonNull Context ctx,
+		    @NonNull String documentId,
+		    @NonNull Account account)
                 throws ConnectException
 	{
 		this(ctx, documentId, account, null);
 	}
 
-        public SFTP(Context ctx, String documentId,
-		    Account account, UserInfo userInfo)
+        public SFTP(@NonNull Context ctx,
+		    @NonNull String documentId,
+		    @NonNull Account account,
+		    @Nullable UserInfo userInfo)
                 throws ConnectException
         {
 		super(ctx, account, userInfo);
@@ -96,7 +102,7 @@ public class SFTP extends SSH implements Closeable
 
         }
 
-	protected Session makeSession() throws JSchException {
+	protected @NonNull Session makeSession() throws JSchException {
 		Session session = super.makeSession();
 		channel=(ChannelSftp)session.openChannel("sftp");
 		channel.connect();
@@ -123,21 +129,21 @@ public class SFTP extends SSH implements Closeable
 			channel.connect();
 		}
 	}
-        public long lastModified(SftpFile file)throws IOException
+        public long lastModified(@NonNull SftpFile file)throws IOException
         {
                 checkArguments(file);
                 if(file.getSftpLastModified() == -1)
                         listFile(file);
                 return file.getSftpLastModified();
         }
-        public long length(SftpFile file)throws IOException
+        public long length(@NonNull SftpFile file)throws IOException
         {
                 checkArguments(file);
                 if(file.getSize() == -1)
                         listFile(file);
                 return file.getSize();
         }
-        public boolean isDirectory(SftpFile file)throws IOException
+        public boolean isDirectory(@NonNull SftpFile file)throws IOException
         {
                 checkArguments(file);
                 if(file.getIsDirectory() == null) {
@@ -154,7 +160,7 @@ public class SFTP extends SSH implements Closeable
 			channel.quit();
 		disconnected=true;
 	}
-        public synchronized void listFile(SftpFile file)
+        public synchronized void listFile(@NonNull SftpFile file)
                 throws IOException
         {
                 Log.d(TAG, "List file "+file);
@@ -179,7 +185,8 @@ public class SFTP extends SSH implements Closeable
                         throw getException(e);
                 }
         }
-	public synchronized SftpFile[]listFiles(File directory)throws IOException
+	public synchronized @NonNull SftpFile[] listFiles(@NonNull File directory)
+		throws IOException
 	{
 		checkArguments(directory);
 		try {
@@ -222,7 +229,8 @@ public class SFTP extends SSH implements Closeable
 			throw getException(e);
 		}
 	}
-	public synchronized void newFile(SftpFile file)throws IOException
+	public synchronized void newFile(@NonNull SftpFile file)
+		throws IOException
 	{
 		checkArguments(file);
 		try {
@@ -235,7 +243,8 @@ public class SFTP extends SSH implements Closeable
 			throw getException(e);
 		}
 	}
-	public synchronized void delete(SftpFile file)throws IOException
+	public synchronized void delete(@NonNull SftpFile file)
+		throws IOException
 	{
 		checkArguments(file);
 		try {
@@ -252,7 +261,9 @@ public class SFTP extends SSH implements Closeable
 			throw getException(e);
 		}
 	}
-	public synchronized InputStream read(File file, long offset)throws IOException
+	public synchronized @NonNull InputStream read(@NonNull File file,
+						      long offset)
+		throws IOException
 	{
 		checkArguments(file);
 		try {
@@ -264,7 +275,8 @@ public class SFTP extends SSH implements Closeable
 			throw getException(e);
 		}
 	}
-	public synchronized void mkdirs(SftpFile file)throws IOException
+	public synchronized void mkdirs(@NonNull SftpFile file)
+		throws IOException
 	{
 		checkArguments(file);
 		try {
@@ -277,7 +289,7 @@ public class SFTP extends SSH implements Closeable
 			throw getException(e);
 		}
 	}
-	public boolean exists(File file)throws IOException
+	public boolean exists(@NonNull File file)throws IOException
 	{
 		checkArguments(file);
 		SftpFile sfile = getFileForPath(file.getPath());
@@ -292,7 +304,9 @@ public class SFTP extends SSH implements Closeable
 			return false;
 		}
 	}
-	public synchronized void renameTo(File oldPath,File newPath)throws IOException
+	public synchronized void renameTo(@NonNull File oldPath,
+					  @NonNull File newPath)
+		throws IOException
 	{
 		checkArguments(oldPath,newPath);
 		try {
@@ -304,7 +318,10 @@ public class SFTP extends SSH implements Closeable
 			throw getException(e);
 		}
 	}
-	public synchronized OutputStream write(File file, int mode, long offset)throws IOException
+	public synchronized @NonNull OutputStream write(@NonNull File file,
+							int mode,
+							long offset)
+		throws IOException
 	{
 		checkArguments(file);
 		try {
@@ -317,7 +334,7 @@ public class SFTP extends SSH implements Closeable
 		}
 	}
 
-        public SftpFile getFile(String documentId)
+        public @NonNull SftpFile getFile(@NonNull String documentId)
         {
                 Objects.requireNonNull(documentId);
                 Matcher m = accountPattern.matcher(documentId);
@@ -342,12 +359,14 @@ public class SFTP extends SSH implements Closeable
                 }
                 return cachedFile;
 	}
-	public String getDocumentId(File file)
+	public @NonNull String getDocumentId(@NonNull File file)
 	{
 		Objects.requireNonNull(file);
 		return documentIdToAccount(documentId)+file.getPath();
 	}
-	public synchronized void copy(File from,File to)throws IOException
+	public synchronized void copy(@NonNull File from,
+				      @NonNull File to)
+		throws IOException
 	{
 		checkArguments(from,to);
 		try {
@@ -364,7 +383,8 @@ public class SFTP extends SSH implements Closeable
 			throw getException(e);
 		}
 	}
-	public String getMimeType(SftpFile file)throws IOException
+	public @NonNull String getMimeType(@NonNull SftpFile file)
+		throws IOException
 	{
 		Objects.requireNonNull(file);
 		if(isDirectory(file)) {
@@ -396,29 +416,6 @@ public class SFTP extends SSH implements Closeable
 		void update(long wrote);
 	}
 
-	public static void writeAll(InputStream input,
-				    OutputStream output,
-				    ProgressObserver progressNotification)
-		throws IOException
-	{
-		Objects.requireNonNull(input);
-		Objects.requireNonNull(output);
-		input=new BufferedInputStream(input);
-		output=new BufferedOutputStream(output);
-		byte[]buffer=new byte[SFTP.BUFFER];
-		int bytesRead=0;
-		long wrote=0;
-		while((bytesRead=SFTP.write(input,output,buffer))!=-1) {
-			wrote+=bytesRead;
-			progressNotification.update(wrote);
-		}
-		input.close();
-		output.close();
-	}
-	public static void writeAll(InputStream input,OutputStream output)throws IOException
-	{
-		writeAll(input,output,null);
-	}
 	private IOException getException(Exception cause)
 	{
 		assert cause!=null;

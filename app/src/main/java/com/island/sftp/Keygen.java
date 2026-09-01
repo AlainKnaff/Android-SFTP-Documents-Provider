@@ -36,6 +36,8 @@ You should have received a copy of the GNU General Public License along with thi
 import java.nio.ByteOrder;
 import java.nio.ByteBuffer;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import android.content.Intent;
 import android.content.Context;
 import android.util.Log;
@@ -54,7 +56,7 @@ public class Keygen {
     public static final String PRIVATE_KEY_FILE="privateKey.pem";
     public static final String PUBLIC_KEY_FILE="publicKey.txt";
 
-    public static void genKey(Context ctx, String algo) {
+    public static void genKey(@NonNull Context ctx, @NonNull String algo) {
         try {
             BouncyCastle.trigger();
 
@@ -97,7 +99,8 @@ public class Keygen {
 	return Base64.encodeToString(bin, Base64.NO_WRAP);
     }
 
-    public static String convertToPEM(Key key, String algo)
+    public static @NonNull String convertToPEM(@NonNull Key key,
+					       @NonNull String algo)
         throws IOException, InvalidKeyException
     {
         byte[] encodedKey;
@@ -133,8 +136,8 @@ public class Keygen {
 
     // see https://linuxtut.com/en/ee3c7d0ba7d4610a9d21/ for
     // outputting public key
-    public static String getEncodedSshPublicKey(Context ctx,
-                                                final PublicKey pKey)
+    public static @NonNull String getEncodedSshPublicKey(@NonNull Context ctx,
+							 @NonNull final PublicKey pKey)
         throws IOException
     {
         AsymmetricKeyParameter bpub =
@@ -152,12 +155,12 @@ public class Keygen {
         return publicKeyEncoded;
     }
 
-    public static boolean haveKey(Context ctx) {
+    public static boolean haveKey(@NonNull Context ctx) {
 	String privKeyFilename = ctx.getFilesDir()+"/"+PRIVATE_KEY_FILE;
 	return new File(privKeyFilename).exists();
     }
 
-    public static String readPrivateKey(Context ctx) {
+    public static @Nullable String readPrivateKey(@NonNull Context ctx) {
 	if(haveKey(ctx))
 	    return ctx.getFilesDir()+"/"+PRIVATE_KEY_FILE;
 	else
@@ -165,7 +168,7 @@ public class Keygen {
     }
 
 
-    public static String readPublicKey(Context ctx) {
+    public static @Nullable String readPublicKey(@NonNull Context ctx) {
 	try(BufferedReader br =
 	    new BufferedReader(new InputStreamReader(ctx.openFileInput(PUBLIC_KEY_FILE)))) {
 	    return br.readLine();
@@ -178,7 +181,7 @@ public class Keygen {
 	}
     }
 
-    public static void shareKey(Context ctx) {
+    public static void shareKey(@NonNull Context ctx) {
 	// Sharing intent
 	Intent shareIntent = new Intent();
 	shareIntent.setAction(Intent.ACTION_SEND);

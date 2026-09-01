@@ -1,5 +1,6 @@
 package com.island.sftp;
 
+import androidx.annotation.NonNull;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.interfaces.ECPrivateKey;
@@ -19,7 +20,7 @@ import org.bouncycastle.util.Arrays;
 
 public abstract class EcdsaConverter {
     // supports ECDSA for nistp256, nistp384 and nistp521
-    public static byte[] convertToOpenSshPrivateKey(ECPrivateKey ecPrivateKey)
+    public static @NonNull byte[] convertToOpenSshPrivateKey(@NonNull ECPrivateKey ecPrivateKey)
         throws InvalidKeyException
     {
 
