@@ -1,6 +1,7 @@
 package com.island.androidsftpdocumentsprovider.provider
 
 import java.util.concurrent.Executors
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.FutureTask
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutionException
@@ -24,7 +25,7 @@ class DirectoryCursor(val provider: SFTPProvider,
     val TAG = "DirectoryCursor"
 
     companion object {
-        val executor = Executors.newFixedThreadPool(2)
+        val executor : ExecutorService = Executors.newFixedThreadPool(2)
 
         val DEFAULT_DOCUMENT_PROJECTION : Array<String> = arrayOf(
             Document.COLUMN_DOCUMENT_ID,
