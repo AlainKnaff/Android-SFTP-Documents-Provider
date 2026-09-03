@@ -53,7 +53,7 @@ import lu.knaff.alain.saf_sftp.R;
 
 public class SFTPProvider extends DocumentsProvider
 {
-    public static final String TAG="SFTPDocumentsProvider";
+     static final String TAG="SFTPProvider";
     private static final String[]DEFAULT_ROOT_PROJECTION=
     {Root.COLUMN_ROOT_ID,Root.COLUMN_FLAGS,Root.COLUMN_ICON,Root.COLUMN_TITLE,Root.COLUMN_DOCUMENT_ID,Root.COLUMN_SUMMARY};
     private static final String[]DEFAULT_DOCUMENT_PROJECTION= {
@@ -110,7 +110,7 @@ public class SFTPProvider extends DocumentsProvider
     public Cursor queryRoots(String[]projection)throws FileNotFoundException
     {
 	cancelStrictMode();
-	Log.d(SFTPProvider.TAG,String.format("SFTPProvider queryRoots %s",Arrays.toString(projection)));
+	Log.d(SFTPProvider.TAG,String.format("queryRoots %s",Arrays.toString(projection)));
 	try {
 	    MatrixCursor result=new MatrixCursor(resolveRootProjection(projection));
 	    List<Account> accounts=dao.getAllVisibleAccounts();
@@ -161,7 +161,7 @@ public class SFTPProvider extends DocumentsProvider
 	throws FileNotFoundException
     {
 	cancelStrictMode();
-	Log.d(SFTPProvider.TAG,String.format("SFTPProvider queryDocument %s %s",documentId,Arrays.toString(projection)));
+	Log.d(SFTPProvider.TAG,String.format("queryDocument %s %s",documentId,Arrays.toString(projection)));
 	try {
 	    Objects.requireNonNull(documentId);
 	    MatrixCursor result=new MatrixCursor(resolveDocumentProjection(projection));
@@ -197,7 +197,7 @@ public class SFTPProvider extends DocumentsProvider
 	throws FileNotFoundException
     {
 	cancelStrictMode();
-	Log.d(SFTPProvider.TAG,String.format("SFTPProvider queryChildDocuments %s %s %s",parentDocumentId,Arrays.toString(projection),Arrays.toString(projection)));
+	Log.d(SFTPProvider.TAG,String.format("queryChildDocuments %s %s %s",parentDocumentId,Arrays.toString(projection),Arrays.toString(projection)));
 	try {
 	    Objects.requireNonNull(parentDocumentId);
 	    SFTP sftp=getSFTP(parentDocumentId, true);
@@ -222,7 +222,7 @@ public class SFTPProvider extends DocumentsProvider
 	throws FileNotFoundException
     {
 	cancelStrictMode();
-	Log.d(SFTPProvider.TAG,String.format("SFTPProvider openDocument %s %s %s",documentId,mode,signal));
+	Log.d(SFTPProvider.TAG,String.format("openDocument %s %s %s",documentId,mode,signal));
 	try {
 	    Objects.requireNonNull(documentId);
 	    Objects.requireNonNull(mode);
@@ -251,7 +251,7 @@ public class SFTPProvider extends DocumentsProvider
 	throws FileNotFoundException
     {
 	cancelStrictMode();
-	Log.d(SFTPProvider.TAG,String.format("SFTPProvider createDocument %s %s %s",parentDocumentId,mimeType,displayName));
+	Log.d(SFTPProvider.TAG,String.format("createDocument %s %s %s",parentDocumentId,mimeType,displayName));
 	try {
 	    Objects.requireNonNull(parentDocumentId);
 	    Objects.requireNonNull(mimeType);
@@ -292,7 +292,7 @@ public class SFTPProvider extends DocumentsProvider
 	throws FileNotFoundException
     {
 	cancelStrictMode();
-	Log.d(SFTPProvider.TAG,String.format("SFTPProvider deleteDocument %s",documentId));
+	Log.d(SFTPProvider.TAG,String.format("deleteDocument %s",documentId));
 	try {
 	    Objects.requireNonNull(documentId);
 	    SFTP sftp=getSFTP(documentId);
@@ -314,7 +314,7 @@ public class SFTPProvider extends DocumentsProvider
 	throws FileNotFoundException
     {
 	cancelStrictMode();
-	Log.d(SFTPProvider.TAG,String.format("SFTPProvider getDocumentType %s",documentId));
+	Log.d(SFTPProvider.TAG,String.format("getDocumentType %s",documentId));
 	try {
 	    Objects.requireNonNull(documentId);
 	    SFTP sftp=getSFTP(documentId);
@@ -336,7 +336,7 @@ public class SFTPProvider extends DocumentsProvider
 	throws FileNotFoundException
     {
 	cancelStrictMode();
-	Log.d(SFTPProvider.TAG,String.format("SFTPProvider renameDocument %s %s",documentId,displayName));
+	Log.d(SFTPProvider.TAG,String.format("renameDocument %s %s",documentId,displayName));
 	try {
 	    Objects.requireNonNull(documentId);
 	    Objects.requireNonNull(displayName);
@@ -364,7 +364,7 @@ public class SFTPProvider extends DocumentsProvider
 	throws FileNotFoundException
     {
 	cancelStrictMode();
-	Log.d(SFTPProvider.TAG,String.format("SFTPProvider moveDocument %s %s %s",sourceDocumentId,sourceParentDocumentId,targetParentDocumentId));
+	Log.d(SFTPProvider.TAG,String.format("moveDocument %s %s %s",sourceDocumentId,sourceParentDocumentId,targetParentDocumentId));
 	try {
 	    Objects.requireNonNull(sourceDocumentId);
 	    Objects.requireNonNull(sourceParentDocumentId);
@@ -393,7 +393,7 @@ public class SFTPProvider extends DocumentsProvider
 	throws FileNotFoundException
     {
 	cancelStrictMode();
-	Log.d(SFTPProvider.TAG,String.format("SFTPProvider copyDocument %s %s",sourceDocumentId,targetParentDocumentId));
+	Log.d(SFTPProvider.TAG,String.format("copyDocument %s %s",sourceDocumentId,targetParentDocumentId));
 	try {
 	    Objects.requireNonNull(sourceDocumentId);
 	    Objects.requireNonNull(targetParentDocumentId);

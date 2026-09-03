@@ -6,11 +6,12 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 
 public class SFTPProviderOld extends SFTPProvider {
+    public static final String TAG="SFTPProviderOld";
 
     @Override
     public Cursor queryRoots(String[]projection)
     {
-	Log.d(SFTPProvider.TAG,String.format("SFTPProviderOld queryRoots %s",Arrays.toString(projection)));
+	Log.d(TAG,String.format("queryRoots %s", Arrays.toString(projection)));
 	return new MatrixCursor(resolveRootProjection(projection));
     }
 }
