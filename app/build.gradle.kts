@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    compileSdk = 36
+    compileSdk = 37
     namespace="lu.knaff.alain.saf_sftp"
     defaultConfig {
         applicationId = "lu.knaff.alain.saf_sftp"
@@ -13,6 +13,7 @@ android {
 	// Min SDK Version is greater than 24, in order to be able to disable v1 signing
 	// Min SDK Version is 26, for ProxyFileDescriptorCallback
 
+	//noinspection OldTargetApi
         targetSdk = 36
 	// we cannot yet go to 37, due to additional permissions
 	// needed to access hosts on local network, and cumbersome
@@ -48,7 +49,6 @@ android {
     }
     lint {
         checkAllWarnings = true // Checks all lint warnings
-        // warningsAsErrors = true // Treats all warnings as errors
     }
     gradle.projectsEvaluated {
 	tasks.withType<JavaCompile>().configureEach {
