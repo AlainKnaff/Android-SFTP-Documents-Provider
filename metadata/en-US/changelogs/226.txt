@@ -1,0 +1,3 @@
+- Use authority name derived from namespace / applicationId (application package) in order to make it more obvious to other applications which application supplies that authority. Old authority still supported additionally in case clients have uri permissions derived from old
+- Avoid network error if directory on sftp happens to be displayed when phone is woken up.
+- Dependency upgrades, code cleanup
