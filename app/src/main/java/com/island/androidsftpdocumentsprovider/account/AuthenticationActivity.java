@@ -39,8 +39,6 @@ public class AuthenticationActivity extends ProviderActivity
 	private Dao dao;
 	private Account account = null;
 
-	private final String TAG = "AuthenticationActivity";
-
 	// id field name for intents
 	public static final String ID_COL = "id";
 
@@ -121,12 +119,6 @@ public class AuthenticationActivity extends ProviderActivity
 
 			hideFromList.setChecked(account.getHideFromList());
 		}
-	}
-
-	private void cancel() {
-		Intent result=new Intent();
-		setResult(RESULT_CANCELED,result);
-		finish();
 	}
 
 	public void checkHostKey(@NonNull View view) {
@@ -226,13 +218,13 @@ public class AuthenticationActivity extends ProviderActivity
 
 	public void confirm(@NonNull View view) {
 		try {
-			_confirm(view);
+			_confirm();
 		} catch(Exception e) {
 			ErrorDialog.showError(this, "Error saving account", e);
 		}
 	}
 
-	private void _confirm(View view) {
+	private void _confirm() {
 		String hostName=((EditText)findViewById(R.id.host))
 			.getText().toString();
 
@@ -288,7 +280,6 @@ public class AuthenticationActivity extends ProviderActivity
 			    flags |= ContentResolver.NOTIFY_INSERT;
 			notifyChange(flags);
 		} else {
-			String oldName = account.getName();
 			// update existing account
 			account.setName(name);
 			account.setHostName(hostName);

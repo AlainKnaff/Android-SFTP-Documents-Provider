@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.io.File;
 import java.io.IOException;
 import java.io.FileNotFoundException;
@@ -67,7 +66,6 @@ public class SFTPProvider extends DocumentsProvider
     private final Set<SFTP>connections=new HashSet<>();
 
 
-    private final static Set<String> uploadingFiles = new CopyOnWriteArraySet<>();
     private Dao dao;
 
     private final Map<String,RefreshableCursor> cursors = new HashMap<>();
@@ -267,7 +265,6 @@ public class SFTPProvider extends DocumentsProvider
 		    base=displayName;
 		    extension = "";
 		}
-		int cnt=0;
 		SftpFile parent = sftp.getFile(parentDocumentId);
                 String[] documentId = new String[1];
                 SftpFile file = uniqueFile(sftp,parent,displayName,
@@ -465,14 +462,6 @@ public class SFTPProvider extends DocumentsProvider
 	    return DEFAULT_ROOT_PROJECTION;
 	else return projection;
     }
-
-    public static @Nullable String getToken(@NonNull Context context,
-					    @NonNull String documentId)
-	throws IOException
-    {
-	return getAccountInfo(context, documentId).getPassword();
-    }
-
 
     private static Account getAccountInfo(Context context, String documentId)
 	throws IOException

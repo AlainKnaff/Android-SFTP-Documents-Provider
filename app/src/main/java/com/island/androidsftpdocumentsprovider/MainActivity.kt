@@ -11,7 +11,6 @@ package com.island.androidsftpdocumentsprovider
  */
 
 import android.util.Log
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.ContentResolver
 import android.content.Intent
@@ -60,12 +59,12 @@ class MainActivity : ProviderActivity()
         setContentView(R.layout.main)
 
         val recyclerView=findViewById<RecyclerView>(R.id.sftp_accounts)
-        recyclerView.adapter=SFTPAdapter(this)
+        recyclerView.adapter=SFTPAdapter()
         recyclerView.layoutManager=LinearLayoutManager(this)
         fixButtonState()
     }
 
-    fun browseFiles(view:View)
+    fun browseFiles(ignoredView:View)
     {
         val intent = Intent(Intent.ACTION_VIEW,null)
         for(packge in arrayOf("com.google.android.documentsui",
@@ -90,30 +89,30 @@ class MainActivity : ProviderActivity()
             .show()
     }
 
-    fun addSftpAccount(view:View)
+    fun addSftpAccount(ignoredView:View)
     {
         val intent:Intent = Intent(this, AuthenticationActivity::class.java)
         startActivity(intent)
     }
 
-    fun editSftpAccount(view:View, account:AccountWithRemove)
+    fun editSftpAccount(ignoredView:View, account:AccountWithRemove)
     {
         val intent:Intent = Intent(this, AuthenticationActivity::class.java)
         intent.putExtra(AuthenticationActivity.ID_COL, account.id)
         startActivity(intent)
     }
 
-    fun generateKey(view: View) {
+    fun generateKey(ignoredView: View) {
         if(Keygen.haveKey(this)) {
             // pop up a dialog
             val builder: AlertDialog.Builder = AlertDialog.Builder(this)
             builder
                 .setMessage(R.string.keygen_confirm)
-                .setPositiveButton(R.string.yes) { d, w -> generateKey2(view) }
+                .setPositiveButton(R.string.yes) { d, w -> generateKey2() }
                 .setNegativeButton(R.string.no) { d, w  ->d.dismiss() }
                 .show()
         } else {
-            generateKey2(view)
+            generateKey2()
         }
     }
 
@@ -122,22 +121,22 @@ class MainActivity : ProviderActivity()
                            "ECDSA"
     )
 
-    private fun generateKey2(view: View) {
+    private fun generateKey2() {
         AlertDialog.Builder(this)
             .setTitle("Choose a key type")
             .setSingleChoiceItems(keyTypes, 1) {
-                dialog, which -> generateKey3(keyTypes[which], view)
+                dialog, which -> generateKey3(keyTypes[which])
                                  dialog.dismiss()
             }
             .show()
     }
 
-    private fun generateKey3(algo: String, view: View) {
+    private fun generateKey3(algo: String) {
         Keygen.genKey(this, algo)
         fixButtonState()
     }
 
-    fun sharePublicKey(view: View) {
+    fun sharePublicKey(ignoredView: View) {
         Keygen.shareKey(this)
     }
 
@@ -147,7 +146,7 @@ class MainActivity : ProviderActivity()
         (findViewById<RecyclerView>(R.id.sftp_accounts).adapter as SFTPAdapter).updateData()
     }
 
-    inner class SFTPAdapter(private val activity:Activity):RecyclerView.Adapter<SFTPAdapter.ViewHolder>()
+    inner class SFTPAdapter():RecyclerView.Adapter<SFTPAdapter.ViewHolder>()
     {
         private val TAG="SFTPAdapter"
         private var accounts =dao.getAllAccountsWithRemove()

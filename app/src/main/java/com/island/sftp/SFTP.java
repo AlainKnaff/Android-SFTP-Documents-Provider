@@ -289,21 +289,6 @@ public class SFTP extends SSH implements Closeable
 			throw getException(e);
 		}
 	}
-	public boolean exists(@NonNull File file)throws IOException
-	{
-		checkArguments(file);
-		SftpFile sfile = getFileForPath(file.getPath());
-		try {
-                        if(sfile.getIsDirectory() == null)
-                                listFile(sfile);
-                        Log.d(TAG, "getIsDirectory of "+file+"="+
-                              sfile.getIsDirectory());
-                        return sfile.getIsDirectory() != null;
-		} catch(FileNotFoundException e) {
-			Log.d(TAG, "file "+file+" not found on server");
-			return false;
-		}
-	}
 	public synchronized void renameTo(@NonNull File oldPath,
 					  @NonNull File newPath)
 		throws IOException
@@ -410,10 +395,6 @@ public class SFTP extends SSH implements Closeable
 			output.write(buffer,0,bytesRead);
 		}
 		return bytesRead;
-	}
-
-	public interface ProgressObserver {
-		void update(long wrote);
 	}
 
 	private IOException getException(Exception cause)
