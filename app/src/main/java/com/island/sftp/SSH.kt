@@ -3,7 +3,6 @@ package com.island.sftp
 import java.net.ConnectException
 import java.io.File
 import java.util.Properties
-import java.util.concurrent.CompletableFuture
 import android.util.Log
 import android.content.Context
 import com.jcraft.jsch.UserInfo
@@ -11,7 +10,6 @@ import com.jcraft.jsch.JSch
 import com.jcraft.jsch.JSchException
 import com.jcraft.jsch.Session
 import com.jcraft.jsch.ProxySOCKS5
-import com.island.androidsftpdocumentsprovider.provider.Unlocked
 import com.island.androidsftpdocumentsprovider.account.TheDatabase
 import com.island.androidsftpdocumentsprovider.account.Account
 
@@ -91,40 +89,9 @@ abstract class SSH(val context: Context,
 	    session.setPassword(password.toByteArray())
 
 	session.setTimeout(TIMEOUT)
-	if(userInfo != null)
-	    session.connect()
-	else
-	    retrySessionConnect(session)
+	session.connect()
 	this.session = session
 	return session
-    }
-
-    @Throws(JSchException::class)
-    open protected fun retrySessionConnect(session: Session) {
-	lateinit var wfu : CompletableFuture<Boolean>
-	for(i in 0..15) {
-	    if(i==1)
-		wfu = Unlocked.getWfu(context)
-	    else if(i == 2)
-		Unlocked.waitForUnlock(wfu, 10)
-	    else if(i > 2) {
-		Unlocked.waitForUnlock(wfu, 10000)
-		try {
-		    Thread.sleep(10)
-		} catch(e: Exception) {
-		}
-	    }
-	    try {
-		session.connect()
-		Log.d(TAG, toString() + " session connected")
-		break
-	    } catch(e: JSchException) {
-		if(i == 14) {
-		    Log.e(TAG, "Giving up "+e)
-		    throw e
-		}
-	    }
-	}
     }
 
     @Throws(JSchException::class)

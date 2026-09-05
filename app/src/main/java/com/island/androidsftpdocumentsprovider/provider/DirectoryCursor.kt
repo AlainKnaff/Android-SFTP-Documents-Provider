@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.FutureTask
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutionException
+import java.net.UnknownHostException
 
 import android.util.Log
 import android.provider.DocumentsContract.Document
@@ -22,9 +23,9 @@ import android.provider.DocumentsContract
 class DirectoryCursor(val provider: SFTPProvider,
                       val documentId: String,
                       val sftp: SFTP) : AbstractCursor(), RefreshableCursor {
-    val TAG = "DirectoryCursor"
-
     companion object {
+	val TAG = "DirectoryCursor"
+
         val executor : ExecutorService = Executors.newFixedThreadPool(2)
 
         val DEFAULT_DOCUMENT_PROJECTION : Array<String> = arrayOf(
@@ -42,6 +43,36 @@ class DirectoryCursor(val provider: SFTPProvider,
         val LAST_MODIFIED_IDX = 3
         val MIME_TYPE_IDX     = 4
         val FLAGS_IDX         = 5
+
+	var cachedProvider: SFTPProvider? = null
+	var cachedDocumentId: String? = null
+	var cachedFiles: Array<SftpFile>? = null
+
+	val Lock = Any()
+
+	fun storeIntoCache(provider: SFTPProvider,
+			   documentId: String,
+			   files : Array<SftpFile>) {
+	    synchronized(Lock) {
+		cachedProvider=provider
+		cachedDocumentId=documentId
+		cachedFiles=files
+	    }
+	}
+
+	fun retrieveFromCache(provider: SFTPProvider,
+			      documentId: String): Array<SftpFile>? {
+	    synchronized(Lock) {
+		if(provider==cachedProvider &&
+		       documentId.equals(cachedDocumentId)) {
+		    Log.i(TAG, "Found in cache: "+documentId)
+		    return cachedFiles
+		} else {
+		    Log.i(TAG, "Not cached: "+documentId)
+		    return null
+		}
+	    }
+	}
     }
 
     lateinit var files : Array<SftpFile>
@@ -56,13 +87,15 @@ class DirectoryCursor(val provider: SFTPProvider,
     }
 
     fun fetch() {
+        if(this::files.isInitialized)
+            return
         try {
             files = f.get()
+            storeIntoCache(provider, documentId, files)
         } catch(e: ExecutionException) {
             // ErrorNotification.sendNotification(provider.context,
             //                                   documentId, e.cause)
             // throw e
-	    files = arrayOf<SftpFile>()
 	    Log.i(TAG, "Exception caught in fetch", e)
 	    var t : Throwable = e
 	    while(true) {
@@ -72,6 +105,16 @@ class DirectoryCursor(val provider: SFTPProvider,
 		t = c
 	    }
 	    error = t.toString()
+	    var _files: Array<SftpFile>? = null
+	    if(t is UnknownHostException) {
+		_files = retrieveFromCache(provider, documentId)
+	    }
+
+	    if(_files == null)
+		_files = arrayOf<SftpFile>()
+	    else
+		error = null
+	    files=_files
         }
     }
 

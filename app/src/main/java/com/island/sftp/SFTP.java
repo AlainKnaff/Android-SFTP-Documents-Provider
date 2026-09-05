@@ -115,7 +115,7 @@ public class SFTP extends SSH implements Closeable
 		if(!getSession().isConnected()) {
 			try {
 				Log.d(TAG,"Reconnecting session");
-				retrySessionConnect(getSession());
+				getSession().connect();
 			} catch(JSchException e) {
 				// if it fails, just re-create the session from scratch
 				// https://stackoverflow.com/questions/16127200/jsch-how-to-keep-the-session-alive-and-up
