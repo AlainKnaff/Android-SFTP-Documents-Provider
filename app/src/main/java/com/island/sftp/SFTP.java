@@ -57,7 +57,7 @@ public class SFTP extends SSH implements Closeable
 	private ChannelSftp channel;
 	private boolean disconnected;
 
-	private Map<String,SftpFile> files = new HashMap<>();
+	private final Map<String,SftpFile> files = new HashMap<>();
 
 	public static @NonNull String accountToDocumentId(@NonNull Account account) {
 	  	return account.getName();

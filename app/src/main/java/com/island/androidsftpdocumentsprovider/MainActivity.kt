@@ -1,14 +1,14 @@
 package com.island.androidsftpdocumentsprovider
 
 /* This file is part of SFTP-SAF, an Android app to access sftp servers via Storage access framework
- Copyright (C) 2025,2026 Alain Knaff
+   Copyright (C) 2025,2026 Alain Knaff
 
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+   This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
-*/
+   You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
 import android.util.Log
 import android.app.Activity
@@ -44,77 +44,77 @@ class MainActivity : ProviderActivity()
     private val dao by lazy { TheDatabase.getDao(applicationContext) }
 
     private fun fixButtonState() {
-	val share: Button  = findViewById(R.id.share_public_key)
-	val generate: Button  = findViewById(R.id.generate_keypair)
-	if(Keygen.haveKey(this)) {
-	    share.setEnabled(true)
-	    generate.setText(R.string.regenerate_key)
-	} else {
-	    share.setEnabled(false)
-	}
+        val share: Button  = findViewById(R.id.share_public_key)
+        val generate: Button  = findViewById(R.id.generate_keypair)
+        if(Keygen.haveKey(this)) {
+            share.isEnabled = true
+            generate.setText(R.string.regenerate_key)
+        } else {
+            share.isEnabled = false
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
-	super.onCreate(savedInstanceState)
-	setContentView(R.layout.main)
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.main)
 
-	val recyclerView=findViewById<RecyclerView>(R.id.sftp_accounts)
-	recyclerView.adapter=SFTPAdapter(this)
-	recyclerView.layoutManager=LinearLayoutManager(this)
-	fixButtonState()
+        val recyclerView=findViewById<RecyclerView>(R.id.sftp_accounts)
+        recyclerView.adapter=SFTPAdapter(this)
+        recyclerView.layoutManager=LinearLayoutManager(this)
+        fixButtonState()
     }
 
     fun browseFiles(view:View)
     {
-	val intent = Intent(Intent.ACTION_VIEW,null)
-	for(packge in arrayOf("com.google.android.documentsui",
-			       "com.android.documentsui")) {
-	    try {
-		intent.setComponent(ComponentName(packge,
-						  "com.android.documentsui.files.FilesActivity"))
-		intent.setData(("content://"+getAuthority()+
-				    "/root").toUri())
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or
-				Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-		startActivity(intent)
-		return
-	    } catch(e: Exception) {
-		Log.e(TAG, "Exception while opening file browser", e)
-	    }
-	}
-	AlertDialog
-	    .Builder(this)
-	    .setMessage(R.string.no_documentsui)
-	    .setPositiveButton(R.string.ok) { d, w -> d.dismiss() }
-	    .show()
+        val intent = Intent(Intent.ACTION_VIEW,null)
+        for(packge in arrayOf("com.google.android.documentsui",
+                              "com.android.documentsui")) {
+            try {
+                intent.component = ComponentName(packge,
+                                                 "com.android.documentsui.files.FilesActivity")
+                intent.data = ("content://"+getAuthority()+
+                                   "/root").toUri()
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+                startActivity(intent)
+                return
+            } catch(e: Exception) {
+                Log.e(TAG, "Exception while opening file browser", e)
+            }
+        }
+        AlertDialog
+            .Builder(this)
+            .setMessage(R.string.no_documentsui)
+            .setPositiveButton(R.string.ok) { d, w -> d.dismiss() }
+            .show()
     }
 
     fun addSftpAccount(view:View)
     {
-	val intent:Intent = Intent(this, AuthenticationActivity::class.java)
-	startActivity(intent)
+        val intent:Intent = Intent(this, AuthenticationActivity::class.java)
+        startActivity(intent)
     }
 
     fun editSftpAccount(view:View, account:AccountWithRemove)
     {
-	val intent:Intent = Intent(this, AuthenticationActivity::class.java)
-	intent.putExtra(AuthenticationActivity.ID_COL, account.id)
-	startActivity(intent)
+        val intent:Intent = Intent(this, AuthenticationActivity::class.java)
+        intent.putExtra(AuthenticationActivity.ID_COL, account.id)
+        startActivity(intent)
     }
 
     fun generateKey(view: View) {
-	if(Keygen.haveKey(this)) {
-	    // pop up a dialog
-	    val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-	    builder
-		.setMessage(R.string.keygen_confirm)
-		.setPositiveButton(R.string.yes) { d, w -> generateKey2(view) }
-		.setNegativeButton(R.string.no) { d, w  ->d.dismiss() }
-		.show()
-	} else {
-	    generateKey2(view)
-	}
+        if(Keygen.haveKey(this)) {
+            // pop up a dialog
+            val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+            builder
+                .setMessage(R.string.keygen_confirm)
+                .setPositiveButton(R.string.yes) { d, w -> generateKey2(view) }
+                .setNegativeButton(R.string.no) { d, w  ->d.dismiss() }
+                .show()
+        } else {
+            generateKey2(view)
+        }
     }
 
     val keyTypes = arrayOf("RSA",
@@ -133,89 +133,89 @@ class MainActivity : ProviderActivity()
     }
 
     private fun generateKey3(algo: String, view: View) {
-	Keygen.genKey(this, algo)
-	fixButtonState()
+        Keygen.genKey(this, algo)
+        fixButtonState()
     }
 
     fun sharePublicKey(view: View) {
-	Keygen.shareKey(this)
+        Keygen.shareKey(this)
     }
 
     override fun onResume()
     {
-	super.onResume()
-	(findViewById<RecyclerView>(R.id.sftp_accounts).adapter as SFTPAdapter).updateData()
+        super.onResume()
+        (findViewById<RecyclerView>(R.id.sftp_accounts).adapter as SFTPAdapter).updateData()
     }
 
     inner class SFTPAdapter(private val activity:Activity):RecyclerView.Adapter<SFTPAdapter.ViewHolder>()
     {
-	private val TAG="SFTPAdapter"
-	private var accounts =dao.getAllAccountsWithRemove()
-	inner class ViewHolder(view:View):RecyclerView.ViewHolder(view),
-					  View.OnClickListener
-	{
-	    private val TAG="SFTPAdapter.ViewHolder"
-	    val text:TextView = view.findViewById(R.id.text)
-	    val button:Button = view.findViewById(R.id.button)
-	    public lateinit var account:AccountWithRemove
+        private val TAG="SFTPAdapter"
+        private var accounts =dao.getAllAccountsWithRemove()
+        inner class ViewHolder(view:View):RecyclerView.ViewHolder(view),
+                                          View.OnClickListener
+        {
+            private val TAG="SFTPAdapter.ViewHolder"
+            val text:TextView = view.findViewById(R.id.text)
+            val button:Button = view.findViewById(R.id.button)
+            lateinit var account:AccountWithRemove
 
-	    init {
-		view.setOnClickListener(this)
-		text.setOnClickListener(this)
-	    }
+            init {
+                view.setOnClickListener(this)
+                text.setOnClickListener(this)
+            }
 
-	    override fun onClick(view: View)
-	    {
-		editSftpAccount(view,account)
-	    }
-	}
+            override fun onClick(view: View)
+            {
+                editSftpAccount(view,account)
+            }
+        }
 
-	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder
-	{
-	    val view=LayoutInflater.from(parent.context).inflate(R.layout.sftp_item,parent,false)
-	    return ViewHolder(view)
-	}
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder
+        {
+            val view=LayoutInflater.from(parent.context).inflate(R.layout.sftp_item,parent,false)
+            return ViewHolder(view)
+        }
 
-	override fun onBindViewHolder(holder: ViewHolder, position: Int)
-	{
-	    val account=accounts[position]
-	    holder.text.text=account.name
-	    holder.account=account
-	    holder.button.setVisibility(if (account.canRemove)
-					View.VISIBLE else View.INVISIBLE)
-	    holder.button.setOnClickListener()
-	    @SuppressLint("ImplicitSamInstance")
-	    @Suppress("deprecation")
-	    {
-		try {
-		    val oldName=account.name
-		    dao.deleteAccount(account.id)
-		    var flags=0
-		    if(Build.VERSION.SDK_INT>=30)
-			flags = flags or ContentResolver.NOTIFY_DELETE
-		    notifyChange(flags)
-		    updateData()
-		} catch(e: Exception) {
-		    ErrorDialog.showError(this@MainActivity,
-					  "Error removing account",
-					  e)
-		}
-	    }
-	}
+        override fun onBindViewHolder(holder: ViewHolder, position: Int)
+        {
+            val account=accounts[position]
+            holder.text.text=account.name
+            holder.account=account
+            holder.button.visibility = if (account.canRemove)
+                View.VISIBLE else View.INVISIBLE
+            holder.button.setOnClickListener()
+            @SuppressLint("ImplicitSamInstance")
+            @Suppress("deprecation")
+            {
+                try {
+                    val oldName=account.name
+                    dao.deleteAccount(account.id)
+                    var flags=0
+                    if(Build.VERSION.SDK_INT>=30)
+                        flags = flags or ContentResolver.NOTIFY_DELETE
+                    notifyChange(flags)
+                    updateData()
+                } catch(e: Exception) {
+                    ErrorDialog.showError(this@MainActivity,
+                                          "Error removing account",
+                                          e)
+                }
+            }
+        }
 
-	override fun getItemCount(): Int
-	{
-	    return accounts.size
-	}
+        override fun getItemCount(): Int
+        {
+            return accounts.size
+        }
 
-	fun updateData()
-	{
-	    accounts=dao.getAllAccountsWithRemove()
-	    @SuppressLint("NotifyDataSetChanged")
-	    // not a huge list, and sometimes we cannot indeed
-	    // describe which position has changed exactly, such as
-	    // when *adding* a new item
-	    notifyDataSetChanged()
-	}
+        fun updateData()
+        {
+            accounts=dao.getAllAccountsWithRemove()
+            @SuppressLint("NotifyDataSetChanged")
+            // not a huge list, and sometimes we cannot indeed
+            // describe which position has changed exactly, such as
+            // when *adding* a new item
+            notifyDataSetChanged()
+        }
     }
 }

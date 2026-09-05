@@ -23,7 +23,7 @@ abstract class SSH(val context: Context,
     var session: Session?=null
 
     val TAG = "SSH"
-    final val TIMEOUT = 20000
+    val TIMEOUT = 20000
 
     init {
         Log.d(TAG, String.format("Creating new connection for %s",
@@ -33,7 +33,7 @@ abstract class SSH(val context: Context,
         jsch=JSch()
         //jsch.setLogger(new Logger())
         try {
-	    var dir = context.getFilesDir()
+	    var dir = context.filesDir
 	    jsch.setKnownHosts(File(dir,"known_hosts").toString())
             if(privKey != null)
                 jsch.addIdentity(privKey)
@@ -48,7 +48,7 @@ abstract class SSH(val context: Context,
     }
 
     @Throws(JSchException::class)
-    open protected fun makeSession() : Session {
+    protected open fun makeSession() : Session {
 	val session=jsch.getSession(account.userName,
 				    account.hostName,
 				    account.port)
@@ -60,7 +60,7 @@ abstract class SSH(val context: Context,
 
 	session.setConfig(config)
 	if(userInfo != null)
-	    session.setUserInfo(userInfo)
+        session.userInfo = userInfo
 
 	val socksProxy = account.socksProxy
 	val jumpHostId = account.jumpHostId

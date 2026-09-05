@@ -173,7 +173,7 @@ class Proxy private constructor(val sftp: SFTP,
         closeCurrentStreams()
         ioThread.quitSafely()
         val _recycler = recycler
-        if(_recycler != null && sftp.isConnected())
+        if(_recycler != null && sftp.isConnected)
             _recycler.accept(sftp)
         recycler=null
     }

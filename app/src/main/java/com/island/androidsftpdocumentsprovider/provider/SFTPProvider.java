@@ -70,7 +70,7 @@ public class SFTPProvider extends DocumentsProvider
     private final static Set<String> uploadingFiles = new CopyOnWriteArraySet<>();
     private Dao dao;
 
-    private Map<String,RefreshableCursor> cursors = new HashMap<>();
+    private final Map<String,RefreshableCursor> cursors = new HashMap<>();
 
     public void registerCursor(@NonNull String documentId,
 			       @NonNull RefreshableCursor cursor) {
@@ -150,10 +150,9 @@ public class SFTPProvider extends DocumentsProvider
 	int l = parentDocumentId.length();
 	if(documentId.length()==l)
 	    return true; // the 2 document ids have the same lenght => equal
-	if(documentId.charAt(l) == '/')
-	    return true; // child document has indeed a slash immediately after
-			 // parent part.
-	return false;
+	return documentId.charAt(l) == '/';
+	// child document has indeed a slash immediately after
+	// parent part.
     }
 
     @Override

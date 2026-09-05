@@ -67,8 +67,7 @@ public class AuthenticationActivity extends ProviderActivity
 		findViewById(R.id.update_account)
 		    .setVisibility(accountId != -1 ? View.VISIBLE : View.GONE);
 
-		Spinner proxyTypeSpinner =
-			(Spinner) findViewById(R.id.proxy_type);
+		Spinner proxyTypeSpinner = findViewById(R.id.proxy_type);
 		// Create an ArrayAdapter using the string array and a
 		// default spinner layout.
 		ArrayAdapter<CharSequence> adapter = ArrayAdapter
@@ -82,8 +81,7 @@ public class AuthenticationActivity extends ProviderActivity
 		proxyTypeSpinner.setOnItemSelectedListener(proxyTypeListener);
 
 		List<Account> accounts = dao.getAllEligibleJumpHosts(accountId);
-		Spinner jumpHostSpinner =
-			(Spinner) findViewById(R.id.jump_host);
+		Spinner jumpHostSpinner = findViewById(R.id.jump_host);
 		// Create an ArrayAdapter using the string array and a
 		// default spinner layout.
 		ArrayAdapter<Account> jumpHostAdapter =
@@ -109,12 +107,12 @@ public class AuthenticationActivity extends ProviderActivity
 			host.setText(account.getHostName());
 			user.setText(account.getUserName());
 			port.setText(String.valueOf(account.getPort()));
-			directory.setText(String.valueOf(account.getDirectory()));
+			directory.setText(account.getDirectory());
 			String socksProxyString = account.getSocksProxy();
 			jumpHostAccountId = account.getJumpHostId();
 			if(! "".equals(socksProxyString)) {
 				proxyTypeSpinner.setSelection(PROXY_TYPE_SOCKS);
-				socksProxy.setText(String.valueOf(socksProxyString));
+				socksProxy.setText(socksProxyString);
 			} else if(jumpHostAccountId != null) {
 				proxyTypeSpinner.setSelection(PROXY_TYPE_JUMP_HOST);
 			} else {
@@ -187,7 +185,7 @@ public class AuthenticationActivity extends ProviderActivity
 		}).start();
 	}
 
-	private AdapterView.OnItemSelectedListener proxyTypeListener =
+	private final AdapterView.OnItemSelectedListener proxyTypeListener =
 		new AdapterView.OnItemSelectedListener() {
 			public void onItemSelected(AdapterView<?> parent,
 						    View view,
@@ -212,7 +210,7 @@ public class AuthenticationActivity extends ProviderActivity
 			}
 		};
 
-	private AdapterView.OnItemSelectedListener jumpHostListener =
+	private final AdapterView.OnItemSelectedListener jumpHostListener =
 		new AdapterView.OnItemSelectedListener() {
 			public void onItemSelected(AdapterView<?> parent,
 						   View view,

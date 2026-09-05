@@ -18,7 +18,7 @@ class CleanOldCache : BroadcastReceiver() {
         }
 
         Log.d(TAG, "Cleaning old cache")
-        val cacheDir = context.getCacheDir()
+        val cacheDir = context.cacheDir
         if(cacheDir == null) {
             Log.e(TAG, "Cachedir is null")
             return

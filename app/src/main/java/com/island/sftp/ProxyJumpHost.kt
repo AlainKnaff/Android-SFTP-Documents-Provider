@@ -62,7 +62,7 @@ class ProxyJumpHost(context: Context,
 	return null
     }
 
-    override fun close(): Unit {
+    override fun close() {
 	inputStream.close()
 	outputStream.close()
     }

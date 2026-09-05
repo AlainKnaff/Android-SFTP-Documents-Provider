@@ -151,7 +151,7 @@ class DirectoryCursor(val provider: SFTPProvider,
 
     override fun getInt(i: Int) : Int {
         fetch()
-        val file = files[getPosition()]
+        val file = files[position]
         when(i) {
             FLAGS_IDX -> return getFlags(file)
             else -> return getLong(i).toInt()
@@ -164,10 +164,10 @@ class DirectoryCursor(val provider: SFTPProvider,
 
     override fun getLong(i: Int) : Long {
         fetch()
-        val file = files[getPosition()]
+        val file = files[position]
         when(i) {
-            SIZE_IDX -> return file.getSize()
-            LAST_MODIFIED_IDX -> return file.getSftpLastModified()
+            SIZE_IDX -> return file.size
+            LAST_MODIFIED_IDX -> return file.sftpLastModified
             FLAGS_IDX -> return getInt(i).toLong()
             else -> throw unsupported(i)
         }
@@ -179,10 +179,10 @@ class DirectoryCursor(val provider: SFTPProvider,
 
     override fun getString(i: Int) : String {
         fetch()
-        val file = files[getPosition()]
+        val file = files[position]
         when(i) {
             DOCUMENT_ID_IDX -> return sftp.getDocumentId(file)
-            DISPLAY_NAME_IDX -> return file.getName()
+            DISPLAY_NAME_IDX -> return file.name
             MIME_TYPE_IDX -> return sftp.getMimeType(file)
             else -> throw unsupported(i)
         }

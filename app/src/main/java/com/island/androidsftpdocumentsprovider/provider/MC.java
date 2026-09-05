@@ -10,9 +10,9 @@ import android.database.MatrixCursor;
 public class MC extends MatrixCursor implements RefreshableCursor {
     public static final String TAG="MC";
 
-    private SFTPProvider provider;
+    private final SFTPProvider provider;
 
-    private String documentId;
+    private final String documentId;
 
     public MC(@NonNull SFTPProvider provider, @NonNull String documentId,
 	      @NonNull String[] columns, int initialCapacity) {

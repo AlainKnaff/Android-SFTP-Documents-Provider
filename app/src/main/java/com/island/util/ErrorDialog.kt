@@ -20,7 +20,7 @@ class ErrorDialog {
                 t=c
             }
 
-            activity.runOnUiThread() {
+            activity.runOnUiThread {
 	        AlertDialog
                     .Builder(activity)
                     .setTitle(title)
