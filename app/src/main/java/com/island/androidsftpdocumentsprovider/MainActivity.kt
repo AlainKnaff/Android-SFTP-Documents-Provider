@@ -183,8 +183,6 @@ class MainActivity : ProviderActivity()
             holder.button.visibility = if (account.canRemove)
                 View.VISIBLE else View.INVISIBLE
             holder.button.setOnClickListener()
-            @SuppressLint("ImplicitSamInstance")
-            @Suppress("deprecation")
             {
                 try {
                     val oldName=account.name
