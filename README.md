@@ -1,7 +1,7 @@
 # SFTP-SAF a.k.a. Android-SFTP-Document-Provider
 
 This app makes the android default file manager an SFTP client via SAF
-(Storage Access Franework).
+(Storage Access Framework).
 
 ## Status
 
@@ -47,7 +47,7 @@ However, you may also compile it yourself:
   the sftp server.
 
 - For some reason, on Android versions newer than 12, the new "Files
-  by Google" filemanager cannot browse to SAF roots. However, the
+  by Google" file manager cannot browse to SAF roots. However, the
   older com.google.android.documentsui file manager is still present,
   and can browse SAF roots. The only difficulty is, this older file
   manager now lacks a launch icon.  You can however access it from the
