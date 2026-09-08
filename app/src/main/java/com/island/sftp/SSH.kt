@@ -17,8 +17,8 @@ import com.island.androidsftpdocumentsprovider.account.Account
  * Ssh connection
  */
 abstract class SSH(val context: Context,
-		   val account: Account,
-		   val userInfo: UserInfo?) {
+                   val account: Account,
+                   val userInfo: UserInfo?) {
     var jsch: JSch
     var session: Session?=null
 
@@ -27,14 +27,14 @@ abstract class SSH(val context: Context,
 
     init {
         Log.d(TAG, String.format("Creating new connection for %s",
-				 account.hostName))
+                                 account.hostName))
         BouncyCastle.trigger()
         val privKey = Keygen.readPrivateKey(context)
         jsch=JSch()
         //jsch.setLogger(new Logger())
         try {
-	    var dir = context.filesDir
-	    jsch.setKnownHosts(File(dir,"known_hosts").toString())
+            var dir = context.filesDir
+            jsch.setKnownHosts(File(dir,"known_hosts").toString())
             if(privKey != null)
                 jsch.addIdentity(privKey)
             if(userInfo != null)
@@ -49,53 +49,53 @@ abstract class SSH(val context: Context,
 
     @Throws(JSchException::class)
     protected open fun makeSession() : Session {
-	val session=jsch.getSession(account.userName,
-				    account.hostName,
-				    account.port)
-	val config=Properties()
-	if(userInfo != null)
-	    config.put("StrictHostKeyChecking","ask")
-	else
-	    config.put("StrictHostKeyChecking","yes")
+        val session=jsch.getSession(account.userName,
+                                    account.hostName,
+                                    account.port)
+        val config=Properties()
+        if(userInfo != null)
+            config.put("StrictHostKeyChecking","ask")
+        else
+            config.put("StrictHostKeyChecking","yes")
 
-	session.setConfig(config)
-	if(userInfo != null)
-        session.userInfo = userInfo
+        session.setConfig(config)
+        if(userInfo != null)
+            session.userInfo = userInfo
 
-	val socksProxy = account.socksProxy
-	val jumpHostId = account.jumpHostId
-	if(!socksProxy.isEmpty()) {
-	    var socksPort : Int
-	    lateinit var socksHost : String
-	    val idx = socksProxy.lastIndexOf(':')
-	    if(idx == -1) {
-		socksHost=socksProxy
-		socksPort = 1080
-	    } else {
-		socksHost = socksProxy.substring(0,idx)
-		socksPort = Integer.parseInt(socksProxy.substring(idx+1))
-	    }
-	    val proxy = ProxySOCKS5(socksHost, socksPort)
-	    session.setProxy(proxy)
-	} else if(jumpHostId != null) {
-	    val dao = TheDatabase.getDao(context)
-	    val jumpAccount = dao.readAccountById(jumpHostId)
-	    val proxy = ProxyJumpHost(context, jumpAccount, userInfo)
-	    session.setProxy(proxy)
-	}
+        val socksProxy = account.socksProxy
+        val jumpHostId = account.jumpHostId
+        if(!socksProxy.isEmpty()) {
+            var socksPort : Int
+            lateinit var socksHost : String
+            val idx = socksProxy.lastIndexOf(':')
+            if(idx == -1) {
+                socksHost=socksProxy
+                socksPort = 1080
+            } else {
+                socksHost = socksProxy.substring(0,idx)
+                socksPort = Integer.parseInt(socksProxy.substring(idx+1))
+            }
+            val proxy = ProxySOCKS5(socksHost, socksPort)
+            session.setProxy(proxy)
+        } else if(jumpHostId != null) {
+            val dao = TheDatabase.getDao(context)
+            val jumpAccount = dao.readAccountById(jumpHostId)
+            val proxy = ProxyJumpHost(context, jumpAccount, userInfo)
+            session.setProxy(proxy)
+        }
 
-	val password = account.password
-	if(password != null && !password.isEmpty())
-	    session.setPassword(password.toByteArray())
+        val password = account.password
+        if(password != null && !password.isEmpty())
+            session.setPassword(password.toByteArray())
 
-	session.setTimeout(TIMEOUT)
-	session.connect()
-	this.session = session
-	return session
+        session.timeout = TIMEOUT
+        session.connect()
+        this.session = session
+        return session
     }
 
     @Throws(JSchException::class)
     fun getSshSession() : Session {
-	return session ?: makeSession()
+        return session ?: makeSession()
     }
 }

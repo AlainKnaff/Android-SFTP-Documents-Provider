@@ -146,7 +146,7 @@ class MainActivity : ProviderActivity()
         (findViewById<RecyclerView>(R.id.sftp_accounts).adapter as SFTPAdapter).updateData()
     }
 
-    inner class SFTPAdapter():RecyclerView.Adapter<SFTPAdapter.ViewHolder>()
+    inner class SFTPAdapter :RecyclerView.Adapter<SFTPAdapter.ViewHolder>()
     {
         private val TAG="SFTPAdapter"
         private var accounts =dao.getAllAccountsWithRemove()
