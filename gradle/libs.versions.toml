@@ -6,6 +6,7 @@ appcompat = "1.8.0"
 material = "1.14.0"
 constraintlayout = "2.2.2"
 androidxRoom = "2.8.5"
+androidxLifecycle = "2.9.0"
 jsch = "2.28.7"
 bouncycastle = "1.86"
 bcprov = "1.86"
@@ -17,6 +18,8 @@ material = { group = "com.google.android.material", name = "material", version.r
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 androidx-room-rt = { group = "androidx.room", name = "room-runtime", version.ref = "androidxRoom" }
 androidx-room-ksp = { group = "androidx.room", name = "room-compiler", version.ref = "androidxRoom" }
+androidx-lifecycle = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version = "androidxRoom" }
+
 jsch = { module = "com.github.mwiede:jsch", version.ref = "jsch" }
 bcpkix-jdk18on = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
 bcprov-jdk18on = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bcprov" }

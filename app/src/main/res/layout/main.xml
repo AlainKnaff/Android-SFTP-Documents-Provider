@@ -50,6 +50,18 @@
 
     </LinearLayout>
 
+    <Button
+        android:id="@+id/import_certificate"
+	android:layout_height="wrap_content"
+	android:layout_width="wrap_content"
+	android:text="@string/import_certificate"
+	android:onClick="importCertificate"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+	app:layout_constraintTop_toBottomOf="@id/key_line"
+	/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/sftp_accounts"
         android:layout_width="0dp"
@@ -58,7 +70,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-	app:layout_constraintTop_toBottomOf="@id/key_line" />
+	app:layout_constraintTop_toBottomOf="@id/import_certificate" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:layout_width="wrap_content"

@@ -36,6 +36,12 @@ import com.island.androidsftpdocumentsprovider.account.AuthenticationActivity
 import lu.knaff.alain.saf_sftp.R
 import com.island.sftp.Keygen
 
+import android.net.Uri
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.lifecycleScope
+
+import kotlinx.coroutines.launch
+
 class MainActivity : ProviderActivity()
 {
     private val TAG="MainActivity"
@@ -138,6 +144,26 @@ class MainActivity : ProviderActivity()
 
     fun sharePublicKey(ignoredView: View) {
         Keygen.shareKey(this)
+    }
+
+    private val importCertificateLauncher =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) {
+            uri: Uri? -> uri ?: return@registerForActivityResult
+
+            lifecycleScope.launch {
+                try {
+                    contentResolver.openInputStream(uri)?.use {
+                        it.copyTo(openFileOutput("user-cert.pub",0))
+                    }
+                } catch(e: Exception) {
+                    ErrorDialog.showError(this@MainActivity,
+                                          "Cannot import ssh user certificate",e)
+                }
+            }
+        }
+
+    fun importCertificate(ignoredView: View) {
+        importCertificateLauncher.launch(arrayOf("*/*"))
     }
 
     override fun onResume()
