@@ -1,14 +1,14 @@
 [versions]
-agp = "9.4.0"
+agp = "9.4.1"
 kotlin = "2.4.10"
 coreKtx = "1.19.0"
 appcompat = "1.8.0"
 material = "1.14.0"
 constraintlayout = "2.2.2"
-androidxRoom = "2.8.4"
+androidxRoom = "2.8.5"
 jsch = "2.28.7"
-bouncycastle = "1.85"
-bcprov = "1.85.2"
+bouncycastle = "1.86"
+bcprov = "1.86"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
