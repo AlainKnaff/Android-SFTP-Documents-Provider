@@ -50,12 +50,15 @@ class MainActivity : ProviderActivity()
 
     private fun fixButtonState() {
         val share: Button  = findViewById(R.id.share_public_key)
+        val importCertificate: Button  = findViewById(R.id.import_certificate)
         val generate: Button  = findViewById(R.id.generate_keypair)
         if(Keygen.haveKey(this)) {
             share.isEnabled = true
+            importCertificate.isEnabled = true
             generate.setText(R.string.regenerate_key)
         } else {
             share.isEnabled = false
+            importCertificate.isEnabled = false
         }
     }
 
