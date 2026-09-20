@@ -12,6 +12,7 @@ import com.jcraft.jsch.Session
 import com.jcraft.jsch.ProxySOCKS5
 import com.island.androidsftpdocumentsprovider.account.TheDatabase
 import com.island.androidsftpdocumentsprovider.account.Account
+import com.island.util.FileUtil
 
 /**
  * Ssh connection
@@ -35,8 +36,11 @@ abstract class SSH(val context: Context,
         try {
             var dir = context.filesDir
             jsch.setKnownHosts(File(dir,"known_hosts").toString())
-            if(privKey != null)
-                jsch.addIdentity(privKey)
+            if(privKey != null) {
+                jsch.addIdentity("sftp-key", privKey,
+                                 FileUtil.readFile(context, "user-cert.pub"),
+                                 null)
+	    }
             if(userInfo != null)
                 makeSession()
         } catch(e: JSchException) {

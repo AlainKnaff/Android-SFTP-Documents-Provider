@@ -23,6 +23,8 @@ import org.bouncycastle.crypto.util.OpenSSHPublicKeyUtil;
 import org.bouncycastle.crypto.util.PrivateKeyFactory;
 import org.bouncycastle.crypto.util.PublicKeyFactory;
 
+import com.island.util.FileUtil;
+
 /* This file is part of SFTP-SAF, an Android app to access sftp servers via Storage access framework
  Copyright (C) 2025,2026 Alain Knaff
 
@@ -160,13 +162,9 @@ public class Keygen {
 	return new File(privKeyFilename).exists();
     }
 
-    public static @Nullable String readPrivateKey(@NonNull Context ctx) {
-	if(haveKey(ctx))
-	    return ctx.getFilesDir()+"/"+PRIVATE_KEY_FILE;
-	else
-	    return null;
+    public static @Nullable byte[] readPrivateKey(@NonNull Context ctx) {
+	return FileUtil.readFile(ctx, PRIVATE_KEY_FILE);
     }
-
 
     public static @Nullable String readPublicKey(@NonNull Context ctx) {
 	try(BufferedReader br =
