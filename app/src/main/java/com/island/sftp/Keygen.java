@@ -203,5 +203,8 @@ public class Keygen {
 	throws FileNotFoundException
     {
 	FileUtil.copyTo(is, context.openFileOutput(CERT_FILE,0));
+
+	// we really should attempt to validate the certificate here,
+	// but we can't, see https://github.com/mwiede/jsch/issues/1161
     }
 }
