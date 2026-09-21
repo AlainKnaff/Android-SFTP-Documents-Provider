@@ -3,6 +3,7 @@ package com.island.sftp;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -57,6 +58,7 @@ public class Keygen {
 
     public static final String PRIVATE_KEY_FILE="privateKey.pem";
     public static final String PUBLIC_KEY_FILE="publicKey.txt";
+    public static final String CERT_FILE="user-cert.pub";
 
     public static void genKey(@NonNull Context ctx, @NonNull String algo) {
         try {
@@ -190,5 +192,16 @@ public class Keygen {
 	shareIntent.putExtra(Intent.EXTRA_TEXT, readPublicKey(ctx));
 	shareIntent.setType("text/plain");
 	ctx.startActivity(Intent.createChooser(shareIntent,null));
+    }
+
+    public static @Nullable byte[] readCertificate(@NonNull Context context) {
+	return FileUtil.readFile(context, CERT_FILE);
+    }
+
+    public static void storeCertificate(@NonNull Context context,
+					@NonNull InputStream is)
+	throws FileNotFoundException
+    {
+	FileUtil.copyTo(is, context.openFileOutput(CERT_FILE,0));
     }
 }

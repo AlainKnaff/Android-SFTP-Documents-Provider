@@ -156,7 +156,7 @@ class MainActivity : ProviderActivity()
             lifecycleScope.launch {
                 try {
                     contentResolver.openInputStream(uri)?.use {
-                        it.copyTo(openFileOutput("user-cert.pub",0))
+                        Keygen.storeCertificate(this@MainActivity, it)
                     }
                 } catch(e: Exception) {
                     ErrorDialog.showError(this@MainActivity,
