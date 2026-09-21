@@ -31,14 +31,14 @@ abstract class SSH(val context: Context,
         BouncyCastle.trigger()
         val privKey = Keygen.readPrivateKey(context)
         jsch=JSch()
-        //jsch.setLogger(new Logger())
+        // jsch.setInstanceLogger(Logger())
         try {
             var dir = context.filesDir
             jsch.setKnownHosts(File(dir,"known_hosts").toString())
             if(privKey != null) {
-                jsch.addIdentity("sftp-key", privKey,
-                                 Keygen.readCertificate(context),
-                                 null)
+                jsch.addIdentity("sftp-key", privKey, null, null)
+                val cert= Keygen.readCertificate(context)
+                jsch.addIdentity("sftp-key", privKey, cert, null)
 	    }
             if(userInfo != null)
                 makeSession()
