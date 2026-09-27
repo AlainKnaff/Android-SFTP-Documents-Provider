@@ -35,7 +35,7 @@ data class Account(@ColumnInfo(name="name") var name: String?,
                    @ColumnInfo(name="hide_from_list",
                                defaultValue="false") var hideFromList: Boolean
 ) {
-    @PrimaryKey(autoGenerate = true) var id: Int? = null
+    @PrimaryKey(autoGenerate = true) var id: Int = 0
     override fun toString() : String {
 	return name ?: "null"
     }
