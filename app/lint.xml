@@ -7,7 +7,7 @@
 
     <issue id="LogConditional" severity="ignore" />
     <!-- to be fixed once we can do non-debug builds -->
-    
+
     <issue id="StringFormatTrivial" severity="ignore" />
     <!-- low priority, too many of them to fix. Some of them will be
 	 suppressed entirely -->
