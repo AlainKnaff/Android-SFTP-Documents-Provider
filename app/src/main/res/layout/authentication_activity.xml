@@ -4,13 +4,42 @@
 	android:layout_height="match_parent"
 	android:layout_width="match_parent"
 	android:fitsSystemWindows="true"
-	android:fillViewport="true">
+	android:fillViewport="true"
+	android:requiresFadingEdge="vertical"
+	android:fadingEdgeLength="64dp"
+>
   <LinearLayout
 	android:layout_height="wrap_content"
 	android:layout_width="match_parent"
 	android:orientation="vertical"
 	android:gravity="center"
 	>
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:textAppearance="?android:attr/textAppearanceLarge"
+		android:text="@string/displayName"
+		android:layout_weight="1.0"
+		android:gravity="bottom"/>
+
+	<RelativeLayout
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:layout_weight="2.0"
+		android:gravity="top">
+
+		<EditText
+			android:inputType="text"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:ems="10"
+			android:hint="@string/hostExample"
+			android:autofillHints="displayName"
+			android:id="@+id/displayName"
+			android:gravity="center"/>
+
+	</RelativeLayout>
 
 	<TextView
 		android:layout_width="wrap_content"

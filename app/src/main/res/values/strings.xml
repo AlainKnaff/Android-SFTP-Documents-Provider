@@ -19,6 +19,7 @@
 	<string name="no_documentsui">Documentsui not found</string>
 
 	<!-- account (filesystem root) editing dialog -->
+	<string name="displayName">Display name</string>
 	<string name="host">Host</string>
 	<string name="hostExample">myserver.home.com</string>
 	<string name="port">Port</string>

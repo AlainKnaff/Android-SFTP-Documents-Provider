@@ -13,12 +13,13 @@ You should have received a copy of the GNU General Public License along with thi
 import androidx.room.ColumnInfo
 import androidx.room.DatabaseView
 
-@DatabaseView("""SELECT id,name,
+@DatabaseView("""SELECT id,name,display_name,
                   NOT EXISTS(SELECT 1 FROM roots i
                              WHERE i.jump_host=o.id) can_remove
 	          FROM roots o""")
 data class AccountWithRemove(
     val id: Int,
-    val name: String,
+    override val name: String,
+    @ColumnInfo(name="display_name") override val displayName: String?,
     @ColumnInfo(name="can_remove") val canRemove: Boolean
-)
+) : AccountIf

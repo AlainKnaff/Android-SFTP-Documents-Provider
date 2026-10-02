@@ -207,7 +207,7 @@ class MainActivity : ProviderActivity()
         override fun onBindViewHolder(holder: ViewHolder, position: Int)
         {
             val account=accounts[position]
-            holder.text.text=account.name
+            holder.text.text=account.getUsedDisplayName()
             holder.account=account
             holder.button.visibility = if (account.canRemove)
                 View.VISIBLE else View.INVISIBLE

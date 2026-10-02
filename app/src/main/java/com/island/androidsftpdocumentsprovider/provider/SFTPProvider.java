@@ -126,8 +126,7 @@ public class SFTPProvider extends DocumentsProvider
 		row.add(Root.COLUMN_FLAGS,
 			Root.FLAG_SUPPORTS_CREATE |
 			Root.FLAG_SUPPORTS_IS_CHILD);
-		row.add(Root.COLUMN_TITLE,
-			account.getName().replaceAll(":22$",""));
+		row.add(Root.COLUMN_TITLE,account.getUsedDisplayName());
 		if(directory.length() > 1)
 		    row.add(Root.COLUMN_SUMMARY, directory);
 	    }

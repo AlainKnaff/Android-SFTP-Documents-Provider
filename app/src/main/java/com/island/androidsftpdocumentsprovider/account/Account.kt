@@ -22,7 +22,8 @@ import androidx.room.Index
 				  childColumns = ["jump_host"])],
 	indices = [ Index(value= [ "jump_host" ]) ]
 )
-data class Account(@ColumnInfo(name="name") var name: String?,
+data class Account(@ColumnInfo(name="name") override var name: String?,
+                   @ColumnInfo(name="display_name") override var displayName: String?,
 	           @ColumnInfo(name="host_name") var hostName: String,
 	           @ColumnInfo(name="port")var port: Int,
 	           @ColumnInfo(name="user_name") var userName: String?,
@@ -34,7 +35,7 @@ data class Account(@ColumnInfo(name="name") var name: String?,
                    @ColumnInfo(name="jump_host") var jumpHostId: Int?,
                    @ColumnInfo(name="hide_from_list",
                                defaultValue="false") var hideFromList: Boolean
-) {
+) : AccountIf {
     @PrimaryKey(autoGenerate = true) var id: Int = 0
     override fun toString() : String {
 	return name ?: "null"

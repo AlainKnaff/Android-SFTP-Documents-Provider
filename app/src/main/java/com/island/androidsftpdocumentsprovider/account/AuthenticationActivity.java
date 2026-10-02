@@ -95,6 +95,8 @@ public class AuthenticationActivity extends ProviderActivity
 		if(accountId != -1)
 		{
 			account=dao.readAccountById(accountId);
+			EditText displayName=findViewById(R.id.displayName);
+
 			EditText host=findViewById(R.id.host);
 			EditText port=findViewById(R.id.port);
 			EditText user=findViewById(R.id.user);
@@ -102,6 +104,7 @@ public class AuthenticationActivity extends ProviderActivity
 			EditText socksProxy=findViewById(R.id.socks_proxy);
 			CheckBox hideFromList=findViewById(R.id.hide_from_list);
 
+			displayName.setText(account.getDisplayName());
 			host.setText(account.getHostName());
 			user.setText(account.getUserName());
 			port.setText(String.valueOf(account.getPort()));
@@ -125,6 +128,9 @@ public class AuthenticationActivity extends ProviderActivity
 		findViewById(R.id.check_host_key)
 		    .setEnabled(false);
 
+		String displayName=((EditText)findViewById(R.id.displayName))
+			.getText().toString();
+
 		String hostName=((EditText)findViewById(R.id.host))
 			.getText().toString();
 
@@ -142,7 +148,9 @@ public class AuthenticationActivity extends ProviderActivity
 		String socksProxy=((EditText)findViewById(R.id.socks_proxy))
 			.getText().toString();
 
-		Account account = new Account("test", hostName, port,
+		Account account = new Account("test",
+					      displayName,
+					      hostName, port,
 					      userName, password,
 					      directory,
 					      (proxyType==PROXY_TYPE_SOCKS) ? socksProxy : "",
@@ -225,6 +233,9 @@ public class AuthenticationActivity extends ProviderActivity
 	}
 
 	private void _confirm() {
+		String displayName=((EditText)findViewById(R.id.displayName))
+			.getText().toString();
+
 		String hostName=((EditText)findViewById(R.id.host))
 			.getText().toString();
 
@@ -249,7 +260,8 @@ public class AuthenticationActivity extends ProviderActivity
 			// this is a request to edit an existing account
 
 			// if nothing changed, exit
-			if(hostName.equals(account.getHostName()) &&
+			if(displayName.equals(account.getDisplayName()) &&
+			   hostName.equals(account.getHostName()) &&
 			   userName.equals(account.getUserName()) &&
 			   port == account.getPort() &&
 			   password.isEmpty() &&
@@ -268,7 +280,8 @@ public class AuthenticationActivity extends ProviderActivity
 
 		String name = userName+"@"+hostName+":"+port;
 		if(account == null) {
-			dao.insertAll(new Account(name, hostName, port,
+			dao.insertAll(new Account(name, displayName,
+						  hostName, port,
 						  userName, password,
 						  directory,
 						  (proxyType==PROXY_TYPE_SOCKS)?socksProxy:"",
@@ -282,6 +295,7 @@ public class AuthenticationActivity extends ProviderActivity
 		} else {
 			// update existing account
 			account.setName(name);
+			account.setDisplayName(displayName);
 			account.setHostName(hostName);
 			account.setPort(port);
 			account.setUserName(userName);

@@ -2,15 +2,20 @@
   "formatVersion": 1,
   "database": {
     "version": 5,
-    "identityHash": "b383d1888751f22b988cfc530f7342c0",
+    "identityHash": "606a2e747da1ce7cc0f155f8450990a6",
     "entities": [
       {
         "tableName": "roots",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT, `host_name` TEXT NOT NULL, `port` INTEGER NOT NULL, `user_name` TEXT, `password` TEXT, `directory` TEXT NOT NULL DEFAULT '', `socks_proxy` TEXT NOT NULL DEFAULT '', `jump_host` INTEGER, `hide_from_list` INTEGER NOT NULL DEFAULT false, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY(`jump_host`) REFERENCES `roots`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT, `display_name` TEXT, `host_name` TEXT NOT NULL, `port` INTEGER NOT NULL, `user_name` TEXT, `password` TEXT, `directory` TEXT NOT NULL DEFAULT '', `socks_proxy` TEXT NOT NULL DEFAULT '', `jump_host` INTEGER, `hide_from_list` INTEGER NOT NULL DEFAULT false, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY(`jump_host`) REFERENCES `roots`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "name",
             "columnName": "name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "displayName",
+            "columnName": "display_name",
             "affinity": "TEXT"
           },
           {
@@ -103,12 +108,12 @@
     "views": [
       {
         "viewName": "AccountWithRemove",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT id,name,\n                  NOT EXISTS(SELECT 1 FROM roots i\n                             WHERE i.jump_host=o.id) can_remove\n\t          FROM roots o"
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT id,name,display_name,\n                  NOT EXISTS(SELECT 1 FROM roots i\n                             WHERE i.jump_host=o.id) can_remove\n\t          FROM roots o"
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b383d1888751f22b988cfc530f7342c0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '606a2e747da1ce7cc0f155f8450990a6')"
     ]
   }
 }
