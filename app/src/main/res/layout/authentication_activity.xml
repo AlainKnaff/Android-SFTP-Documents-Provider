@@ -30,7 +30,7 @@
       <EditText
 	  android:inputType="text"
 	  android:layout_height="wrap_content"
-	  android:layout_width="wrap_content"
+	  android:layout_width="match_parent"
 	  android:hint="@string/hostExample"
 	  android:autofillHints="displayName"
 	  android:id="@+id/displayName"
@@ -53,7 +53,7 @@
       <EditText
 	  android:inputType="text"
 	  android:layout_height="wrap_content"
-	  android:layout_width="wrap_content"
+	  android:layout_width="match_parent"
 	  android:hint="@string/hostExample"
 	  android:autofillHints="host"
 	  android:id="@+id/host"
@@ -75,7 +75,7 @@
 
       <EditText
 	  android:inputType="text"
-	  android:layout_width="wrap_content"
+	  android:layout_width="match_parent"
 	  android:layout_height="wrap_content"
 	  android:autofillHints="username"
 	  android:id="@+id/user"
@@ -96,7 +96,7 @@
 
       <EditText
 	  android:inputType="textPassword"
-	  android:layout_width="wrap_content"
+	  android:layout_width="match_parent"
 	  android:layout_height="wrap_content"
 	  android:autofillHints="password"
 	  android:id="@+id/password"
@@ -119,7 +119,7 @@
       <EditText
 	  android:inputType="number"
 	  android:layout_height="wrap_content"
-	  android:layout_width="wrap_content"
+	  android:layout_width="match_parent"
 	  android:autofillHints="port"
 	  android:id="@+id/port"
 	  android:text="@string/portExample"/>
@@ -141,7 +141,7 @@
       <EditText
 	  android:inputType="text"
 	  android:layout_height="wrap_content"
-	  android:layout_width="wrap_content"
+	  android:layout_width="match_parent"
 	  android:autofillHints="Start directory"
 	  android:id="@+id/start_directory"
 	  />
