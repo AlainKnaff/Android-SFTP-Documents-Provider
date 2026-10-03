@@ -1,272 +1,207 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_height="match_parent"
-	android:layout_width="match_parent"
-	android:fitsSystemWindows="true"
-	android:fillViewport="true"
-	android:requiresFadingEdge="vertical"
-	android:fadingEdgeLength="64dp"
->
-  <LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:fitsSystemWindows="true"
+    android:fillViewport="true"
+    android:requiresFadingEdge="vertical"
+    android:fadingEdgeLength="64dp"
+    >
+  <TableLayout
+      android:layout_height="wrap_content"
+      android:layout_width="match_parent"
+      android:orientation="vertical"
+      android:layout_marginStart="8dp"
+      android:layout_marginEnd="8dp"
+      >
+
+    <TableRow
+	android:layout_height="wrap_content"
+	android:layout_weight="1"
+	android:layout_width="match_parent">
+      <TextView
+	  android:layout_width="wrap_content"
+	  android:layout_height="wrap_content"
+	  android:textAppearance="?android:attr/textAppearanceLarge"
+	  android:text="@string/displayName" />
+
+      <EditText
+	  android:inputType="text"
+	  android:layout_height="wrap_content"
+	  android:layout_width="wrap_content"
+	  android:hint="@string/hostExample"
+	  android:autofillHints="displayName"
+	  android:id="@+id/displayName"
+	  />
+
+    </TableRow>
+    
+    <TableRow
+	android:layout_height="wrap_content"
+	android:layout_weight="1"
+	android:layout_width="match_parent">
+
+      <TextView
+	  android:layout_width="wrap_content"
+	  android:layout_height="wrap_content"
+	  android:textAppearance="?android:attr/textAppearanceLarge"
+	  android:text="@string/host"
+	  />
+
+      <EditText
+	  android:inputType="text"
+	  android:layout_height="wrap_content"
+	  android:layout_width="wrap_content"
+	  android:hint="@string/hostExample"
+	  android:autofillHints="host"
+	  android:id="@+id/host"
+	  />
+
+    </TableRow>
+    
+    <TableRow
+	android:layout_height="wrap_content"
+	android:layout_weight="1"
+	android:layout_width="match_parent">
+
+      <TextView
+	  android:layout_width="wrap_content"
+	  android:layout_height="wrap_content"
+	  android:text="@string/username"
+	  android:textAppearance="?android:attr/textAppearanceLarge"
+	  />
+
+      <EditText
+	  android:inputType="text"
+	  android:layout_width="wrap_content"
+	  android:layout_height="wrap_content"
+	  android:autofillHints="username"
+	  android:id="@+id/user"
+	  />
+    </TableRow>
+      
+    <TableRow
+	android:layout_height="wrap_content"
+	android:layout_weight="1"
+	android:layout_width="match_parent">
+
+      <TextView
+	  android:layout_width="wrap_content"
+	  android:layout_height="wrap_content"
+	  android:text="@string/password"
+	  android:textAppearance="?android:attr/textAppearanceLarge"
+	  />
+
+      <EditText
+	  android:inputType="textPassword"
+	  android:layout_width="wrap_content"
+	  android:layout_height="wrap_content"
+	  android:autofillHints="password"
+	  android:id="@+id/password"
+	  />
+
+    </TableRow>
+    
+    <TableRow
+	android:layout_height="wrap_content"
+	android:layout_weight="1"
+	android:layout_width="match_parent">
+
+      <TextView
+	  android:layout_width="wrap_content"
+	  android:layout_height="wrap_content"
+	  android:textAppearance="?android:attr/textAppearanceLarge"
+	  android:text="@string/port"
+	  />
+
+      <EditText
+	  android:inputType="number"
+	  android:layout_height="wrap_content"
+	  android:layout_width="wrap_content"
+	  android:autofillHints="port"
+	  android:id="@+id/port"
+	  android:text="@string/portExample"/>
+
+    </TableRow>
+
+    <TableRow
+	android:layout_height="wrap_content"
+	android:layout_weight="1"
+	android:layout_width="match_parent">
+
+      <TextView
+	  android:layout_width="wrap_content"
+	  android:layout_height="wrap_content"
+	  android:textAppearance="?android:attr/textAppearanceLarge"
+	  android:text="@string/start_directory"
+	  />
+
+      <EditText
+	  android:inputType="text"
+	  android:layout_height="wrap_content"
+	  android:layout_width="wrap_content"
+	  android:autofillHints="Start directory"
+	  android:id="@+id/start_directory"
+	  />
+
+    </TableRow>
+    
+    <include
 	android:layout_height="wrap_content"
 	android:layout_width="match_parent"
-	android:orientation="vertical"
+	android:layout_weight="1"
+	layout="@layout/proxy_config" />
+    
+    <TableRow
+	android:layout_height="wrap_content"
+	android:layout_weight="1"
+	android:layout_width="match_parent">
+
+      <TextView
+	  android:layout_width="wrap_content"
+	  android:layout_height="wrap_content"
+	  android:textAppearance="?android:attr/textAppearanceLarge"
+	  android:text="@string/hide_from_list"
+	  />
+
+      <CheckBox
+	  android:layout_height="wrap_content"
+	  android:layout_width="wrap_content"
+	  android:id="@+id/hide_from_list"
+	  android:layout_marginBottom="8dp"
+	  />
+    </TableRow>
+
+    <LinearLayout
+	android:layout_height="wrap_content"
+	android:layout_width="match_parent"
+	android:orientation="horizontal"
+	android:layout_weight="2"
 	android:gravity="center"
 	>
 
-	<TextView
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:textAppearance="?android:attr/textAppearanceLarge"
-		android:text="@string/displayName"
-		android:layout_weight="1.0"
-		android:gravity="bottom"/>
+      <Button
+	  android:id="@+id/check_host_key"
+	  android:layout_height="wrap_content"
+	  android:layout_width="wrap_content"
+	  android:text="@string/check_host_key"
+	  android:onClick="checkHostKey"/>
 
-	<RelativeLayout
-		android:layout_height="wrap_content"
-		android:layout_width="wrap_content"
-		android:layout_weight="2.0"
-		android:gravity="top">
+      <Button
+	  android:id="@+id/add_account"
+	  android:layout_height="wrap_content"
+	  android:layout_width="wrap_content"
+	  android:text="@string/add_account"
+	  android:onClick="confirm"/>
+      <Button
+	  android:id="@+id/update_account"
+	  android:layout_height="wrap_content"
+	  android:layout_width="wrap_content"
+	  android:text="@string/update_account"
+	  android:onClick="confirm"/>
 
-		<EditText
-			android:inputType="text"
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"
-			android:ems="10"
-			android:hint="@string/hostExample"
-			android:autofillHints="displayName"
-			android:id="@+id/displayName"
-			android:gravity="center"/>
-
-	</RelativeLayout>
-
-	<TextView
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:textAppearance="?android:attr/textAppearanceLarge"
-		android:text="@string/host"
-		android:layout_weight="1.0"
-		android:gravity="bottom"/>
-
-	<RelativeLayout
-		android:layout_height="wrap_content"
-		android:layout_width="wrap_content"
-		android:layout_weight="2.0"
-		android:gravity="top">
-
-		<EditText
-			android:inputType="text"
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"
-			android:ems="10"
-			android:hint="@string/hostExample"
-			android:autofillHints="host"
-			android:id="@+id/host"
-			android:gravity="center"/>
-
-	</RelativeLayout>
-
-	<TextView
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:text="@string/username"
-		android:textAppearance="?android:attr/textAppearanceLarge"
-		android:layout_weight="1.0"
-		android:gravity="bottom"/>
-
-	<RelativeLayout
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_weight="2.0"
-		android:gravity="top">
-
-		<EditText
-			android:inputType="text"
-			android:layout_width="wrap_content"
-			android:ems="10"
-			android:layout_height="wrap_content"
-			android:autofillHints="username"
-			android:id="@+id/user"
-			android:gravity="center"/>
-	</RelativeLayout>
-
-	<TextView
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:text="@string/password"
-		android:textAppearance="?android:attr/textAppearanceLarge"
-		android:layout_weight="1.0"
-		android:gravity="bottom"/>
-
-	<RelativeLayout
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_weight="2.0"
-		android:gravity="top">
-
-		<EditText
-			android:inputType="textPassword"
-			android:layout_width="wrap_content"
-			android:ems="10"
-			android:layout_height="wrap_content"
-			android:autofillHints="password"
-			android:id="@+id/password"
-			android:gravity="center"/>
-
-	</RelativeLayout>
-
-	<TextView
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:textAppearance="?android:attr/textAppearanceLarge"
-		android:text="@string/port"
-		android:layout_weight="1.0"
-		android:gravity="bottom"/>
-
-	<RelativeLayout
-		android:layout_height="wrap_content"
-		android:layout_width="wrap_content"
-		android:layout_weight="2.0"
-		android:gravity="top">
-
-		<EditText
-			android:inputType="number"
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"
-			android:ems="10"
-			android:autofillHints="port"
-			android:id="@+id/port"
-			android:gravity="center"
-			android:text="@string/portExample"/>
-
-	</RelativeLayout>
-
-	<TextView
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:textAppearance="?android:attr/textAppearanceLarge"
-		android:text="@string/start_directory"
-		android:layout_weight="1.0"
-		android:gravity="bottom"/>
-
-	<RelativeLayout
-		android:layout_height="wrap_content"
-		android:layout_width="wrap_content"
-		android:layout_weight="2.0"
-		android:gravity="top">
-
-		<EditText
-			android:inputType="text"
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"
-			android:ems="10"
-			android:autofillHints="Start directory"
-			android:id="@+id/start_directory"
-			android:gravity="center"
-			/>
-
-	</RelativeLayout>
-
-	<TextView
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:textAppearance="?android:attr/textAppearanceLarge"
-	    android:text="@string/proxy"
-	    android:layout_weight="1.0"
-	    android:gravity="bottom"/>
-
-
-	<LinearLayout
-	    android:layout_height="wrap_content"
-	    android:layout_width="match_parent"
-	    android:orientation="horizontal"
-	    android:layout_weight="2.0"
-	    android:gravity="center"
-	    >
-
-	  <Spinner
-	      android:id="@+id/proxy_type"
-	      android:layout_width="wrap_content"
-	      android:layout_height="wrap_content"
-	      android:background="@android:drawable/btn_dropdown"
-	      android:spinnerMode="dropdown"
-	      />
-
-	  <EditText
-	      android:inputType="text"
-	      android:layout_height="wrap_content"
-	      android:layout_width="wrap_content"
-	      android:ems="10"
-	      android:autofillHints="SOCKS proxy"
-	      android:hint="@string/socks_proxy_hint"
-	      android:id="@+id/socks_proxy"
-	      android:gravity="center"
-	      />
-
-	  <Spinner
-	      android:id="@+id/jump_host"
-	      android:layout_width="wrap_content"
-	      android:layout_height="wrap_content"
-	      android:background="@android:drawable/btn_dropdown"
-	      android:spinnerMode="dropdown"
-	      />
-
-	</LinearLayout>
-
-	<TextView
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:textAppearance="?android:attr/textAppearanceLarge"
-		android:text="@string/hide_from_list"
-		android:layout_weight="1.0"
-		android:gravity="bottom"/>
-
-	<RelativeLayout
-		android:layout_height="wrap_content"
-		android:layout_width="wrap_content"
-		android:layout_weight="2.0"
-		android:gravity="top">
-
-		<CheckBox
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"
-			android:id="@+id/hide_from_list"
-			android:gravity="center"
-			/>
-	</RelativeLayout>
-
-
-	<LinearLayout
-	    android:layout_height="wrap_content"
-	    android:layout_width="match_parent"
-	    android:orientation="horizontal"
-	    android:layout_weight="1.0"
-	    android:gravity="center"
-	    >
-
-		<Button
-			android:id="@+id/check_host_key"
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"
-			android:text="@string/check_host_key"
-			android:onClick="checkHostKey"/>
-
-		<Button
-			android:id="@+id/add_account"
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"
-			android:text="@string/add_account"
-			android:onClick="confirm"/>
-		<Button
-			android:id="@+id/update_account"
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"
-			android:text="@string/update_account"
-			android:onClick="confirm"/>
-
-	</LinearLayout>
-
-</LinearLayout>
-
+    </LinearLayout>
+  </TableLayout>
+  
 </ScrollView>

@@ -87,7 +87,7 @@ public class AuthenticationActivity extends ProviderActivity
 					   R.layout.spinner_item,
 					   accounts);
 		// Specify the layout to use when the list of choices appears.
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		jumpHostAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		// Apply the adapter to the spinner.
 		jumpHostSpinner.setAdapter(jumpHostAdapter);
 		jumpHostSpinner.setOnItemSelectedListener(jumpHostListener);
@@ -196,14 +196,14 @@ public class AuthenticationActivity extends ProviderActivity
 						.setVisibility(View.VISIBLE);
 				else
 					findViewById(R.id.socks_proxy)
-						.setVisibility(View.GONE);
+						.setVisibility(View.INVISIBLE);
 
 				if(position == PROXY_TYPE_JUMP_HOST)
 					findViewById(R.id.jump_host)
 						.setVisibility(View.VISIBLE);
 				else
 					findViewById(R.id.jump_host)
-						.setVisibility(View.GONE);
+						.setVisibility(View.INVISIBLE);
 
 			}
 			public void onNothingSelected(AdapterView<?> parent) {

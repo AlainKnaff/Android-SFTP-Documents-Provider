@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android">
+  <Spinner
+      android:id="@+id/proxy_type"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:background="@android:drawable/btn_dropdown"
+      android:spinnerMode="dropdown"
+      />
+
+  <FrameLayout
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      >
+    <EditText
+	android:inputType="text"
+	android:layout_height="wrap_content"
+	android:layout_width="wrap_content"
+	android:ems="10"
+	android:autofillHints="SOCKS proxy"
+	android:hint="@string/socks_proxy_hint"
+	android:id="@+id/socks_proxy"
+	/>
+    <Spinner
+	android:id="@+id/jump_host"
+	android:layout_height="wrap_content"
+	android:layout_width="wrap_content"
+	android:background="@android:drawable/btn_dropdown"
+	android:spinnerMode="dropdown"
+	/>
+  </FrameLayout>
+</LinearLayout>
