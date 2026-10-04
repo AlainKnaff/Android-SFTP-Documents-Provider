@@ -1,0 +1,2 @@
+- Freely settable display name of server account
+- reorganized account settings form to make room for new settings
