@@ -5,7 +5,7 @@ import android.database.MatrixCursor
 import android.util.Log
 
 class SFTPProviderOld : SFTPProvider() {
-    override fun queryRoots(projection: Array<String>): Cursor {
+    override fun queryRoots(projection: Array<String>?): Cursor {
         Log.d(TAG, String.format("queryRoots %s", projection.contentToString()))
         return MatrixCursor(resolveRootProjection(projection))
     }
