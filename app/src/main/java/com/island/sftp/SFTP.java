@@ -146,10 +146,10 @@ public class SFTP extends SSH implements Closeable
         public boolean isDirectory(@NonNull SftpFile file)throws IOException
         {
                 checkArguments(file);
-                if(file.getIsDirectory() == null) {
+                if(file.isDirectory() == null) {
                         listFile(file);
                 }
-                return file.getIsDirectory();
+                return file.isDirectory();
         }
 	@Override
 	public synchronized void close() throws IOException
