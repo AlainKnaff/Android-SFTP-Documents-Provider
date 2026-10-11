@@ -7,7 +7,7 @@ material = "1.14.0"
 constraintlayout = "2.2.2"
 androidxRoom = "2.8.5"
 androidxLifecycle = "2.9.0"
-jsch = "2.28.7"
+jsch = "2.28.8"
 bouncycastle = "1.86"
 bcprov = "1.86"
 
