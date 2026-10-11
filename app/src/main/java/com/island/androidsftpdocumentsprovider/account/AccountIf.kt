@@ -6,10 +6,10 @@ interface AccountIf {
 
     fun getUsedDisplayName() : String {
         val nm = displayName
-        if(!nm.isNullOrEmpty())
-            return nm
+        return if(!nm.isNullOrEmpty())
+            nm
         else
-	    return name?.replace(Regex(":22$"),"").orEmpty()
+            name?.replace(Regex(":22$"),"").orEmpty()
     }
 }
 
