@@ -24,7 +24,7 @@ public abstract class EcdsaConverter {
         throws InvalidKeyException
     {
 
-        // get keytpe, pub0
+        // get keytype, pub0
         byte[] keyType = getKeyType(ecPrivateKey).getBytes(StandardCharsets.UTF_8);
         byte[] pub0 = Arrays.copyOfRange(keyType, keyType.length - 8, keyType.length);
 
