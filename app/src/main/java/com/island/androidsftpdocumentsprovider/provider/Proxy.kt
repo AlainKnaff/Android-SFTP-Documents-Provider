@@ -27,8 +27,6 @@ class Proxy private constructor(val sftp: SFTP,
                                 val accessMode : Int,
                                 var recycler: Consumer<SFTP>?
 ) : ProxyFileDescriptorCallback() {
-    val TAG = "Proxy"
-
     var sftpMode = 0
 
     private val ioThread = HandlerThread(javaClass.simpleName).apply { start() }
@@ -52,6 +50,8 @@ class Proxy private constructor(val sftp: SFTP,
     }
 
     companion object {
+        const val TAG = "Proxy"
+
         @JvmStatic
         fun open(context: Context,
                  sftp: SFTP, file: SftpFile,
@@ -59,7 +59,7 @@ class Proxy private constructor(val sftp: SFTP,
                  recycler: Consumer<SFTP>) : ParcelFileDescriptor {
             val accessMode=ParcelFileDescriptor.parseMode(mode)
             val proxy = Proxy(sftp, file, accessMode, recycler)
-            var storageManager = context
+            val storageManager = context
                 .getSystemService(StorageManager::class.java)
             return storageManager
                 .openProxyFileDescriptor(accessMode, proxy, proxy.ioHandler)
@@ -73,20 +73,20 @@ class Proxy private constructor(val sftp: SFTP,
     var outPos: Long = 0L
 
     private fun closeCurrentStreams() {
-        val _inStr = inStr
-        if(_inStr != null)
+        val lInStr = inStr
+        if(lInStr != null)
             try {
-                _inStr.close()
+                lInStr.close()
             } catch(e: IOException) {
                 Log.e(TAG, "Error closing input stream", e)
             }
         inStr = null
         inPos = 0L
 
-        val _outStr = outStr
-        if(_outStr != null)
+        val lOutStr = outStr
+        if(lOutStr != null)
             try {
-                _outStr.close()
+                lOutStr.close()
             } catch(e: IOException) {
                 Log.e(TAG, "Error closing output stream", e)
             }
@@ -102,7 +102,7 @@ class Proxy private constructor(val sftp: SFTP,
     override fun onRead(offset: Long, size: Int, data: ByteArray): Int {
         if(inStr == null || offset != inPos) {
             closeCurrentStreams()
-            Log.d(TAG, "Setting file pos of ${file} to ${offset}")
+            Log.d(TAG, "Setting file pos of $file to $offset")
             inStr = sftp.read(file, offset)
             inPos = offset
         }
@@ -117,9 +117,9 @@ class Proxy private constructor(val sftp: SFTP,
                     break
                 } else {
                     if(n < 0)
-                        Log.e(TAG, "Error ${n} on ${file}")
+                        Log.e(TAG, "Error $n on $file")
                     else
-                        Log.d(TAG, "EOF reached on ${file}")
+                        Log.d(TAG, "EOF reached on $file")
                     return n
                 }
             }
@@ -135,7 +135,7 @@ class Proxy private constructor(val sftp: SFTP,
     override fun onWrite(offset: Long, size: Int, data: ByteArray): Int {
         if(outStr == null || offset != outPos) {
             closeCurrentStreams()
-            Log.d(TAG, "Writing with ${sftpMode} to ${offset}")
+            Log.d(TAG, "Writing with $sftpMode to $offset")
             outStr = sftp.write(file, sftpMode, offset)
             // after first write, set sftpMode to 3 (neither APPEND nor
             // OVERWRITE) to ensure that file is not truncated if a
@@ -158,10 +158,10 @@ class Proxy private constructor(val sftp: SFTP,
     }
 
     override fun onFsync() {
-        val _outStr = outStr
-        if(_outStr != null)
+        val lOutStr = outStr
+        if(lOutStr != null)
             try {
-                _outStr.flush()
+                lOutStr.flush()
             } catch(e: IOException) {
                 Log.e(TAG, "Error while flushing", e)
                 outStr = null
@@ -172,9 +172,9 @@ class Proxy private constructor(val sftp: SFTP,
         Log.d(TAG, "On release $inPos")
         closeCurrentStreams()
         ioThread.quitSafely()
-        val _recycler = recycler
-        if(_recycler != null && sftp.isConnected)
-            _recycler.accept(sftp)
+        val lRecycler = recycler
+        if(lRecycler != null && sftp.isConnected)
+            lRecycler.accept(sftp)
         recycler=null
     }
 }
