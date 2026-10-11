@@ -64,8 +64,8 @@ class SftpFile : File {
     }
 
     fun setAttrs(attributes: SftpATTRS) {
-        isDirectory = attributes.isDir()
-        this.sftpLastModified = attributes.getMTime() * 1000L
+        isDirectory = attributes.isDir
+        this.sftpLastModified = attributes.mTime * 1000L
         size = attributes.getSize()
     }
 
