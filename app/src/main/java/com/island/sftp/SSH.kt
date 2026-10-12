@@ -22,28 +22,30 @@ abstract class SSH(val context: Context,
     var jsch: JSch
     var session: Session?=null
 
-    val TAG = "SSH"
-    val TIMEOUT = 20000
+    companion object {
+        const val TAG = "SSH"
+        const val TIMEOUT = 20000
+    }
 
     init {
         Log.d(TAG, String.format("Creating new connection for %s",
                                  account.hostName))
         BouncyCastle.trigger()
-        val privKey = Keygen.readPrivateKey(context)
+        val privateKey = Keygen.readPrivateKey(context)
         jsch=JSch()
         // jsch.setInstanceLogger(Logger())
         try {
             var dir = context.filesDir
             jsch.setKnownHosts(File(dir,"known_hosts").toString())
-            if(privKey != null) {
-                jsch.addIdentity("sftp-key", privKey, null, null)
+            if(privateKey != null) {
+                jsch.addIdentity("sftp-key", privateKey, null, null)
                 val cert= Keygen.readCertificate(context)
-                jsch.addIdentity("sftp-key", privKey, cert, null)
+                jsch.addIdentity("sftp-key", privateKey, cert, null)
 	    }
             if(userInfo != null)
                 makeSession()
         } catch(e: JSchException) {
-            Log.e(TAG, "JschException during init: "+e, e)
+            Log.e(TAG, "JschException during init: $e", e)
             val exception = ConnectException("Can't connect to $account.name")
             exception.initCause(e)
             throw exception
@@ -57,9 +59,9 @@ abstract class SSH(val context: Context,
                                     account.port)
         val config=Properties()
         if(userInfo != null)
-            config.put("StrictHostKeyChecking","ask")
+            config["StrictHostKeyChecking"] = "ask"
         else
-            config.put("StrictHostKeyChecking","yes")
+            config["StrictHostKeyChecking"] = "yes"
 
         session.setConfig(config)
         if(userInfo != null)
@@ -88,7 +90,7 @@ abstract class SSH(val context: Context,
         }
 
         val password = account.password
-        if(password != null && !password.isEmpty())
+        if(!password.isNullOrEmpty())
             session.setPassword(password.toByteArray())
 
         session.timeout = TIMEOUT

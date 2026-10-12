@@ -30,9 +30,9 @@ class ProxyJumpHost(context: Context,
 			 host: String,
 			 port: Int,
 			 timeout: Int) {
-	Log.i(TAG, "Connect to "+host+":"+port+" via Jump host")
-	val sess = getSshSession()
-	channel = sess.openChannel("direct-tcpip") as ChannelDirectTCPIP
+	Log.i(TAG, "Connect to $host:$port via Jump host")
+	val session = getSshSession()
+	channel = session.openChannel("direct-tcpip") as ChannelDirectTCPIP
 	channel.setHost(host)
 	channel.setPort(port)
 	channel.setOrgIPAddress("0.0.0.0") // bind to default appropriate for target
