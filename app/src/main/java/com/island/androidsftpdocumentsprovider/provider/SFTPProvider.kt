@@ -24,9 +24,6 @@ import java.io.FileNotFoundException
 import java.io.IOException
 import java.net.ConnectException
 import java.net.SocketException
-import java.util.Objects
-import java.util.concurrent.Callable
-import java.util.function.Consumer
 
 /* This file is part of SFTP-SAF, an Android app to access sftp servers via Storage access framework
 Copyright (C) 2025,2026 Alain Knaff
@@ -40,19 +37,19 @@ You should have received a copy of the GNU General Public License along with thi
 */
 
 open class SFTPProvider : DocumentsProvider() {
-    private val connections: MutableSet<SFTP> = HashSet<SFTP>()
+    private val connections: MutableSet<SFTP> = HashSet()
 
 
     private var dao: Dao? = null
 
     private val cursors: MutableMap<String?, RefreshableCursor?> =
-        HashMap<String?, RefreshableCursor?>()
+        HashMap()
 
     fun registerCursor(
         documentId: String,
         cursor: RefreshableCursor
     ) {
-        cursors.put(documentId, cursor)
+        cursors[documentId] = cursor
     }
 
     fun unregisterCursor(
@@ -64,10 +61,8 @@ open class SFTPProvider : DocumentsProvider() {
 
     @Throws(IOException::class)
     private fun refreshCursorFor(documentId: String?) {
-        val mc = cursors.get(documentId)
-        if (mc != null) {
-            mc.onChange(false)
-        }
+        val mc = cursors[documentId]
+        mc?.onChange(false)
     }
 
     @Throws(IOException::class)
@@ -79,12 +74,12 @@ open class SFTPProvider : DocumentsProvider() {
     }
 
     override fun onCreate(): Boolean {
-        dao = TheDatabase.getDao(getContext()!!)
+        dao = TheDatabase.getDao(context!!)
         return true
     }
 
     @Throws(FileNotFoundException::class)
-    override fun queryRoots(projection: Array<String?>?): Cursor {
+    override fun queryRoots(projection: Array<String>?): Cursor {
         cancelStrictMode()
         Log.d(TAG, String.format("queryRoots %s", projection.contentToString()))
         try {
@@ -93,7 +88,7 @@ open class SFTPProvider : DocumentsProvider() {
             for (account in accounts) {
                 val documentId = SFTP.accountToDocumentId(account)
                 var directory = account.directory
-                if (directory == null || directory.isEmpty()) directory = "/"
+                if (directory.isEmpty()) directory = "/"
                 if (directory.length > 1) directory = directory.replace("/$".toRegex(), "")
                 val row = result.newRow()
                 row.add(DocumentsContract.Root.COLUMN_ROOT_ID, documentId)
@@ -129,19 +124,18 @@ open class SFTPProvider : DocumentsProvider() {
         )
         if (!documentId.startsWith(parentDocumentId)) return false
         val l = parentDocumentId.length
-        if (documentId.length == l) return true // the 2 document ids have the same lenght => equal
+        if (documentId.length == l) return true // the 2 document ids have the same length => equal
 
-        return documentId.get(l) == '/'
+        return documentId[l] == '/'
         // child document has indeed a slash immediately after
         // parent part.
     }
 
     @Throws(FileNotFoundException::class)
-    override fun queryDocument(documentId: String, projection: Array<String?>?): Cursor {
+    override fun queryDocument(documentId: String, projection: Array<String>?): Cursor {
         cancelStrictMode()
         Log.d(TAG, String.format("queryDocument %s %s", documentId, projection.contentToString()))
         try {
-            Objects.requireNonNull<String?>(documentId)
             val result = MatrixCursor(resolveDocumentProjection(projection))
             var needSftp = false
             if (projection != null) {
@@ -169,7 +163,7 @@ open class SFTPProvider : DocumentsProvider() {
     @Throws(FileNotFoundException::class)
     override fun queryChildDocuments(
         parentDocumentId: String,
-        projection: Array<String?>?,
+        projection: Array<String>?,
         sortOrder: String?
     ): Cursor {
         cancelStrictMode()
@@ -183,7 +177,6 @@ open class SFTPProvider : DocumentsProvider() {
             )
         )
         try {
-            Objects.requireNonNull<String?>(parentDocumentId)
             val sftp = getSFTP(parentDocumentId, true)
             val parent = sftp.getFile(parentDocumentId)
             return DirectoryCursor(
@@ -191,11 +184,11 @@ open class SFTPProvider : DocumentsProvider() {
                 parentDocumentId,
                 sftp
             )
-                .start(Callable {
+                .start {
                     val files = sftp.listFiles(parent)
                     connections.add(sftp)
                     files
-                })
+                }
         } catch (e: Exception) {
             throw exception(e, "QueryChildDocuments", parentDocumentId)
         }
@@ -210,21 +203,19 @@ open class SFTPProvider : DocumentsProvider() {
         cancelStrictMode()
         Log.d(TAG, String.format("openDocument %s %s %s", documentId, mode, signal))
         try {
-            Objects.requireNonNull<String?>(documentId)
-            Objects.requireNonNull<String?>(mode)
             val sftp = getSFTP(documentId, true)
             val serverFile = sftp.getFile(documentId)
 
             try {
                 return Proxy.open(
-                    getContext()!!, sftp, serverFile, mode,
-                    Consumer { s: SFTP? -> connections.add(s!!) })
+                    context!!, sftp, serverFile, mode
+                ) { s: SFTP? -> connections.add(s!!) }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to open proxy file descriptor", e)
                 // openProxyFileDescriptor can throw an exception without
                 // invoking onRelease
                 remove(sftp)
-                throw FileNotFoundException(serverFile.getPath())
+                throw FileNotFoundException(serverFile.path)
             }
         } catch (e: Exception) {
             throw exception(e, "openDocument", documentId)
@@ -234,8 +225,8 @@ open class SFTPProvider : DocumentsProvider() {
     @Throws(FileNotFoundException::class)
     override fun createDocument(
         parentDocumentId: String,
-        mimeType: String?,
-        displayName: String?
+        mimeType: String,
+        displayName: String
     ): String? {
         cancelStrictMode()
         Log.d(
@@ -243,21 +234,8 @@ open class SFTPProvider : DocumentsProvider() {
             String.format("createDocument %s %s %s", parentDocumentId, mimeType, displayName)
         )
         try {
-            Objects.requireNonNull<String?>(parentDocumentId)
-            Objects.requireNonNull<String?>(mimeType)
-            Objects.requireNonNull<String?>(displayName)
             val sftp = getSFTP(parentDocumentId)
             try {
-                val base: String?
-                val extension: String?
-                val dotIdx = displayName!!.lastIndexOf('.')
-                if (dotIdx >= 0) {
-                    base = displayName.substring(0, dotIdx)
-                    extension = displayName.substring(dotIdx)
-                } else {
-                    base = displayName
-                    extension = ""
-                }
                 val parent = sftp.getFile(parentDocumentId)
                 val documentId = arrayOfNulls<String>(1)
                 val file = uniqueFile(
@@ -283,7 +261,6 @@ open class SFTPProvider : DocumentsProvider() {
         cancelStrictMode()
         Log.d(TAG, String.format("deleteDocument %s", documentId))
         try {
-            Objects.requireNonNull<String?>(documentId)
             val sftp = getSFTP(documentId)
             try {
                 sftp.delete(sftp.getFile(documentId))
@@ -302,7 +279,6 @@ open class SFTPProvider : DocumentsProvider() {
         cancelStrictMode()
         Log.d(TAG, String.format("getDocumentType %s", documentId))
         try {
-            Objects.requireNonNull<String?>(documentId)
             val sftp = getSFTP(documentId)
             try {
                 val mimeType = sftp.getMimeType(sftp.getFile(documentId))
@@ -324,12 +300,10 @@ open class SFTPProvider : DocumentsProvider() {
         cancelStrictMode()
         Log.d(TAG, String.format("renameDocument %s %s", documentId, displayName))
         try {
-            Objects.requireNonNull<String?>(documentId)
-            Objects.requireNonNull<String?>(displayName)
             val sftp = getSFTP(documentId)
             try {
                 val source: File = sftp.getFile(documentId)
-                val parent = source.getParentFile()
+                val parent = source.parentFile
                 val destination: File = uniqueFile(sftp, parent!!, displayName)
                 sftp.renameTo(source, destination)
                 refreshCursorForParent(documentId)
@@ -360,16 +334,13 @@ open class SFTPProvider : DocumentsProvider() {
             )
         )
         try {
-            Objects.requireNonNull<String?>(sourceDocumentId)
-            Objects.requireNonNull<String?>(sourceParentDocumentId)
-            Objects.requireNonNull<String?>(targetParentDocumentId)
             val sftp = getSFTP(sourceDocumentId)
             val source: File = sftp.getFile(sourceDocumentId)
             try {
                 val destination: File = uniqueFile(
                     sftp,
                     sftp.getFile(targetParentDocumentId),
-                    source.getName()
+                    source.name
                 )
                 sftp.renameTo(source, destination)
                 refreshCursorForParent(sourceDocumentId)
@@ -391,15 +362,13 @@ open class SFTPProvider : DocumentsProvider() {
         cancelStrictMode()
         Log.d(TAG, String.format("copyDocument %s %s", sourceDocumentId, targetParentDocumentId))
         try {
-            Objects.requireNonNull<String?>(sourceDocumentId)
-            Objects.requireNonNull<String?>(targetParentDocumentId)
             val sftp = getSFTP(sourceDocumentId)
             val source: File = sftp.getFile(sourceDocumentId)
             try {
                 val destination = uniqueFile(
                     sftp,
                     sftp.getFile(targetParentDocumentId),
-                    source.getName()
+                    source.name
                 )
                 sftp.copy(source, destination)
                 refreshCursorForParent(sourceDocumentId)
@@ -433,17 +402,17 @@ open class SFTPProvider : DocumentsProvider() {
 
         // Skip legacy sftp:// prefix
         val start = childDocId.indexOf(extendedRoot)
-        if (start < 0) throw FileNotFoundException(childDocId + " not below configured start directory")
+        if (start < 0) throw FileNotFoundException("$childDocId not below configured start directory")
 
-        // Split path along slashed
-        val children: MutableList<String?> = ArrayList<String?>()
+        // Split path along slashes
+        val children: MutableList<String> = ArrayList()
         var i = start + extendedRoot.length // index of next slash
         val length = childDocId.length
         while (i < length) {
             i = childDocId.indexOf('/', i)
             if (i == -1) break
             children.add(childDocId.substring(start, i))
-            i = i + 1
+            i += 1
         }
         children.add(childDocId)
         return DocumentsContract.Path(rootId, children)
@@ -456,15 +425,14 @@ open class SFTPProvider : DocumentsProvider() {
 
     @Throws(IOException::class)
     private fun getSFTP(documentId: String, needsFresh: Boolean): SFTP {
-        checkNotNull(documentId)
-        SftpService.start(getContext()!!)
+        SftpService.start(context!!)
         var sftp: SFTP? = null
-        val toRemove: MutableSet<SFTP?> = HashSet<SFTP?>()
+        val toRemove: MutableSet<SFTP?> = HashSet()
         for (connection in connections) {
             if (SFTP.documentIdToAccount(connection.documentId)
                 == SFTP.documentIdToAccount(documentId)
             ) {
-                if (!connection.isConnected()) {
+                if (!connection.isConnected) {
                     Log.d(TAG, "Connection closed, cleaning")
                     toRemove.add(connection)
                     continue
@@ -485,12 +453,12 @@ open class SFTPProvider : DocumentsProvider() {
 
     @Throws(IOException::class)
     private fun createSftp(documentId: String): SFTP {
-        val account: Account = getAccountInfo(getContext(), documentId)
+        val account: Account = getAccountInfo(context, documentId)
         try {
-            return SFTP(getContext()!!, documentId, account)
+            return SFTP(context!!, documentId, account)
         } catch (e: ConnectException) {
             ErrorNotification.sendNotification(
-                getContext()!!,
+                context!!,
                 documentId,
                 e
             )
@@ -522,7 +490,7 @@ open class SFTPProvider : DocumentsProvider() {
             row.add(DocumentsContract.Document.COLUMN_FLAGS, flags)
             val mimeType = sftp.getMimeType(file)
             row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, mimeType)
-            val name = file.getName()
+            val name = file.name
             row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, name)
             val documentId = sftp.getDocumentId(file)
             row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID, documentId)
@@ -539,9 +507,6 @@ open class SFTPProvider : DocumentsProvider() {
         sftp: SFTP, parent: File, displayName: String,
         documentIdP: Array<String?>? = null
     ): SftpFile {
-        checkNotNull(sftp)
-        checkNotNull(parent)
-        checkNotNull(displayName)
 
         val base: String?
         val extension: String?
@@ -555,9 +520,8 @@ open class SFTPProvider : DocumentsProvider() {
         }
         var cnt = 0
         while (true) {
-            val seq: String?
-            if (cnt == 0) seq = ""
-            else seq = "_" + cnt
+            val seq = if (cnt == 0) ""
+            else "_$cnt"
             val documentId = sftp.getDocumentId(
                 File(
                     parent,
@@ -569,7 +533,7 @@ open class SFTPProvider : DocumentsProvider() {
                 sftp.lastModified(file)
                 cnt++
                 continue
-            } catch (e: FileNotFoundException) {
+            } catch (_: FileNotFoundException) {
                 if (documentIdP != null) documentIdP[0] = documentId
                 return file
             }
@@ -582,10 +546,7 @@ open class SFTPProvider : DocumentsProvider() {
         vararg args: Any?
     ): FileNotFoundException {
         var msg = msg
-        checkNotNull(e)
-        checkNotNull(msg)
-        checkNotNull(args)
-        for (arg in args) msg += " " + arg
+        for (arg in args) msg += " $arg"
         Log.e(TAG, msg, e)
         val exception = FileNotFoundException(msg)
         exception.initCause(e)
@@ -593,7 +554,6 @@ open class SFTPProvider : DocumentsProvider() {
     }
 
     private fun remove(sftp: SFTP) {
-        checkNotNull(sftp)
         connections.remove(sftp)
         try {
             sftp.close()
@@ -616,7 +576,7 @@ open class SFTPProvider : DocumentsProvider() {
         // other than canceling StrictMode would involve
         // cheating by handing processing off to another
         // thread, but then waiting for that thread, blocking
-        // anyways
+        // anyway
         val gfgPolicy =
             ThreadPolicy.Builder()
                 .permitAll()
@@ -626,7 +586,7 @@ open class SFTPProvider : DocumentsProvider() {
 
     companion object {
         const val TAG: String = "SFTPProvider"
-        private val DEFAULT_ROOT_PROJECTION = arrayOf<String?>(
+        private val DEFAULT_ROOT_PROJECTION = arrayOf(
             DocumentsContract.Root.COLUMN_ROOT_ID,
             DocumentsContract.Root.COLUMN_FLAGS,
             DocumentsContract.Root.COLUMN_ICON,
@@ -634,7 +594,7 @@ open class SFTPProvider : DocumentsProvider() {
             DocumentsContract.Root.COLUMN_DOCUMENT_ID,
             DocumentsContract.Root.COLUMN_SUMMARY
         )
-        private val DEFAULT_DOCUMENT_PROJECTION = arrayOf<String?>(
+        private val DEFAULT_DOCUMENT_PROJECTION = arrayOf(
             DocumentsContract.Document.COLUMN_DOCUMENT_ID,
             DocumentsContract.Document.COLUMN_SIZE,
             DocumentsContract.Document.COLUMN_DISPLAY_NAME,
@@ -643,26 +603,21 @@ open class SFTPProvider : DocumentsProvider() {
             DocumentsContract.Document.COLUMN_FLAGS
         )
 
-        private fun resolveDocumentProjection(projection: Array<String?>?): Array<String?> {
-            if (projection == null) return DEFAULT_DOCUMENT_PROJECTION
-            else return projection
+        private fun resolveDocumentProjection(projection: Array<String>?): Array<String> {
+            return projection ?: DEFAULT_DOCUMENT_PROJECTION
         }
 
-        protected fun resolveRootProjection(projection: Array<String?>?): Array<String?> {
-            if (projection == null) return DEFAULT_ROOT_PROJECTION
-            else return projection
+        @JvmStatic
+        protected fun resolveRootProjection(projection: Array<String>?): Array<String> {
+            return projection ?: DEFAULT_ROOT_PROJECTION
         }
 
         @Throws(IOException::class)
-        private fun getAccountInfo(context: Context?, documentId: String?): Account {
-            Objects.requireNonNull<Context?>(context)
-            Objects.requireNonNull<String?>(documentId)
+        private fun getAccountInfo(context: Context?, documentId: String): Account {
             val dao = TheDatabase.getDao(context!!)
             val accountName = SFTP.documentIdToAccount(documentId!!)
-            val account: Account = dao.readAccountByName(accountName)!!
-            if (account == null) {
-                throw FileNotFoundException(documentId)
-            }
+            val account: Account =
+                dao.readAccountByName(accountName) ?: throw FileNotFoundException(documentId)
             return account
         }
     }

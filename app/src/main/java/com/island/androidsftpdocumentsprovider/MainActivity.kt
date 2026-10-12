@@ -44,7 +44,9 @@ import kotlinx.coroutines.launch
 
 class MainActivity : ProviderActivity()
 {
-    private val TAG="MainActivity"
+    companion object {
+        const val TAG="MainActivity"
+    }
 
     private val dao by lazy { TheDatabase.getDao(applicationContext) }
 
@@ -73,13 +75,13 @@ class MainActivity : ProviderActivity()
         fixButtonState()
     }
 
-    fun browseFiles(ignoredView:View)
+    fun browseFiles(ignoredView: View)
     {
         val intent = Intent(Intent.ACTION_VIEW,null)
-        for(packge in arrayOf("com.google.android.documentsui",
+        for(pkg in arrayOf("com.google.android.documentsui",
                               "com.android.documentsui")) {
             try {
-                intent.component = ComponentName(packge,
+                intent.component = ComponentName(pkg,
                                                  "com.android.documentsui.files.FilesActivity")
                 intent.data = ("content://"+getAuthority()+
                                    "/root").toUri()
@@ -94,19 +96,19 @@ class MainActivity : ProviderActivity()
         AlertDialog
             .Builder(this)
             .setMessage(R.string.no_documentsui)
-            .setPositiveButton(R.string.ok) { d, w -> d.dismiss() }
+            .setPositiveButton(R.string.ok) { d, _ -> d.dismiss() }
             .show()
     }
 
     fun addSftpAccount(ignoredView:View)
     {
-        val intent:Intent = Intent(this, AuthenticationActivity::class.java)
+        val intent = Intent(this, AuthenticationActivity::class.java)
         startActivity(intent)
     }
 
     fun editSftpAccount(ignoredView:View, account:AccountWithRemove)
     {
-        val intent:Intent = Intent(this, AuthenticationActivity::class.java)
+        val intent = Intent(this, AuthenticationActivity::class.java)
         intent.putExtra(AuthenticationActivity.ID_COL, account.id)
         startActivity(intent)
     }
@@ -117,8 +119,8 @@ class MainActivity : ProviderActivity()
             val builder: AlertDialog.Builder = AlertDialog.Builder(this)
             builder
                 .setMessage(R.string.keygen_confirm)
-                .setPositiveButton(R.string.yes) { d, w -> generateKey2() }
-                .setNegativeButton(R.string.no) { d, w  ->d.dismiss() }
+                .setPositiveButton(R.string.yes) { _, _ -> generateKey2() }
+                .setNegativeButton(R.string.no) { d, _  ->d.dismiss() }
                 .show()
         } else {
             generateKey2()
@@ -177,12 +179,10 @@ class MainActivity : ProviderActivity()
 
     inner class SFTPAdapter :RecyclerView.Adapter<SFTPAdapter.ViewHolder>()
     {
-        private val TAG="SFTPAdapter"
         private var accounts =dao.getAllAccountsWithRemove()
         inner class ViewHolder(view:View):RecyclerView.ViewHolder(view),
                                           View.OnClickListener
         {
-            private val TAG="SFTPAdapter.ViewHolder"
             val text:TextView = view.findViewById(R.id.text)
             val button:Button = view.findViewById(R.id.button)
             lateinit var account:AccountWithRemove
@@ -214,7 +214,6 @@ class MainActivity : ProviderActivity()
             holder.button.setOnClickListener()
             {
                 try {
-                    val oldName=account.name
                     dao.deleteAccount(account.id)
                     var flags=0
                     if(Build.VERSION.SDK_INT>=30)
