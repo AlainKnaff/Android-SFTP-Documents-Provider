@@ -11,7 +11,9 @@ import lu.knaff.alain.saf_sftp.R
  * Later versions will try to actually prompt the user
  */
 class InteractiveUserInfo(val activity: Activity) : com.jcraft.jsch.UserInfo {
-    val TAG = "InteractiveUserInfo"
+    companion object {
+        const val TAG = "InteractiveUserInfo"
+    }
 
     override fun getPassphrase() : String {
         throw UnsupportedOperationException()
@@ -35,10 +37,10 @@ class InteractiveUserInfo(val activity: Activity) : com.jcraft.jsch.UserInfo {
 	    AlertDialog
 	        .Builder(activity)
                 .setMessage(message)
-                .setPositiveButton(R.string.yes) { d, w -> d.dismiss()
+                .setPositiveButton(R.string.yes) { d, _ -> d.dismiss()
                                                            f.complete(true)
                 }
-                .setNegativeButton(R.string.no) { d, w -> d.dismiss()
+                .setNegativeButton(R.string.no) { d, _ -> d.dismiss()
                                                           f.complete(false)
                 }
                 .setCancelable(false)
@@ -53,7 +55,7 @@ class InteractiveUserInfo(val activity: Activity) : com.jcraft.jsch.UserInfo {
 	    AlertDialog
 	        .Builder(activity)
                 .setMessage(message)
-                .setPositiveButton(R.string.ok) { d, w -> d.dismiss()
+                .setPositiveButton(R.string.ok) { d, _ -> d.dismiss()
                                                            f.complete(true)
                 }
                 .setCancelable(false)
