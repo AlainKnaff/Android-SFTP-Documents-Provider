@@ -1,0 +1,3 @@
+- When checking if name is available for creation of new file or directory, check that directly on the server rather than using the cache. Also, on delete or rename, purge the entry from the cache
+- Newer versions of libraries
+- Migrated the last few remaining Java sources to Kotlin

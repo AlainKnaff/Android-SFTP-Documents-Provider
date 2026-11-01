@@ -23,8 +23,8 @@ android {
 	// of minor, and 2 digits of 3rd part. As major is still 0, and
 	// as no leading zeroes are represented, 200 is what we get for
 	// 0.2
-        versionCode = 228
-        versionName = "0.2.28"
+        versionCode = 229
+        versionName = "0.2.29"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ksp {
