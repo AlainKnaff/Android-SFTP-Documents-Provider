@@ -529,14 +529,13 @@ open class SFTPProvider : DocumentsProvider() {
                 )
             )
             val file = sftp.getFile(documentId)
-            try {
-                sftp.lastModified(file)
+            if(sftp.existsOnServer(file)) {
                 cnt++
                 continue
-            } catch (_: FileNotFoundException) {
-                if (documentIdP != null) documentIdP[0] = documentId
-                return file
             }
+            if (documentIdP != null)
+                documentIdP[0] = documentId
+            return file
         }
     }
 

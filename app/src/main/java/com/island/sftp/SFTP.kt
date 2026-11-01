@@ -24,6 +24,7 @@ import java.net.ProtocolException
 import java.net.SocketException
 import java.util.Objects
 import java.util.Vector
+import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -47,7 +48,7 @@ class SFTP @JvmOverloads constructor(
     private var channel: ChannelSftp? = null
     private var disconnected = false
 
-    private val files: MutableMap<String?, SftpFile?> = HashMap()
+    private val files: MutableMap<String?, SftpFile?> = ConcurrentHashMap()
 
     init {
         var startDirectory = account.directory
@@ -203,6 +204,32 @@ class SFTP @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Forget cached attributes of a path
+     * (after delete or rename), so later lookups ask the server again.
+     * No need to care about files deeper down, as to reach those, another
+     * directory listing would be required anyways
+     */
+    private fun evict(path: String)
+    {
+	files.remove(path);
+    }
+
+    /**
+     * Ask the server (bypassing cached attributes) whether a file exists.
+     * Refreshes the cached attributes if it does, clears them if it does not.
+     */
+    @Synchronized
+    fun existsOnServer(file: SftpFile) : Boolean {
+	try {
+	    listFile(file);
+	    return true;
+	} catch(e: FileNotFoundException) {
+	    file.invalidate();
+	    return false;
+	}
+    }
+
     @Synchronized
     @Throws(IOException::class)
     fun delete(file: SftpFile) {
@@ -213,6 +240,7 @@ class SFTP @JvmOverloads constructor(
                 for (child in listFiles(file)) delete(child)
                 channel!!.rmdir(file.path)
             } else channel!!.rm(file.path)
+            evict(file.path)
         } catch (e: JSchException) {
             throw getException(e)
         } catch (e: SftpException) {
@@ -262,6 +290,8 @@ class SFTP @JvmOverloads constructor(
         try {
             reconnectIfNeeded()
             channel!!.rename(oldPath.path, newPath.path)
+            evict(oldPath.path)
+            evict(newPath.path)
         } catch (e: JSchException) {
             throw getException(e)
         } catch (e: SftpException) {

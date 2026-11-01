@@ -69,6 +69,12 @@ class SftpFile : File {
         size = attributes.getSize()
     }
 
+    fun invalidate() {
+        sftpLastModified = -1
+        size = -1
+        isDirectory = null
+    }
+
     internal constructor(filename: String) : super(filename)
 
     companion object {
